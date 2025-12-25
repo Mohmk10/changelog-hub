@@ -1,0 +1,194 @@
+# GraphQL Schema v1.0.0
+# Baseline schema for testing breaking change detection
+
+"""
+E-commerce API for managing products, users, and orders.
+"""
+
+# Custom scalar types
+scalar DateTime
+scalar JSON
+
+# Enums
+enum UserRole {
+  ADMIN
+  USER
+  MODERATOR
+  GUEST
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ProductCategory {
+  ELECTRONICS
+  CLOTHING
+  BOOKS
+  HOME
+  SPORTS
+}
+
+# Interfaces
+interface Node {
+  id: ID!
+}
+
+interface Timestamped {
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+# Input types
+input CreateUserInput {
+  email: String!
+  name: String!
+  role: UserRole = USER
+  age: Int
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  role: UserRole
+}
+
+input ProductFilter {
+  category: ProductCategory
+  minPrice: Float
+  maxPrice: Float
+  inStock: Boolean
+}
+
+input CreateOrderInput {
+  userId: ID!
+  productIds: [ID!]!
+  shippingAddress: String!
+}
+
+input PaginationInput {
+  first: Int = 10
+  after: String
+}
+
+# Object types
+type User implements Node & Timestamped {
+  id: ID!
+  email: String!
+  name: String!
+  role: UserRole!
+  age: Int
+  orders: [Order!]!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type Product implements Node {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  category: ProductCategory!
+  inStock: Boolean!
+  quantity: Int!
+  reviews(first: Int = 5): [Review!]!
+}
+
+type Order implements Node & Timestamped {
+  id: ID!
+  user: User!
+  products: [Product!]!
+  status: OrderStatus!
+  total: Float!
+  shippingAddress: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type Review implements Node {
+  id: ID!
+  product: Product!
+  user: User!
+  rating: Int!
+  comment: String
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+# Union types
+union SearchResult = User | Product | Order
+
+# Query type
+type Query {
+  # User queries
+  user(id: ID!): User
+  users(pagination: PaginationInput): UserConnection!
+  me: User
+
+  # Product queries
+  product(id: ID!): Product
+  products(filter: ProductFilter, pagination: PaginationInput): ProductConnection!
+
+  # Order queries
+  order(id: ID!): Order
+  orders(userId: ID, status: OrderStatus): [Order!]!
+
+  # Search
+  search(query: String!, limit: Int = 10): [SearchResult!]!
+}
+
+# Mutation type
+type Mutation {
+  # User mutations
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User
+  deleteUser(id: ID!): Boolean!
+
+  # Product mutations
+  createProduct(name: String!, price: Float!, category: ProductCategory!): Product!
+  updateProduct(id: ID!, name: String, price: Float): Product
+  deleteProduct(id: ID!): Boolean!
+
+  # Order mutations
+  createOrder(input: CreateOrderInput!): Order!
+  updateOrderStatus(id: ID!, status: OrderStatus!): Order
+  cancelOrder(id: ID!): Order
+}
+
+# Subscription type
+type Subscription {
+  orderStatusChanged(orderId: ID!): Order!
+  newOrder(userId: ID): Order!
+  productPriceChanged(productId: ID!): Product!
+}

@@ -1,0 +1,234 @@
+package io.github.mohmk10.changeloghub.parser.graphql.comparator;
+
+import io.github.mohmk10.changeloghub.core.model.*;
+import io.github.mohmk10.changeloghub.parser.graphql.model.GraphQLArgument;
+import io.github.mohmk10.changeloghub.parser.graphql.model.GraphQLField;
+
+import java.util.*;
+
+/**
+ * Compares GraphQL fields and their arguments.
+ */
+public class GraphQLFieldComparator {
+
+    /**
+     * Compares two lists of fields.
+     */
+    public List<Change> compareFields(List<GraphQLField> oldFields, List<GraphQLField> newFields, String parentPath) {
+        List<Change> changes = new ArrayList<>();
+
+        Map<String, GraphQLField> oldFieldMap = toMap(oldFields);
+        Map<String, GraphQLField> newFieldMap = toMap(newFields);
+
+        // Check for removed fields (BREAKING)
+        for (String fieldName : oldFieldMap.keySet()) {
+            if (!newFieldMap.containsKey(fieldName)) {
+                changes.add(createChange(
+                        ChangeType.REMOVED,
+                        ChangeCategory.FIELD,
+                        Severity.BREAKING,
+                        parentPath + "." + fieldName,
+                        "Field '" + fieldName + "' removed",
+                        oldFieldMap.get(fieldName),
+                        null
+                ));
+            }
+        }
+
+        // Check for added fields (INFO)
+        for (String fieldName : newFieldMap.keySet()) {
+            if (!oldFieldMap.containsKey(fieldName)) {
+                changes.add(createChange(
+                        ChangeType.ADDED,
+                        ChangeCategory.FIELD,
+                        Severity.INFO,
+                        parentPath + "." + fieldName,
+                        "Field '" + fieldName + "' added",
+                        null,
+                        newFieldMap.get(fieldName)
+                ));
+            }
+        }
+
+        // Check for modified fields
+        for (String fieldName : oldFieldMap.keySet()) {
+            if (newFieldMap.containsKey(fieldName)) {
+                GraphQLField oldField = oldFieldMap.get(fieldName);
+                GraphQLField newField = newFieldMap.get(fieldName);
+                changes.addAll(compareField(oldField, newField, parentPath + "." + fieldName));
+            }
+        }
+
+        return changes;
+    }
+
+    /**
+     * Compares two individual fields.
+     */
+    public List<Change> compareField(GraphQLField oldField, GraphQLField newField, String path) {
+        List<Change> changes = new ArrayList<>();
+
+        // Check type change (BREAKING if incompatible)
+        if (!Objects.equals(oldField.getType(), newField.getType())) {
+            changes.add(createChange(
+                    ChangeType.MODIFIED,
+                    ChangeCategory.FIELD,
+                    Severity.BREAKING,
+                    path,
+                    "Field type changed from '" + oldField.getType() + "' to '" + newField.getType() + "'",
+                    oldField.getType(),
+                    newField.getType()
+            ));
+        }
+
+        // Check nullability change (DANGEROUS if nullable -> non-null)
+        if (!oldField.isRequired() && newField.isRequired()) {
+            changes.add(createChange(
+                    ChangeType.MODIFIED,
+                    ChangeCategory.FIELD,
+                    Severity.DANGEROUS,
+                    path,
+                    "Field changed from nullable to non-null",
+                    false,
+                    true
+            ));
+        }
+
+        // Check deprecation change (WARNING)
+        if (!oldField.isDeprecated() && newField.isDeprecated()) {
+            changes.add(createChange(
+                    ChangeType.MODIFIED,
+                    ChangeCategory.FIELD,
+                    Severity.WARNING,
+                    path,
+                    "Field marked as deprecated",
+                    false,
+                    true
+            ));
+        }
+
+        // Compare arguments
+        changes.addAll(compareArguments(oldField.getArguments(), newField.getArguments(), path));
+
+        return changes;
+    }
+
+    /**
+     * Compares two lists of arguments.
+     */
+    public List<Change> compareArguments(List<GraphQLArgument> oldArgs, List<GraphQLArgument> newArgs, String parentPath) {
+        List<Change> changes = new ArrayList<>();
+
+        Map<String, GraphQLArgument> oldArgMap = toArgMap(oldArgs);
+        Map<String, GraphQLArgument> newArgMap = toArgMap(newArgs);
+
+        // Check for removed arguments (DANGEROUS)
+        for (String argName : oldArgMap.keySet()) {
+            if (!newArgMap.containsKey(argName)) {
+                changes.add(createChange(
+                        ChangeType.REMOVED,
+                        ChangeCategory.PARAMETER,
+                        Severity.DANGEROUS,
+                        parentPath + "(" + argName + ")",
+                        "Argument '" + argName + "' removed",
+                        oldArgMap.get(argName),
+                        null
+                ));
+            }
+        }
+
+        // Check for added arguments
+        for (String argName : newArgMap.keySet()) {
+            GraphQLArgument newArg = newArgMap.get(argName);
+            if (!oldArgMap.containsKey(argName)) {
+                // BREAKING if required, INFO if optional
+                Severity severity = newArg.isRequired() && !newArg.hasDefaultValue()
+                        ? Severity.BREAKING : Severity.INFO;
+                changes.add(createChange(
+                        ChangeType.ADDED,
+                        ChangeCategory.PARAMETER,
+                        severity,
+                        parentPath + "(" + argName + ")",
+                        "Argument '" + argName + "' added" + (severity == Severity.BREAKING ? " (required)" : ""),
+                        null,
+                        newArg
+                ));
+            }
+        }
+
+        // Check for modified arguments
+        for (String argName : oldArgMap.keySet()) {
+            if (newArgMap.containsKey(argName)) {
+                GraphQLArgument oldArg = oldArgMap.get(argName);
+                GraphQLArgument newArg = newArgMap.get(argName);
+                changes.addAll(compareArgument(oldArg, newArg, parentPath + "(" + argName + ")"));
+            }
+        }
+
+        return changes;
+    }
+
+    /**
+     * Compares two individual arguments.
+     */
+    public List<Change> compareArgument(GraphQLArgument oldArg, GraphQLArgument newArg, String path) {
+        List<Change> changes = new ArrayList<>();
+
+        // Check type change (BREAKING)
+        if (!Objects.equals(oldArg.getType(), newArg.getType())) {
+            changes.add(createChange(
+                    ChangeType.MODIFIED,
+                    ChangeCategory.PARAMETER,
+                    Severity.BREAKING,
+                    path,
+                    "Argument type changed from '" + oldArg.getType() + "' to '" + newArg.getType() + "'",
+                    oldArg.getType(),
+                    newArg.getType()
+            ));
+        }
+
+        // Check default value change (DANGEROUS)
+        if (!Objects.equals(oldArg.getDefaultValue(), newArg.getDefaultValue())) {
+            changes.add(createChange(
+                    ChangeType.MODIFIED,
+                    ChangeCategory.PARAMETER,
+                    Severity.DANGEROUS,
+                    path,
+                    "Argument default value changed",
+                    oldArg.getDefaultValue(),
+                    newArg.getDefaultValue()
+            ));
+        }
+
+        return changes;
+    }
+
+    private Map<String, GraphQLField> toMap(List<GraphQLField> fields) {
+        Map<String, GraphQLField> map = new LinkedHashMap<>();
+        for (GraphQLField field : fields) {
+            map.put(field.getName(), field);
+        }
+        return map;
+    }
+
+    private Map<String, GraphQLArgument> toArgMap(List<GraphQLArgument> args) {
+        Map<String, GraphQLArgument> map = new LinkedHashMap<>();
+        for (GraphQLArgument arg : args) {
+            map.put(arg.getName(), arg);
+        }
+        return map;
+    }
+
+    private Change createChange(ChangeType type, ChangeCategory category, Severity severity,
+                                 String path, String description, Object oldValue, Object newValue) {
+        return Change.builder()
+                .type(type)
+                .category(category)
+                .severity(severity)
+                .path(path)
+                .description(description)
+                .oldValue(oldValue)
+                .newValue(newValue)
+                .build();
+    }
+}

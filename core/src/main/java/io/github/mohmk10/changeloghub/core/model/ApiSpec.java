@@ -75,6 +75,13 @@ public class ApiSpec {
         this.metadata = metadata != null ? new HashMap<>(metadata) : new HashMap<>();
     }
 
+    public void addMetadata(String key, Object value) {
+        if (this.metadata == null) {
+            this.metadata = new HashMap<>();
+        }
+        this.metadata.put(key, value);
+    }
+
     public LocalDateTime getParsedAt() {
         return parsedAt;
     }

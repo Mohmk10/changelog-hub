@@ -14,27 +14,32 @@ public class Endpoint {
     private HttpMethod method;
     private String operationId;
     private String summary;
+    private String description;
     private List<Parameter> parameters;
     private RequestBody requestBody;
     private List<Response> responses;
+    private List<String> tags;
     private boolean deprecated;
 
     public Endpoint() {
         this.parameters = new ArrayList<>();
         this.responses = new ArrayList<>();
+        this.tags = new ArrayList<>();
     }
 
     public Endpoint(String id, String path, HttpMethod method, String operationId, String summary,
-                    List<Parameter> parameters, RequestBody requestBody, List<Response> responses,
-                    boolean deprecated) {
+                    String description, List<Parameter> parameters, RequestBody requestBody,
+                    List<Response> responses, List<String> tags, boolean deprecated) {
         this.id = id;
         this.path = path;
         this.method = method;
         this.operationId = operationId;
         this.summary = summary;
+        this.description = description;
         this.parameters = parameters != null ? new ArrayList<>(parameters) : new ArrayList<>();
         this.requestBody = requestBody;
         this.responses = responses != null ? new ArrayList<>(responses) : new ArrayList<>();
+        this.tags = tags != null ? new ArrayList<>(tags) : new ArrayList<>();
         this.deprecated = deprecated;
     }
 
@@ -104,6 +109,14 @@ public class Endpoint {
         this.summary = summary;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public List<Parameter> getParameters() {
         return parameters;
     }
@@ -128,6 +141,25 @@ public class Endpoint {
         this.responses = responses != null ? new ArrayList<>(responses) : new ArrayList<>();
     }
 
+    public void addResponse(Response response) {
+        this.responses.add(response);
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags != null ? new ArrayList<>(tags) : new ArrayList<>();
+    }
+
+    public void addTag(String tag) {
+        if (this.tags == null) {
+            this.tags = new ArrayList<>();
+        }
+        this.tags.add(tag);
+    }
+
     public boolean isDeprecated() {
         return deprecated;
     }
@@ -147,14 +179,16 @@ public class Endpoint {
                 method == endpoint.method &&
                 Objects.equals(operationId, endpoint.operationId) &&
                 Objects.equals(summary, endpoint.summary) &&
+                Objects.equals(description, endpoint.description) &&
                 Objects.equals(parameters, endpoint.parameters) &&
                 Objects.equals(requestBody, endpoint.requestBody) &&
-                Objects.equals(responses, endpoint.responses);
+                Objects.equals(responses, endpoint.responses) &&
+                Objects.equals(tags, endpoint.tags);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, path, method, operationId, summary, parameters, requestBody, responses, deprecated);
+        return Objects.hash(id, path, method, operationId, summary, description, parameters, requestBody, responses, tags, deprecated);
     }
 
     @Override
@@ -165,9 +199,11 @@ public class Endpoint {
                 ", method=" + method +
                 ", operationId='" + operationId + '\'' +
                 ", summary='" + summary + '\'' +
+                ", description='" + description + '\'' +
                 ", parameters=" + parameters +
                 ", requestBody=" + requestBody +
                 ", responses=" + responses +
+                ", tags=" + tags +
                 ", deprecated=" + deprecated +
                 '}';
     }
@@ -178,9 +214,11 @@ public class Endpoint {
         private HttpMethod method;
         private String operationId;
         private String summary;
+        private String description;
         private List<Parameter> parameters = new ArrayList<>();
         private RequestBody requestBody;
         private List<Response> responses = new ArrayList<>();
+        private List<String> tags = new ArrayList<>();
         private boolean deprecated;
 
         public Builder id(String id) {
@@ -205,6 +243,11 @@ public class Endpoint {
 
         public Builder summary(String summary) {
             this.summary = summary;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
             return this;
         }
 
@@ -233,6 +276,16 @@ public class Endpoint {
             return this;
         }
 
+        public Builder tags(List<String> tags) {
+            this.tags = tags != null ? new ArrayList<>(tags) : new ArrayList<>();
+            return this;
+        }
+
+        public Builder addTag(String tag) {
+            this.tags.add(tag);
+            return this;
+        }
+
         public Builder deprecated(boolean deprecated) {
             this.deprecated = deprecated;
             return this;
@@ -242,7 +295,7 @@ public class Endpoint {
             if (id == null && method != null && path != null) {
                 id = generateId(method, path);
             }
-            return new Endpoint(id, path, method, operationId, summary, parameters, requestBody, responses, deprecated);
+            return new Endpoint(id, path, method, operationId, summary, description, parameters, requestBody, responses, tags, deprecated);
         }
     }
 }

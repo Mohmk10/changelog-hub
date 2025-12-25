@@ -6,5 +6,11 @@ public enum ChangeCategory {
     REQUEST_BODY,
     RESPONSE,
     SCHEMA,
-    SECURITY
+    SECURITY,
+    // GraphQL specific
+    TYPE,
+    FIELD,
+    ENUM_VALUE,
+    UNION_MEMBER,
+    INTERFACE
 }

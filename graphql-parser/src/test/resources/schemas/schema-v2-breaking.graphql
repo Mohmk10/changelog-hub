@@ -1,0 +1,210 @@
+# GraphQL Schema v2.0.0
+# Schema with BREAKING CHANGES for testing
+
+"""
+E-commerce API v2 with breaking changes.
+"""
+
+# Custom scalar types
+scalar DateTime
+scalar JSON
+
+# Enums - BREAKING: removed GUEST, removed ProductCategory enum
+enum UserRole {
+  ADMIN
+  USER
+  MODERATOR
+  # GUEST removed - BREAKING
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED  # Added - INFO
+}
+
+# ProductCategory REMOVED - BREAKING
+
+# New enum
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+  SERVICE
+}
+
+# Interfaces
+interface Node {
+  id: ID!
+}
+
+interface Timestamped {
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+# Input types - BREAKING: added required field
+input CreateUserInput {
+  email: String!
+  name: String!
+  role: UserRole = USER
+  age: Int
+  phone: String!  # Added required field - BREAKING
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  role: UserRole
+}
+
+# ProductFilter changed - BREAKING: category type changed
+input ProductFilter {
+  type: ProductType  # Changed from category: ProductCategory - BREAKING
+  minPrice: Float
+  maxPrice: Float
+  inStock: Boolean
+}
+
+input CreateOrderInput {
+  userId: ID!
+  productIds: [ID!]!
+  shippingAddress: String!
+  paymentMethod: String!  # Added required - BREAKING
+}
+
+input PaginationInput {
+  first: Int = 10
+  after: String
+}
+
+# Object types - BREAKING changes
+type User implements Node & Timestamped {
+  id: ID!
+  email: String!
+  # name field REMOVED - BREAKING
+  fullName: String!  # Replaced name - BREAKING
+  role: UserRole!
+  age: Int!  # Changed from optional to required - DANGEROUS
+  orders: [Order!]!
+  createdAt: DateTime!
+  updatedAt: DateTime
+  phone: String  # Added - INFO
+}
+
+type Product implements Node {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  # category removed - BREAKING
+  type: ProductType!  # New field
+  inStock: Boolean!
+  quantity: Int!
+  # reviews signature changed - BREAKING: added required arg
+  reviews(first: Int!, minRating: Int): [Review!]!
+}
+
+type Order implements Node & Timestamped {
+  id: ID!
+  user: User!
+  products: [Product!]!
+  status: OrderStatus!
+  total: Float!
+  shippingAddress: String!
+  paymentMethod: String!  # Added - INFO
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type Review implements Node {
+  id: ID!
+  product: Product!
+  user: User!
+  rating: Int!
+  comment: String
+  verified: Boolean!  # Added - INFO
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+# Union types - BREAKING: removed Order from union
+union SearchResult = User | Product  # Order removed - BREAKING
+
+# Query type - BREAKING changes
+type Query {
+  # User queries
+  user(id: ID!): User
+  users(pagination: PaginationInput): UserConnection!
+  # me REMOVED - BREAKING
+
+  # Product queries - BREAKING: added required argument
+  product(id: ID!, includeReviews: Boolean!): Product
+  products(filter: ProductFilter, pagination: PaginationInput): ProductConnection!
+
+  # Order queries - BREAKING: return type changed
+  order(id: ID!): Order
+  orders(userId: ID!, status: OrderStatus): [Order!]!  # userId now required - BREAKING
+
+  # Search - BREAKING: limit removed
+  search(query: String!): [SearchResult!]!
+}
+
+# Mutation type
+type Mutation {
+  # User mutations
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User
+  # deleteUser REMOVED - BREAKING
+
+  # Product mutations - signature changed
+  createProduct(name: String!, price: Float!, type: ProductType!): Product!  # category->type BREAKING
+  updateProduct(id: ID!, name: String, price: Float): Product
+  deleteProduct(id: ID!): Boolean!
+
+  # Order mutations
+  createOrder(input: CreateOrderInput!): Order!
+  updateOrderStatus(id: ID!, status: OrderStatus!): Order
+  # cancelOrder REMOVED - BREAKING
+
+  # New mutation
+  processRefund(orderId: ID!, reason: String!): Order!  # Added - INFO
+}
+
+# Subscription type - BREAKING changes
+type Subscription {
+  orderStatusChanged(orderId: ID!): Order!
+  # newOrder REMOVED - BREAKING
+  productPriceChanged(productId: ID!): Product!
+  # New subscription
+  orderCreated: Order!  # Added - INFO
+}

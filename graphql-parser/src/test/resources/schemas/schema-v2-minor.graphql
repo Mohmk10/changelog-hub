@@ -1,0 +1,269 @@
+# GraphQL Schema v1.1.0
+# Schema with MINOR/NON-BREAKING changes for testing
+
+"""
+E-commerce API v1.1 with backward-compatible changes.
+"""
+
+# Custom scalar types
+scalar DateTime
+scalar JSON
+scalar URL  # Added - INFO
+
+# Enums - Added new values
+enum UserRole {
+  ADMIN
+  USER
+  MODERATOR
+  GUEST
+  SUPPORT  # Added - INFO
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED  # Added - INFO
+}
+
+enum ProductCategory {
+  ELECTRONICS
+  CLOTHING
+  BOOKS
+  HOME
+  SPORTS
+  TOYS  # Added - INFO
+  GARDEN  # Added - INFO
+}
+
+# New enum
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+}
+
+# Interfaces
+interface Node {
+  id: ID!
+}
+
+interface Timestamped {
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+# New interface
+interface Auditable {
+  createdBy: User
+  updatedBy: User
+}
+
+# Input types - Added optional fields
+input CreateUserInput {
+  email: String!
+  name: String!
+  role: UserRole = USER
+  age: Int
+  phone: String  # Added optional - INFO
+  avatarUrl: URL  # Added optional - INFO
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  role: UserRole
+  phone: String  # Added - INFO
+}
+
+input ProductFilter {
+  category: ProductCategory
+  minPrice: Float
+  maxPrice: Float
+  inStock: Boolean
+  hasReviews: Boolean  # Added optional - INFO
+}
+
+input CreateOrderInput {
+  userId: ID!
+  productIds: [ID!]!
+  shippingAddress: String!
+  notes: String  # Added optional - INFO
+  paymentMethod: PaymentMethod = CREDIT_CARD  # Added with default - INFO
+}
+
+input PaginationInput {
+  first: Int = 10
+  after: String
+  last: Int  # Added - INFO
+  before: String  # Added - INFO
+}
+
+# Object types - Added fields, deprecations
+type User implements Node & Timestamped {
+  id: ID!
+  email: String!
+  name: String! @deprecated(reason: "Use fullName instead")  # Deprecated - WARNING
+  fullName: String  # Added - INFO
+  displayName: String  # Added - INFO
+  role: UserRole!
+  age: Int
+  orders: [Order!]!
+  createdAt: DateTime!
+  updatedAt: DateTime
+  phone: String  # Added - INFO
+  avatarUrl: URL  # Added - INFO
+  isActive: Boolean!  # Added - INFO
+}
+
+type Product implements Node {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  category: ProductCategory!
+  inStock: Boolean!
+  quantity: Int!
+  reviews(first: Int = 5): [Review!]!
+  averageRating: Float  # Added - INFO
+  reviewCount: Int  # Added - INFO
+  images: [String!]  # Added - INFO
+  sku: String  # Added - INFO
+}
+
+type Order implements Node & Timestamped {
+  id: ID!
+  user: User!
+  products: [Product!]!
+  status: OrderStatus!
+  total: Float!
+  shippingAddress: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
+  trackingNumber: String  # Added - INFO
+  estimatedDelivery: DateTime  # Added - INFO
+  notes: String  # Added - INFO
+}
+
+type Review implements Node {
+  id: ID!
+  product: Product!
+  user: User!
+  rating: Int!
+  comment: String
+  helpfulCount: Int  # Added - INFO
+  verified: Boolean  # Added - INFO
+  createdAt: DateTime  # Added - INFO
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalPages: Int  # Added - INFO
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+# New types
+type Address {
+  street: String!
+  city: String!
+  state: String
+  country: String!
+  postalCode: String!
+}
+
+type OrderSummary {
+  totalOrders: Int!
+  totalSpent: Float!
+  averageOrderValue: Float!
+}
+
+# Union types - Added new member
+union SearchResult = User | Product | Order | Review  # Review added - INFO
+
+# Query type - Added new queries
+type Query {
+  # User queries
+  user(id: ID!): User
+  users(pagination: PaginationInput): UserConnection!
+  me: User
+  userByEmail(email: String!): User  # Added - INFO
+
+  # Product queries
+  product(id: ID!): Product
+  products(filter: ProductFilter, pagination: PaginationInput): ProductConnection!
+  featuredProducts(limit: Int = 10): [Product!]!  # Added - INFO
+  productsByCategory(category: ProductCategory!): [Product!]!  # Added - INFO
+
+  # Order queries
+  order(id: ID!): Order
+  orders(userId: ID, status: OrderStatus): [Order!]!
+  orderSummary(userId: ID!): OrderSummary  # Added - INFO
+
+  # Search
+  search(query: String!, limit: Int = 10): [SearchResult!]!
+
+  # New queries
+  ping: String!  # Added - INFO
+  serverTime: DateTime!  # Added - INFO
+}
+
+# Mutation type - Added new mutations
+type Mutation {
+  # User mutations
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User
+  deleteUser(id: ID!): Boolean! @deprecated(reason: "Use deactivateUser instead")  # Deprecated - WARNING
+  deactivateUser(id: ID!): User  # Added - INFO
+
+  # Product mutations
+  createProduct(name: String!, price: Float!, category: ProductCategory!): Product!
+  updateProduct(id: ID!, name: String, price: Float): Product
+  deleteProduct(id: ID!): Boolean!
+  updateProductStock(id: ID!, quantity: Int!): Product  # Added - INFO
+
+  # Order mutations
+  createOrder(input: CreateOrderInput!): Order!
+  updateOrderStatus(id: ID!, status: OrderStatus!): Order
+  cancelOrder(id: ID!): Order
+  addTrackingNumber(orderId: ID!, trackingNumber: String!): Order  # Added - INFO
+
+  # Review mutations - Added
+  createReview(productId: ID!, rating: Int!, comment: String): Review!  # Added - INFO
+  markReviewHelpful(reviewId: ID!): Review  # Added - INFO
+}
+
+# Subscription type - Added new subscriptions
+type Subscription {
+  orderStatusChanged(orderId: ID!): Order!
+  newOrder(userId: ID): Order!
+  productPriceChanged(productId: ID!): Product!
+  newReview(productId: ID): Review!  # Added - INFO
+  userOnlineStatus(userId: ID!): Boolean!  # Added - INFO
+}
