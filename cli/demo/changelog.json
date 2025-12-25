@@ -1,0 +1,115 @@
+{
+  "apiName": "User API",
+  "fromVersion": "1.0.0",
+  "toVersion": "2.0.0",
+  "generatedAt": "2025-12-25T04:30:32.348407",
+  "summary": {
+    "totalChanges": 7,
+    "breakingChanges": 3,
+    "riskLevel": "CRITICAL",
+    "riskScore": 90,
+    "semverRecommendation": "MAJOR"
+  },
+  "breakingChanges": [
+    {
+      "id": "8081bcba-8475-4696-8f15-814d9fb9db63",
+      "type": "REMOVED",
+      "category": "ENDPOINT",
+      "severity": "BREAKING",
+      "path": "/users",
+      "description": "Endpoint removed: POST /users",
+      "impactScore": 100,
+      "migrationSuggestion": "Update all API consumers to stop using the removed endpoint. Consider using an alternative endpoint if available."
+    },
+    {
+      "id": "98e78e88-7653-4132-a824-88efa32cc763",
+      "type": "REMOVED",
+      "category": "ENDPOINT",
+      "severity": "BREAKING",
+      "path": "/users",
+      "description": "Endpoint removed: GET /users",
+      "impactScore": 100,
+      "migrationSuggestion": "Update all API consumers to stop using the removed endpoint. Consider using an alternative endpoint if available."
+    },
+    {
+      "id": "5c3eed08-a131-43ab-9dd6-ab5775d3df5c",
+      "type": "REMOVED",
+      "category": "ENDPOINT",
+      "severity": "BREAKING",
+      "path": "/users/{id}",
+      "description": "Endpoint removed: GET /users/{id}",
+      "impactScore": 100,
+      "migrationSuggestion": "Update all API consumers to stop using the removed endpoint. Consider using an alternative endpoint if available."
+    }
+  ],
+  "changes": [
+    {
+      "id": "20b77ceb-5415-43d4-a0d2-ecbbeeaf7e47",
+      "type": "ADDED",
+      "category": "ENDPOINT",
+      "severity": "INFO",
+      "path": "/api/users",
+      "description": "New endpoint added: POST /api/users"
+    },
+    {
+      "id": "a91f1ca1-3581-4ea5-9394-4011176c2cd7",
+      "type": "ADDED",
+      "category": "ENDPOINT",
+      "severity": "INFO",
+      "path": "/api/users/{userId}",
+      "description": "New endpoint added: GET /api/users/{userId}"
+    },
+    {
+      "id": "2799c019-fb63-4e59-9a5f-e58d6c29585b",
+      "type": "ADDED",
+      "category": "ENDPOINT",
+      "severity": "INFO",
+      "path": "/api/users",
+      "description": "New endpoint added: GET /api/users"
+    },
+    {
+      "id": "796ea38d-f3cd-45e4-87c7-a0b296effba6",
+      "type": "ADDED",
+      "category": "ENDPOINT",
+      "severity": "INFO",
+      "path": "/api/users/{userId}/profile",
+      "description": "New endpoint added: GET /api/users/{userId}/profile"
+    },
+    {
+      "id": "8081bcba-8475-4696-8f15-814d9fb9db63",
+      "type": "REMOVED",
+      "category": "ENDPOINT",
+      "severity": "BREAKING",
+      "path": "/users",
+      "description": "Endpoint removed: POST /users"
+    },
+    {
+      "id": "98e78e88-7653-4132-a824-88efa32cc763",
+      "type": "REMOVED",
+      "category": "ENDPOINT",
+      "severity": "BREAKING",
+      "path": "/users",
+      "description": "Endpoint removed: GET /users"
+    },
+    {
+      "id": "5c3eed08-a131-43ab-9dd6-ab5775d3df5c",
+      "type": "REMOVED",
+      "category": "ENDPOINT",
+      "severity": "BREAKING",
+      "path": "/users/{id}",
+      "description": "Endpoint removed: GET /users/{id}"
+    }
+  ],
+  "riskAssessment": {
+    "overallScore": 90,
+    "level": "CRITICAL",
+    "breakingChangesCount": 3,
+    "totalChangesCount": 7,
+    "semverRecommendation": "MAJOR",
+    "recommendation": "Critical changes detected. Major version bump required. 3 breaking change(s) out of 7 total.",
+    "changesBySeverity": {
+      "INFO": 4,
+      "BREAKING": 3
+    }
+  }
+}
