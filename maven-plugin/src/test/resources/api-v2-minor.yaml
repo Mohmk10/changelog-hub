@@ -1,0 +1,80 @@
+openapi: "3.0.3"
+info:
+  title: Pet Store API
+  version: "1.1.0"
+  description: A sample Pet Store API - Minor changes version
+
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      summary: List all pets
+      deprecated: true
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: A list of pets
+    post:
+      operationId: createPet
+      summary: Create a new pet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
+      responses:
+        "201":
+          description: Pet created
+
+  /pets/{petId}:
+    get:
+      operationId: getPetById
+      summary: Get a pet by ID
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A pet
+
+  /pets/search:
+    get:
+      operationId: searchPets
+      summary: Search for pets
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
