@@ -1,0 +1,238 @@
+asyncapi: '2.6.0'
+info:
+  title: User Events API
+  version: '1.1.0'
+  description: API for user-related events in the system (v1.1 with minor changes)
+  contact:
+    name: API Support Team
+    email: api-support@example.com
+    url: https://example.com/api-support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  production:
+    url: kafka.prod.example.com:9092
+    protocol: kafka
+    protocolVersion: '2.8'
+    description: Production Kafka broker
+  staging:
+    url: kafka.staging.example.com:9092
+    protocol: kafka
+    description: Staging Kafka broker
+  # INFO: New server added
+  development:
+    url: localhost:9092
+    protocol: kafka
+    description: Local development Kafka broker
+
+channels:
+  user/created:
+    description: Channel for user creation events
+    publish:
+      operationId: publishUserCreated
+      summary: Publish user created event
+      message:
+        $ref: '#/components/messages/UserCreated'
+    subscribe:
+      operationId: subscribeUserCreated
+      summary: Subscribe to user created events
+      message:
+        $ref: '#/components/messages/UserCreated'
+
+  user/updated:
+    description: Channel for user update events
+    publish:
+      operationId: publishUserUpdated
+      summary: Publish user updated event
+      message:
+        $ref: '#/components/messages/UserUpdated'
+
+  user/{userId}/notifications:
+    description: User-specific notification channel
+    parameters:
+      userId:
+        description: The unique user identifier
+        schema:
+          type: string
+          format: uuid
+    subscribe:
+      operationId: subscribeUserNotifications
+      summary: Subscribe to user notifications
+      message:
+        $ref: '#/components/messages/Notification'
+
+  # INFO: New channel added
+  user/deleted:
+    description: Channel for user deletion events
+    publish:
+      operationId: publishUserDeleted
+      summary: Publish user deleted event
+      message:
+        $ref: '#/components/messages/UserDeleted'
+
+components:
+  messages:
+    UserCreated:
+      name: UserCreated
+      title: User Created Event
+      summary: Event emitted when a new user is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserCreatedPayload'
+      headers:
+        $ref: '#/components/schemas/EventHeaders'
+
+    UserUpdated:
+      name: UserUpdated
+      title: User Updated Event
+      summary: Event emitted when a user is updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserUpdatedPayload'
+
+    Notification:
+      name: Notification
+      title: User Notification
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/NotificationPayload'
+
+    # INFO: New message added
+    UserDeleted:
+      name: UserDeleted
+      title: User Deleted Event
+      summary: Event emitted when a user is deleted
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserDeletedPayload'
+
+  schemas:
+    UserCreatedPayload:
+      type: object
+      required:
+        - userId
+        - email
+        - createdAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique user identifier
+        email:
+          type: string
+          format: email
+          description: User email address
+        username:
+          type: string
+          description: Optional username
+        # INFO: New optional field
+        displayName:
+          type: string
+          description: User display name
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp of creation
+        # INFO: New optional field
+        locale:
+          type: string
+          description: User locale preference
+          default: en-US
+
+    UserUpdatedPayload:
+      type: object
+      required:
+        - userId
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        updatedFields:
+          type: array
+          items:
+            type: string
+        updatedAt:
+          type: string
+          format: date-time
+        # INFO: New optional field
+        updatedBy:
+          type: string
+          description: ID of user or system that made the update
+
+    NotificationPayload:
+      type: object
+      required:
+        - notificationId
+        - type
+        - message
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - info
+            - warning
+            - error
+            # INFO: New enum value
+            - success
+        message:
+          type: string
+        read:
+          type: boolean
+          default: false
+        # INFO: New optional field
+        actionUrl:
+          type: string
+          format: uri
+          description: Optional action URL
+
+    # INFO: New schema
+    UserDeletedPayload:
+      type: object
+      required:
+        - userId
+        - deletedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        deletedAt:
+          type: string
+          format: date-time
+        deletedBy:
+          type: string
+        reason:
+          type: string
+
+    EventHeaders:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        correlationId:
+          type: string
+        # INFO: New optional header
+        traceId:
+          type: string
+          description: Distributed tracing ID
+
+tags:
+  - name: user
+    description: User-related events
+  - name: notification
+    description: Notification events
+  # INFO: New tag
+  - name: lifecycle
+    description: User lifecycle events
