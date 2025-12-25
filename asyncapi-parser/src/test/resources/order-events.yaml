@@ -1,0 +1,339 @@
+asyncapi: '2.6.0'
+info:
+  title: Order Events API
+  version: '1.0.0'
+  description: Event-driven API for order management system
+  termsOfService: https://example.com/terms
+  contact:
+    name: Order Team
+    email: orders@example.com
+  license:
+    name: MIT
+
+servers:
+  production:
+    url: amqp://rabbitmq.prod.example.com:5672
+    protocol: amqp
+    protocolVersion: '0.9.1'
+    description: Production RabbitMQ broker
+    bindings:
+      amqp:
+        exchange: orders
+        queue: order-events
+  staging:
+    url: amqp://rabbitmq.staging.example.com:5672
+    protocol: amqp
+    description: Staging RabbitMQ broker
+
+channels:
+  orders/placed:
+    description: Events for newly placed orders
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: orders
+          type: topic
+    publish:
+      operationId: publishOrderPlaced
+      summary: Publish order placed event
+      tags:
+        - name: order
+        - name: lifecycle
+      message:
+        $ref: '#/components/messages/OrderPlaced'
+
+  orders/confirmed:
+    description: Events for confirmed orders
+    publish:
+      operationId: publishOrderConfirmed
+      message:
+        $ref: '#/components/messages/OrderConfirmed'
+
+  orders/shipped:
+    description: Events for shipped orders
+    publish:
+      operationId: publishOrderShipped
+      message:
+        $ref: '#/components/messages/OrderShipped'
+
+  orders/delivered:
+    description: Events for delivered orders
+    publish:
+      operationId: publishOrderDelivered
+      message:
+        $ref: '#/components/messages/OrderDelivered'
+
+  orders/cancelled:
+    description: Events for cancelled orders
+    publish:
+      operationId: publishOrderCancelled
+      message:
+        $ref: '#/components/messages/OrderCancelled'
+
+  orders/{orderId}/status:
+    description: Order status updates
+    parameters:
+      orderId:
+        description: Order identifier
+        schema:
+          type: string
+          pattern: '^ORD-[0-9]{10}$'
+    subscribe:
+      operationId: subscribeOrderStatus
+      message:
+        oneOf:
+          - $ref: '#/components/messages/OrderPlaced'
+          - $ref: '#/components/messages/OrderConfirmed'
+          - $ref: '#/components/messages/OrderShipped'
+          - $ref: '#/components/messages/OrderDelivered'
+          - $ref: '#/components/messages/OrderCancelled'
+
+components:
+  messages:
+    OrderPlaced:
+      name: OrderPlaced
+      title: Order Placed Event
+      summary: Emitted when a new order is placed
+      contentType: application/json
+      correlationId:
+        location: $message.header#/correlationId
+      payload:
+        $ref: '#/components/schemas/OrderPlacedPayload'
+      headers:
+        $ref: '#/components/schemas/OrderEventHeaders'
+
+    OrderConfirmed:
+      name: OrderConfirmed
+      title: Order Confirmed Event
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderConfirmedPayload'
+      headers:
+        $ref: '#/components/schemas/OrderEventHeaders'
+
+    OrderShipped:
+      name: OrderShipped
+      title: Order Shipped Event
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderShippedPayload'
+      headers:
+        $ref: '#/components/schemas/OrderEventHeaders'
+
+    OrderDelivered:
+      name: OrderDelivered
+      title: Order Delivered Event
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderDeliveredPayload'
+      headers:
+        $ref: '#/components/schemas/OrderEventHeaders'
+
+    OrderCancelled:
+      name: OrderCancelled
+      title: Order Cancelled Event
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderCancelledPayload'
+      headers:
+        $ref: '#/components/schemas/OrderEventHeaders'
+
+  schemas:
+    OrderPlacedPayload:
+      type: object
+      required:
+        - orderId
+        - customerId
+        - items
+        - totalAmount
+        - placedAt
+      properties:
+        orderId:
+          type: string
+          pattern: '^ORD-[0-9]{10}$'
+        customerId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        totalAmount:
+          $ref: '#/components/schemas/Money'
+        currency:
+          type: string
+          enum:
+            - USD
+            - EUR
+            - GBP
+          default: USD
+        placedAt:
+          type: string
+          format: date-time
+        shippingAddress:
+          $ref: '#/components/schemas/Address'
+
+    OrderConfirmedPayload:
+      type: object
+      required:
+        - orderId
+        - confirmedAt
+      properties:
+        orderId:
+          type: string
+        confirmedAt:
+          type: string
+          format: date-time
+        estimatedDelivery:
+          type: string
+          format: date
+
+    OrderShippedPayload:
+      type: object
+      required:
+        - orderId
+        - trackingNumber
+        - carrier
+        - shippedAt
+      properties:
+        orderId:
+          type: string
+        trackingNumber:
+          type: string
+        carrier:
+          type: string
+          enum:
+            - UPS
+            - FEDEX
+            - DHL
+            - USPS
+        shippedAt:
+          type: string
+          format: date-time
+        estimatedDelivery:
+          type: string
+          format: date
+
+    OrderDeliveredPayload:
+      type: object
+      required:
+        - orderId
+        - deliveredAt
+      properties:
+        orderId:
+          type: string
+        deliveredAt:
+          type: string
+          format: date-time
+        signedBy:
+          type: string
+
+    OrderCancelledPayload:
+      type: object
+      required:
+        - orderId
+        - cancelledAt
+        - reason
+      properties:
+        orderId:
+          type: string
+        cancelledAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          enum:
+            - customer_request
+            - payment_failed
+            - out_of_stock
+            - fraud_detected
+        refundAmount:
+          $ref: '#/components/schemas/Money'
+
+    OrderItem:
+      type: object
+      required:
+        - productId
+        - quantity
+        - unitPrice
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unitPrice:
+          $ref: '#/components/schemas/Money'
+
+    Money:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+          minLength: 2
+          maxLength: 2
+
+    OrderEventHeaders:
+      type: object
+      required:
+        - eventId
+        - eventType
+        - timestamp
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        correlationId:
+          type: string
+        causationId:
+          type: string
+        version:
+          type: integer
+          default: 1
+
+tags:
+  - name: order
+    description: Order events
+  - name: lifecycle
+    description: Order lifecycle events
+  - name: shipping
+    description: Shipping-related events
+
+externalDocs:
+  description: Order Events Documentation
+  url: https://docs.example.com/orders/events

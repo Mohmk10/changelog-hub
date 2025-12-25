@@ -19,5 +19,13 @@ public enum ChangeCategory {
     MESSAGE,
     FIELD_NUMBER,
     STREAMING_TYPE,
-    PACKAGE
+    PACKAGE,
+    // AsyncAPI/Event-Driven specific
+    CHANNEL,
+    SERVER,
+    OPERATION,
+    MESSAGE_PAYLOAD,
+    MESSAGE_HEADERS,
+    BINDING,
+    PROTOCOL
 }
