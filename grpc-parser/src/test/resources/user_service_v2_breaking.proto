@@ -1,0 +1,198 @@
+syntax = "proto3";
+
+// BREAKING: Package changed from com.example.user.v1 to com.example.user.v2
+package com.example.user.v2;
+
+option java_package = "com.example.user.v2";
+option java_outer_classname = "UserServiceProto";
+option java_multiple_files = true;
+
+// User status enumeration - BREAKING: removed USER_STATUS_SUSPENDED
+enum UserStatus {
+    USER_STATUS_UNSPECIFIED = 0;
+    USER_STATUS_ACTIVE = 1;
+    USER_STATUS_INACTIVE = 2;
+    // USER_STATUS_SUSPENDED = 3; // REMOVED - BREAKING CHANGE
+    USER_STATUS_BANNED = 4;  // Added new value
+}
+
+// Role enumeration - BREAKING: changed ROLE_MODERATOR number
+enum Role {
+    ROLE_UNSPECIFIED = 0;
+    ROLE_USER = 1;
+    ROLE_ADMIN = 2;
+    // BREAKING: ROLE_MODERATOR changed from 3 to 5
+    ROLE_MODERATOR = 5;
+    ROLE_SUPER_ADMIN = 4;  // Added
+}
+
+// Address message - modified structure
+message Address {
+    string street = 1;
+    string city = 2;
+    // BREAKING: 'state' field removed
+    // string state = 3;
+    string zip_code = 4;
+    string country = 5;
+    // BREAKING: field number 3 reused for different type
+    int32 region_code = 3;
+}
+
+// User message - multiple breaking changes
+message User {
+    string id = 1;
+    string email = 2;
+    string username = 3;
+    // BREAKING: first_name type changed from string to bytes
+    bytes first_name = 4;
+    string last_name = 5;
+    // BREAKING: age field removed
+    // int32 age = 6;
+    UserStatus status = 7;
+    repeated Role roles = 8;
+    Address address = 9;
+    map<string, string> metadata = 10;
+    int64 created_at = 11;
+    int64 updated_at = 12;
+    // BREAKING: field number 6 reused for different field
+    string birth_date = 6;
+    // Added new fields
+    string phone_number = 13;
+    bool email_verified = 14;
+}
+
+// Request message for getting a user
+message GetUserRequest {
+    string user_id = 1;
+    bool include_metadata = 2;
+    // Added optional field (not breaking)
+    bool include_deleted = 3;
+}
+
+// Response message for getting a user
+message GetUserResponse {
+    User user = 1;
+    // Added optional field
+    string cache_key = 2;
+}
+
+// BREAKING: CreateUserRequest message removed
+// message CreateUserRequest { ... }
+
+// New message replacing CreateUserRequest
+message NewUserRequest {
+    string email = 1;
+    string username = 2;
+    string display_name = 3;  // Combined first/last name
+    string birth_date = 4;
+    Address address = 5;
+}
+
+// Response message for creating a user - input type will change
+message CreateUserResponse {
+    User user = 1;
+    bool success = 2;
+    // Added error details
+    string error_code = 3;
+}
+
+// Request message for updating a user
+message UpdateUserRequest {
+    string user_id = 1;
+    string email = 2;
+    // BREAKING: changed from optional fields to required wrapper
+    string display_name = 3;
+    string birth_date = 4;
+    Address address = 5;
+}
+
+// Response message for updating a user
+message UpdateUserResponse {
+    User user = 1;
+    bool success = 2;
+}
+
+// DeleteUserRequest - field number changed
+message DeleteUserRequest {
+    // BREAKING: user_id field number changed from 1 to 2
+    string user_id = 2;
+    // Added new required field at position 1
+    string reason = 1;
+}
+
+// Response message for deleting a user
+message DeleteUserResponse {
+    bool success = 1;
+    string message = 2;
+    // Added
+    int64 deleted_at = 3;
+}
+
+// Request message for listing users
+message ListUsersRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+    UserStatus filter_status = 3;
+    // Added filters
+    repeated Role filter_roles = 4;
+}
+
+// Response message for listing users
+message ListUsersResponse {
+    repeated User users = 1;
+    string next_page_token = 2;
+    int32 total_count = 3;
+}
+
+// WatchUsersRequest - changed to repeated message type
+message WatchUsersRequest {
+    // BREAKING: changed from repeated string to single message
+    UserFilter filter = 1;
+}
+
+message UserFilter {
+    repeated string user_ids = 1;
+    UserStatus status = 2;
+}
+
+// Response message for streaming user updates
+message WatchUsersResponse {
+    User user = 1;
+    string event_type = 2;
+    int64 timestamp = 3;
+}
+
+// User service definition - multiple breaking changes
+service UserService {
+    // GetUser unchanged
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+    // BREAKING: CreateUser input type changed
+    rpc CreateUser(NewUserRequest) returns (CreateUserResponse);
+
+    // UpdateUser unchanged
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+
+    // BREAKING: DeleteUser marked as deprecated
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+        option deprecated = true;
+    }
+
+    // ListUsers unchanged
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+
+    // BREAKING: WatchUsers changed from server streaming to bidirectional
+    rpc WatchUsers(stream WatchUsersRequest) returns (stream WatchUsersResponse);
+
+    // BREAKING: GetUserByEmail method removed
+    // rpc GetUserByEmail(...) was here
+}
+
+// BREAKING: BulkUserService removed entirely
+// service BulkUserService { ... }
+
+// New service added
+service AdminService {
+    rpc BanUser(DeleteUserRequest) returns (DeleteUserResponse);
+    rpc UnbanUser(GetUserRequest) returns (GetUserResponse);
+}

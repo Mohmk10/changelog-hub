@@ -12,5 +12,12 @@ public enum ChangeCategory {
     FIELD,
     ENUM_VALUE,
     UNION_MEMBER,
-    INTERFACE
+    INTERFACE,
+    // gRPC/Protocol Buffers specific
+    SERVICE,
+    RPC_METHOD,
+    MESSAGE,
+    FIELD_NUMBER,
+    STREAMING_TYPE,
+    PACKAGE
 }

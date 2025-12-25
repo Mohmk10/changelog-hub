@@ -4,5 +4,6 @@ public enum ParameterLocation {
     PATH,
     QUERY,
     HEADER,
-    COOKIE
+    COOKIE,
+    BODY
 }
