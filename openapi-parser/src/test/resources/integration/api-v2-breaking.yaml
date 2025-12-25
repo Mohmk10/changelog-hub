@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: User API
+  version: 2.0.0
+paths:
+  /api/users:
+    get:
+      operationId: getUsers
+      summary: List all users
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          required: true
+        - name: page
+          in: query
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: List of users
+    post:
+      operationId: createUser
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                age:
+                  type: integer
+              required:
+                - name
+                - email
+                - age
+      responses:
+        '201':
+          description: User created
+  /api/users/{userId}:
+    get:
+      operationId: getUserById
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found
+  /api/users/{userId}/profile:
+    get:
+      operationId: getUserProfile
+      summary: Get user profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User profile
