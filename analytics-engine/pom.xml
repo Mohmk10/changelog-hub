@@ -7,26 +7,50 @@
     <parent>
         <groupId>io.github.mohmk10</groupId>
         <artifactId>changelog-hub</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>analytics-engine</artifactId>
+    <groupId>io.github.mohmk10</groupId>
+    <artifactId>changelog-hub-analytics-engine</artifactId>
+    <version>1.0.0</version>
     <name>Changelog Hub - Analytics Engine</name>
-    <description>Analytics engine for API change metrics, stability scores, and evolution reports</description>
+    <description>Changelog Hub Analytics Engine - Metrics calculation, stability scoring, and evolution reports</description>
+    <url>https://github.com/Mohmk10/changelog-hub</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>mohmk10</id>
+            <name>Mohamed Makan</name>
+            <email>kouyatemakan100@gmail.com</email>
+            <url>https://github.com/Mohmk10</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Mohmk10/changelog-hub.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Mohmk10/changelog-hub.git</developerConnection>
+        <url>https://github.com/Mohmk10/changelog-hub</url>
+    </scm>
 
     <properties>
         <jackson.version>2.16.1</jackson.version>
     </properties>
 
     <dependencies>
-        
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>changelog-hub-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -39,43 +63,40 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>2.0.9</version>
         </dependency>
 
-        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.25.1</version>
+            <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.8.0</version>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.8.0</version>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
 
-        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

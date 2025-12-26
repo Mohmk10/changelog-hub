@@ -1,23 +1,42 @@
 <idea-plugin>
     <id>io.github.mohmk10.changelog-hub</id>
     <name>Changelog Hub</name>
+    <version>1.0.0</version>
     <vendor email="kouyatemakan100@gmail.com" url="https://github.com/Mohmk10/changelog-hub">
-        Mohmk10
+        Mohamed Makan
     </vendor>
 
     <description><![CDATA[
-        API Breaking Change Detector with automatic changelog generation.
+        API Breaking Change Detector - Detects breaking changes in REST, GraphQL, gRPC, AsyncAPI and Spring Boot APIs.
         <br><br>
+        <b>Multi-protocol support:</b>
+        <ul>
+            <li>OpenAPI/Swagger specification parser</li>
+            <li>GraphQL schema parser</li>
+            <li>gRPC/Protocol Buffers parser</li>
+            <li>AsyncAPI specification parser</li>
+            <li>Spring Boot annotations parser</li>
+        </ul>
+        <br>
         <b>Features:</b>
         <ul>
-            <li>Detect breaking changes between API versions</li>
+            <li>50+ breaking change detection rules</li>
+            <li>Risk scoring and stability grades</li>
             <li>Compare with Git branches, tags, or commits</li>
-            <li>Support for OpenAPI, GraphQL, gRPC, and AsyncAPI</li>
             <li>Generate changelogs in multiple formats</li>
             <li>Inline warnings for deprecated endpoints</li>
-            <li>Risk assessment and version recommendations</li>
         </ul>
     ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>1.0.0</h3>
+        <ul>
+            <li>Initial release</li>
+            <li>Multi-protocol API breaking change detection</li>
+            <li>Git integration for comparing API versions</li>
+            <li>Risk assessment and stability scoring</li>
+        </ul>
+    ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>

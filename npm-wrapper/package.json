@@ -1,7 +1,7 @@
 {
   "name": "@mohmk10/changelog-hub",
   "version": "1.0.0",
-  "description": "API breaking change detector with automatic changelog generation",
+  "description": "API Breaking Change Detector - Detects breaking changes in REST, GraphQL, gRPC, AsyncAPI and Spring Boot APIs",
   "main": "dist/cli.js",
   "types": "dist/types/index.d.ts",
   "bin": {
@@ -30,8 +30,8 @@
     "semver",
     "versioning"
   ],
-  "author": "Mohmk10",
-  "license": "MIT",
+  "author": "Mohamed Makan <kouyatemakan100@gmail.com>",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Mohmk10/changelog-hub.git"
