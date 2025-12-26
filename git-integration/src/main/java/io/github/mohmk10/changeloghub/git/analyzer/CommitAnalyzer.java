@@ -27,9 +27,6 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Analyzes Git commits.
- */
 public class CommitAnalyzer {
 
     private static final Logger logger = LoggerFactory.getLogger(CommitAnalyzer.class);
@@ -46,13 +43,6 @@ public class CommitAnalyzer {
         this.config = config;
     }
 
-    /**
-     * Get commits between two references.
-     *
-     * @param fromRef the starting reference (exclusive)
-     * @param toRef the ending reference (inclusive)
-     * @return list of commits
-     */
     public List<GitCommit> getCommitsBetween(String fromRef, String toRef) {
         List<GitCommit> commits = new ArrayList<>();
 
@@ -85,9 +75,6 @@ public class CommitAnalyzer {
         return commits;
     }
 
-    /**
-     * Get a single commit by reference.
-     */
     public Optional<GitCommit> getCommit(String ref) {
         try {
             ObjectId objectId = resolveRef(ref);
@@ -105,16 +92,10 @@ public class CommitAnalyzer {
         }
     }
 
-    /**
-     * Get recent commits.
-     */
     public List<GitCommit> getRecentCommits(int count) {
         return getRecentCommits("HEAD", count);
     }
 
-    /**
-     * Get recent commits from a specific reference.
-     */
     public List<GitCommit> getRecentCommits(String ref, int count) {
         List<GitCommit> commits = new ArrayList<>();
 
@@ -139,9 +120,6 @@ public class CommitAnalyzer {
         return commits;
     }
 
-    /**
-     * Get files changed in a commit.
-     */
     public List<String> getChangedFiles(String ref) {
         List<String> files = new ArrayList<>();
 
@@ -177,9 +155,6 @@ public class CommitAnalyzer {
         return files;
     }
 
-    /**
-     * Filter commits by conventional commit type.
-     */
     public List<GitCommit> filterByType(List<GitCommit> commits, String type) {
         return commits.stream()
             .filter(c -> {
@@ -189,36 +164,24 @@ public class CommitAnalyzer {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get all feature commits.
-     */
     public List<GitCommit> getFeatureCommits(List<GitCommit> commits) {
         return commits.stream()
             .filter(c -> ConventionalCommitParser.isFeature(c.getMessage()))
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get all fix commits.
-     */
     public List<GitCommit> getFixCommits(List<GitCommit> commits) {
         return commits.stream()
             .filter(c -> ConventionalCommitParser.isFix(c.getMessage()))
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get all breaking change commits.
-     */
     public List<GitCommit> getBreakingChangeCommits(List<GitCommit> commits) {
         return commits.stream()
             .filter(c -> ConventionalCommitParser.isBreakingChange(c.getMessage()))
             .collect(Collectors.toList());
     }
 
-    /**
-     * Group commits by type.
-     */
     public Map<String, List<GitCommit>> groupByType(List<GitCommit> commits) {
         Map<String, List<GitCommit>> grouped = new LinkedHashMap<>();
 
@@ -231,9 +194,6 @@ public class CommitAnalyzer {
         return grouped;
     }
 
-    /**
-     * Group commits by author.
-     */
     public Map<String, List<GitCommit>> groupByAuthor(List<GitCommit> commits) {
         return commits.stream()
             .collect(Collectors.groupingBy(
@@ -243,9 +203,6 @@ public class CommitAnalyzer {
             ));
     }
 
-    /**
-     * Get commit statistics.
-     */
     public CommitStats getStats(List<GitCommit> commits) {
         Map<String, Integer> typeCount = new LinkedHashMap<>();
         Map<String, Integer> authorCount = new LinkedHashMap<>();
@@ -253,20 +210,17 @@ public class CommitAnalyzer {
         int mergeCount = 0;
 
         for (GitCommit commit : commits) {
-            // Count by type
+            
             ConventionalCommit cc = ConventionalCommitParser.parse(commit.getMessage());
             String type = cc != null ? cc.getType() : "other";
             typeCount.merge(type, 1, Integer::sum);
 
-            // Count by author
             authorCount.merge(commit.getAuthor(), 1, Integer::sum);
 
-            // Count breaking changes
             if (cc != null && cc.isBreaking()) {
                 breakingCount++;
             }
 
-            // Count merge commits
             if (commit.isMergeCommit()) {
                 mergeCount++;
             }
@@ -274,10 +228,6 @@ public class CommitAnalyzer {
 
         return new CommitStats(commits.size(), typeCount, authorCount, breakingCount, mergeCount);
     }
-
-    // ============================================================
-    // Helper Methods
-    // ============================================================
 
     private ObjectId resolveRef(String ref) throws IOException {
         ObjectId objectId = repository.resolve(ref);
@@ -331,13 +281,6 @@ public class CommitAnalyzer {
         return treeParser;
     }
 
-    // ============================================================
-    // Nested Types
-    // ============================================================
-
-    /**
-     * Commit statistics.
-     */
     public static class CommitStats {
         private final int totalCommits;
         private final Map<String, Integer> commitsByType;

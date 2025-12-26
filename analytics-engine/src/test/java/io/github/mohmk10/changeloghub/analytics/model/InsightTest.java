@@ -41,7 +41,7 @@ class InsightTest {
 
     @Test
     void insightType_shouldHaveAllTypes() {
-        // Check that at least the main types exist
+        
         assertThat(Insight.InsightType.values()).contains(
                 Insight.InsightType.TREND,
                 Insight.InsightType.PATTERN,

@@ -60,7 +60,6 @@ class MetricsCalculatorTest {
         ApiSpec spec = new ApiSpec();
         List<Endpoint> endpoints = new ArrayList<>();
 
-        // 2 documented, 2 not documented
         endpoints.add(createEndpoint("/api/users", HttpMethod.GET, "Get all users"));
         endpoints.add(createEndpoint("/api/users/{id}", HttpMethod.GET, "Get user by ID"));
         endpoints.add(createEndpoint("/api/posts", HttpMethod.GET, null));

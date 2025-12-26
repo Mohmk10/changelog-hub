@@ -1,10 +1,7 @@
 package io.github.mohmk10.changeloghub.parser.grpc.util;
 
-/**
- * Enum representing Protocol Buffers field types.
- */
 public enum ProtoFieldType {
-    // Scalar types
+    
     DOUBLE("double", "number"),
     FLOAT("float", "number"),
     INT32("int32", "integer"),
@@ -21,13 +18,11 @@ public enum ProtoFieldType {
     STRING("string", "string"),
     BYTES("bytes", "string"),
 
-    // Special types
     MESSAGE("message", "object"),
     ENUM("enum", "string"),
     MAP("map", "object"),
     ONEOF("oneof", "object"),
 
-    // Unknown
     UNKNOWN("unknown", "string");
 
     private final String protoName;
@@ -73,7 +68,6 @@ public enum ProtoFieldType {
 
         String normalized = typeName.toLowerCase().trim();
 
-        // Check for map type
         if (normalized.startsWith("map<")) {
             return MAP;
         }
@@ -84,7 +78,6 @@ public enum ProtoFieldType {
             }
         }
 
-        // If not a scalar type, assume it's a message reference
         return MESSAGE;
     }
 
@@ -93,30 +86,25 @@ public enum ProtoFieldType {
             return true;
         }
 
-        // int32, uint32, int64, uint64, and bool are compatible
         if (oldType.isInteger() && newType.isInteger()) {
             return true;
         }
 
-        // sint32 and sint64 are compatible with each other
         if ((oldType == SINT32 || oldType == SINT64) &&
             (newType == SINT32 || newType == SINT64)) {
             return true;
         }
 
-        // fixed32, sfixed32, and float are compatible
         if ((oldType == FIXED32 || oldType == SFIXED32 || oldType == FLOAT) &&
             (newType == FIXED32 || newType == SFIXED32 || newType == FLOAT)) {
             return true;
         }
 
-        // fixed64, sfixed64, and double are compatible
         if ((oldType == FIXED64 || oldType == SFIXED64 || oldType == DOUBLE) &&
             (newType == FIXED64 || newType == SFIXED64 || newType == DOUBLE)) {
             return true;
         }
 
-        // string and bytes are compatible
         if ((oldType == STRING || oldType == BYTES) &&
             (newType == STRING || newType == BYTES)) {
             return true;

@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.spring.model;
 
-/**
- * Intermediate model representing a Spring controller method parameter.
- */
 public class SpringParameter {
 
     public enum Location {

@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Stability score for an API based on its change history.
- */
 public class StabilityScore {
 
     private String apiName;
@@ -34,7 +31,6 @@ public class StabilityScore {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }
@@ -176,9 +172,6 @@ public class StabilityScore {
                 '}';
     }
 
-    /**
-     * Represents a factor contributing to the stability score.
-     */
     public static class StabilityFactor {
         private String name;
         private double weight;

@@ -8,9 +8,6 @@ import { logger } from '../utils/logger';
 import { loadConfig } from '../utils/config';
 import { OutputFormat } from '../types';
 
-/**
- * Creates the compare command
- */
 export function createCompareCommand(): Command {
   const command = new Command('compare');
 
@@ -29,14 +26,12 @@ export function createCompareCommand(): Command {
       const spinner = ora('Comparing API specifications...').start();
 
       try {
-        // Load configuration
+        
         const config = loadConfig(options.config);
 
-        // Resolve file paths
         const oldSpecPath = path.resolve(oldSpec);
         const newSpecPath = path.resolve(newSpec);
 
-        // Validate files exist
         if (!fileExists(oldSpecPath)) {
           spinner.fail(`Old spec file not found: ${oldSpecPath}`);
           process.exit(1);
@@ -50,7 +45,6 @@ export function createCompareCommand(): Command {
           spinner.text = `Comparing ${oldSpecPath} → ${newSpecPath}`;
         }
 
-        // Detect breaking changes
         const result = detectBreakingChanges(oldSpecPath, newSpecPath, {
           severityThreshold: options.severity || config.severityThreshold,
           includeDeprecations: options.deprecations ?? config.includeDeprecations,
@@ -58,11 +52,9 @@ export function createCompareCommand(): Command {
 
         spinner.succeed('Comparison complete');
 
-        // Generate report
         const format = (options.format || config.defaultFormat) as OutputFormat;
         const report = generateReport(result, format);
 
-        // Output report
         if (options.output) {
           const outputPath = path.resolve(options.output);
           writeFile(outputPath, report);
@@ -71,12 +63,10 @@ export function createCompareCommand(): Command {
           console.log(report);
         }
 
-        // Show summary in verbose mode
         if (options.verbose) {
           console.log('\n' + generateShortSummary(result));
         }
 
-        // Exit with error if breaking changes and --fail-on-breaking
         const failOnBreaking = options.failOnBreaking ?? config.failOnBreaking;
         if (failOnBreaking && result.breakingChanges.length > 0) {
           logger.error(`Found ${result.breakingChanges.length} breaking change(s)`);

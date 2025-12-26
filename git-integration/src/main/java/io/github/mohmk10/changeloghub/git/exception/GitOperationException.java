@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.git.exception;
 
-/**
- * Exception thrown when a Git operation fails.
- */
 public class GitOperationException extends RuntimeException {
 
     private final GitErrorCode errorCode;
@@ -65,50 +62,34 @@ public class GitOperationException extends RuntimeException {
         return reference;
     }
 
-    /**
-     * Error codes for Git operations.
-     */
     public enum GitErrorCode {
-        /** Unknown error */
+        
         UNKNOWN("Unknown error"),
 
-        /** Repository not found */
         REPOSITORY_NOT_FOUND("Repository not found"),
 
-        /** Not a valid Git repository */
         INVALID_REPOSITORY("Not a valid Git repository"),
 
-        /** Reference (branch/tag/commit) not found */
         REFERENCE_NOT_FOUND("Reference not found"),
 
-        /** Invalid reference format */
         INVALID_REFERENCE("Invalid reference"),
 
-        /** File not found at specified reference */
         FILE_NOT_FOUND("File not found"),
 
-        /** Failed to read file content */
         FILE_READ_ERROR("Failed to read file"),
 
-        /** Failed to parse commit */
         COMMIT_PARSE_ERROR("Failed to parse commit"),
 
-        /** Failed to get diff */
         DIFF_ERROR("Failed to get diff"),
 
-        /** Authentication required */
         AUTHENTICATION_REQUIRED("Authentication required"),
 
-        /** Remote operation failed */
         REMOTE_ERROR("Remote operation failed"),
 
-        /** Clone operation failed */
         CLONE_ERROR("Clone operation failed"),
 
-        /** Checkout operation failed */
         CHECKOUT_ERROR("Checkout operation failed"),
 
-        /** IO error during Git operation */
         IO_ERROR("IO error");
 
         private final String description;
@@ -121,10 +102,6 @@ public class GitOperationException extends RuntimeException {
             return description;
         }
     }
-
-    // ============================================================
-    // Factory Methods
-    // ============================================================
 
     public static GitOperationException repositoryNotFound(String path) {
         return new GitOperationException(

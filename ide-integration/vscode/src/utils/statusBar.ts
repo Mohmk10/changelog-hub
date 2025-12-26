@@ -1,8 +1,5 @@
 import * as vscode from 'vscode';
 
-/**
- * Manages the status bar item for the extension
- */
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
   private isAnalyzing: boolean = false;

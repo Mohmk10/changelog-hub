@@ -14,7 +14,7 @@ export async function validateCommand(
   diagnosticCollection?: vscode.DiagnosticCollection
 ): Promise<void> {
   try {
-    // Get file to validate
+    
     let fileUri = uri;
     if (!fileUri) {
       const editor = vscode.window.activeTextEditor;
@@ -31,7 +31,7 @@ export async function validateCommand(
         if (!files || files.length === 0) {
           return;
         }
-        // Validate all selected files
+        
         for (const file of files) {
           await validateFile(file, diagnosticCollection);
         }
@@ -66,7 +66,6 @@ async function validateFile(
 
       progress.report({ increment: 70 });
 
-      // Update diagnostics
       if (diagnosticCollection) {
         const diagnostics: vscode.Diagnostic[] = [];
 
@@ -93,7 +92,6 @@ async function validateFile(
         diagnosticCollection.set(fileUri, diagnostics);
       }
 
-      // Show result
       if (result.valid) {
         if (result.warnings.length > 0) {
           vscode.window.showWarningMessage(
@@ -122,7 +120,7 @@ function validateSpec(content: string, filename: string): ValidationResult {
   };
 
   try {
-    // Detect spec type
+    
     result.type = detectSpecType(content, filename);
 
     if (result.type === 'unknown') {
@@ -131,10 +129,8 @@ function validateSpec(content: string, filename: string): ValidationResult {
       return result;
     }
 
-    // Parse specification
     const spec = parseSpec(content, filename);
 
-    // Validation checks
     if (!spec.name || spec.name === 'Untitled API') {
       result.warnings.push('API name not specified');
     }
@@ -147,13 +143,11 @@ function validateSpec(content: string, filename: string): ValidationResult {
       result.warnings.push('No endpoints defined');
     }
 
-    // Check for deprecated endpoints
     const deprecatedCount = spec.endpoints.filter((e) => e.deprecated).length;
     if (deprecatedCount > 0) {
       result.warnings.push(`${deprecatedCount} deprecated endpoint(s) found`);
     }
 
-    // Check for missing descriptions
     const noDescCount = spec.endpoints.filter(
       (e) => !e.description && !e.summary
     ).length;
@@ -161,7 +155,6 @@ function validateSpec(content: string, filename: string): ValidationResult {
       result.warnings.push(`${noDescCount} endpoint(s) missing description`);
     }
 
-    // Check for missing response definitions
     const noResponseCount = spec.endpoints.filter(
       (e) => e.responses.length === 0
     ).length;
@@ -169,7 +162,6 @@ function validateSpec(content: string, filename: string): ValidationResult {
       result.warnings.push(`${noResponseCount} endpoint(s) missing response definitions`);
     }
 
-    // Check schemas
     const emptySchemas = spec.schemas.filter(
       (s) => s.properties.length === 0 && s.type === 'object'
     );

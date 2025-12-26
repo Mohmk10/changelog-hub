@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.asyncapi.model;
 
 import java.util.*;
 
-/**
- * Model representing an AsyncAPI message.
- */
 public class AsyncMessage {
 
     private String name;
@@ -35,7 +32,6 @@ public class AsyncMessage {
         return new Builder();
     }
 
-    // Getters and setters
     public String getName() {
         return name;
     }
@@ -164,7 +160,6 @@ public class AsyncMessage {
         this.extensions = extensions != null ? new LinkedHashMap<>(extensions) : new LinkedHashMap<>();
     }
 
-    // Utility methods
     public boolean isReference() {
         return ref != null && !ref.isBlank();
     }

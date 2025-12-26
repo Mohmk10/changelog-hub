@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.asyncapi.util;
 
-/**
- * Enum representing messaging protocols supported by AsyncAPI.
- */
 public enum ProtocolType {
     KAFKA("kafka", "Apache Kafka", 9092),
     KAFKA_SECURE("kafka-secure", "Apache Kafka (TLS)", 9093),
@@ -51,9 +48,6 @@ public enum ProtocolType {
         return defaultPort;
     }
 
-    /**
-     * Parse protocol type from string.
-     */
     public static ProtocolType fromString(String protocolStr) {
         if (protocolStr == null || protocolStr.isBlank()) {
             return UNKNOWN;
@@ -70,17 +64,11 @@ public enum ProtocolType {
         return UNKNOWN;
     }
 
-    /**
-     * Check if this protocol uses TLS/SSL.
-     */
     public boolean isSecure() {
         return this == KAFKA_SECURE || this == AMQPS || this == MQTTS ||
                this == SECURE_MQTT || this == WSS || this == STOMPS || this == HTTPS;
     }
 
-    /**
-     * Check if this protocol is a message queue/broker.
-     */
     public boolean isMessageBroker() {
         return this == KAFKA || this == KAFKA_SECURE ||
                this == AMQP || this == AMQPS || this == AMQP1 ||
@@ -90,44 +78,38 @@ public enum ProtocolType {
                this == IBMMQ || this == PULSAR;
     }
 
-    /**
-     * Check if this protocol is a cloud messaging service.
-     */
     public boolean isCloudService() {
         return this == SNS || this == SQS || this == GOOGLEPUBSUB;
     }
 
-    /**
-     * Check if protocols are compatible (same family).
-     */
     public boolean isCompatibleWith(ProtocolType other) {
         if (this == other) {
             return true;
         }
-        // Kafka family
+        
         if ((this == KAFKA || this == KAFKA_SECURE) &&
             (other == KAFKA || other == KAFKA_SECURE)) {
             return true;
         }
-        // AMQP family
+        
         if ((this == AMQP || this == AMQPS) &&
             (other == AMQP || other == AMQPS)) {
             return true;
         }
-        // MQTT family
+        
         if ((this == MQTT || this == MQTTS || this == SECURE_MQTT) &&
             (other == MQTT || other == MQTTS || other == SECURE_MQTT)) {
             return true;
         }
-        // WebSocket family
+        
         if ((this == WS || this == WSS) && (other == WS || other == WSS)) {
             return true;
         }
-        // STOMP family
+        
         if ((this == STOMP || this == STOMPS) && (other == STOMP || other == STOMPS)) {
             return true;
         }
-        // HTTP family
+        
         if ((this == HTTP || this == HTTPS) && (other == HTTP || other == HTTPS)) {
             return true;
         }

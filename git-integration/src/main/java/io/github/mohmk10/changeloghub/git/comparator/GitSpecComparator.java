@@ -15,9 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Compares API specifications between Git references.
- */
 public class GitSpecComparator {
 
     private static final Logger logger = LoggerFactory.getLogger(GitSpecComparator.class);
@@ -40,27 +37,16 @@ public class GitSpecComparator {
         this.specFileDetector = new SpecFileDetector(repository, config);
     }
 
-    /**
-     * Compare all API specs between two references.
-     *
-     * @param oldRef the old reference
-     * @param newRef the new reference
-     * @return comparison result
-     */
     public SpecComparison compare(String oldRef, String newRef) {
         logger.info("Comparing specs between {} and {}", oldRef, newRef);
 
-        // Get all changelogs
         List<ChangelogExtractor.SpecChangelog> changelogs =
             changelogExtractor.extractChangelogs(oldRef, newRef);
 
-        // Get summary
         ChangelogExtractor.ChangelogSummary summary = changelogExtractor.summarize(changelogs);
 
-        // Get diff for context
         GitDiff diff = diffAnalyzer.getDiff(oldRef, newRef);
 
-        // Group by spec type
         Map<SpecFileDetector.SpecType, List<ChangelogExtractor.SpecChangelog>> byType =
             changelogs.stream()
                 .collect(Collectors.groupingBy(ChangelogExtractor.SpecChangelog::getSpecType));
@@ -75,9 +61,6 @@ public class GitSpecComparator {
         );
     }
 
-    /**
-     * Compare only changed spec files (more efficient for large repos).
-     */
     public SpecComparison compareChangedOnly(String oldRef, String newRef) {
         logger.info("Comparing changed specs between {} and {}", oldRef, newRef);
 
@@ -101,9 +84,6 @@ public class GitSpecComparator {
         );
     }
 
-    /**
-     * Compare specs of a specific type only.
-     */
     public SpecComparison compareByType(String oldRef, String newRef, SpecFileDetector.SpecType type) {
         SpecComparison full = compare(oldRef, newRef);
 
@@ -126,9 +106,6 @@ public class GitSpecComparator {
         );
     }
 
-    /**
-     * Compare a single spec file between references.
-     */
     public Optional<ChangelogExtractor.SpecChangelog> compareFile(
             String specPath, String oldRef, String newRef) {
         return Optional.ofNullable(
@@ -136,17 +113,11 @@ public class GitSpecComparator {
         );
     }
 
-    /**
-     * Check if there are breaking changes between refs.
-     */
     public boolean hasBreakingChanges(String oldRef, String newRef) {
         SpecComparison comparison = compareChangedOnly(oldRef, newRef);
         return comparison.hasBreakingChanges();
     }
 
-    /**
-     * Get only breaking changes between refs.
-     */
     public List<BreakingChange> getBreakingChanges(String oldRef, String newRef) {
         SpecComparison comparison = compare(oldRef, newRef);
         List<BreakingChange> breaking = new ArrayList<>();
@@ -175,9 +146,6 @@ public class GitSpecComparator {
         return breaking;
     }
 
-    /**
-     * Generate a migration guide between versions.
-     */
     public MigrationGuide generateMigrationGuide(String oldRef, String newRef) {
         SpecComparison comparison = compare(oldRef, newRef);
         List<BreakingChange> breaking = getBreakingChanges(oldRef, newRef);
@@ -202,10 +170,6 @@ public class GitSpecComparator {
         );
     }
 
-    // ============================================================
-    // Helper Methods
-    // ============================================================
-
     private String generateMigrationSuggestion(BreakingChange change) {
         String category = change.getCategory();
 
@@ -228,13 +192,6 @@ public class GitSpecComparator {
         return "Review the change and update your implementation accordingly.";
     }
 
-    // ============================================================
-    // Nested Types
-    // ============================================================
-
-    /**
-     * Result of comparing specs between two references.
-     */
     public static class SpecComparison {
         private final String oldRef;
         private final String newRef;
@@ -316,9 +273,6 @@ public class GitSpecComparator {
         }
     }
 
-    /**
-     * Represents a breaking change in an API spec.
-     */
     public static class BreakingChange {
         private final String specPath;
         private final SpecFileDetector.SpecType specType;
@@ -359,9 +313,6 @@ public class GitSpecComparator {
         }
     }
 
-    /**
-     * A step in the migration guide.
-     */
     public static class MigrationStep {
         private final String specPath;
         private final String changeType;
@@ -401,9 +352,6 @@ public class GitSpecComparator {
         }
     }
 
-    /**
-     * Migration guide for upgrading between versions.
-     */
     public static class MigrationGuide {
         private final String fromRef;
         private final String toRef;
@@ -445,9 +393,6 @@ public class GitSpecComparator {
             return breakingChanges > 0;
         }
 
-        /**
-         * Format as Markdown.
-         */
         public String toMarkdown() {
             StringBuilder sb = new StringBuilder();
             sb.append("# Migration Guide\n\n");

@@ -13,44 +13,21 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 
-/**
- * Detect breaking changes between two API specifications.
- * Simplified alias for CI/CD integration - fails by default if breaking changes are found.
- *
- * Usage: mvn changelog:detect -Dchangelog.oldSpec=old.yaml -Dchangelog.newSpec=new.yaml
- */
 @Mojo(name = "detect", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class DetectBreakingChangesMojo extends AbstractChangelogMojo {
 
-    /**
-     * The old (baseline) API specification file.
-     */
     @Parameter(property = "changelog.oldSpec", required = true)
     private File oldSpec;
 
-    /**
-     * The new API specification file to compare against the baseline.
-     */
     @Parameter(property = "changelog.newSpec", required = true)
     private File newSpec;
 
-    /**
-     * Fail the build if breaking changes are detected.
-     * Default is TRUE for detect goal (unlike compare goal).
-     */
     @Parameter(property = "changelog.failOnBreaking", defaultValue = "true")
     private boolean failOnBreaking;
 
-    /**
-     * Output file for the breaking changes report.
-     * If not specified, output goes to the console.
-     */
     @Parameter(property = "changelog.outputFile")
     private File outputFile;
 
-    /**
-     * Minimum severity to report. Options: INFO, WARNING, BREAKING
-     */
     @Parameter(property = "changelog.minSeverity", defaultValue = "BREAKING")
     private String minSeverity;
 
@@ -66,29 +43,23 @@ public class DetectBreakingChangesMojo extends AbstractChangelogMojo {
         logVerbose("New spec: " + newSpec.getAbsolutePath());
         logVerbose("Fail on breaking: " + failOnBreaking);
 
-        // Validate input files
         validateFileExists(oldSpec, "Old API specification");
         validateFileExists(newSpec, "New API specification");
 
-        // Parse specifications
         ApiSpec oldApiSpec = parseSpec(oldSpec, "old");
         ApiSpec newApiSpec = parseSpec(newSpec, "new");
 
         logVerbose("Old API: " + oldApiSpec.getName() + " v" + oldApiSpec.getVersion());
         logVerbose("New API: " + newApiSpec.getName() + " v" + newApiSpec.getVersion());
 
-        // Generate changelog
         Changelog changelog = getChangelogGenerator().generate(oldApiSpec, newApiSpec);
 
-        // Log results
         logBreakingChanges(changelog);
 
-        // Write output if configured
         if (outputFile != null || !"console".equalsIgnoreCase(format)) {
             writeOutput(changelog);
         }
 
-        // Fail if breaking changes detected
         if (failOnBreaking && !changelog.getBreakingChanges().isEmpty()) {
             String message = buildFailureMessage(changelog);
             throw new MojoFailureException(message);
@@ -130,7 +101,6 @@ public class DetectBreakingChangesMojo extends AbstractChangelogMojo {
             }
         }
 
-        // Show warnings if verbose
         if (verbose) {
             long warningCount = changelog.getChanges().stream()
                 .filter(c -> c.getSeverity() == Severity.WARNING)
@@ -211,7 +181,6 @@ public class DetectBreakingChangesMojo extends AbstractChangelogMojo {
         return sb.toString();
     }
 
-    // Setters for testing
     public void setOldSpec(File oldSpec) {
         this.oldSpec = oldSpec;
     }

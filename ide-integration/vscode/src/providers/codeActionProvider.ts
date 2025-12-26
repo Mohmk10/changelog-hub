@@ -1,8 +1,5 @@
 import * as vscode from 'vscode';
 
-/**
- * Provides code actions (quick fixes) for API specifications
- */
 export class CodeActionProvider implements vscode.CodeActionProvider {
   static readonly providedCodeActionKinds = [
     vscode.CodeActionKind.QuickFix,
@@ -19,7 +16,6 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
   ): vscode.ProviderResult<vscode.CodeAction[]> {
     const actions: vscode.CodeAction[] = [];
 
-    // Process diagnostics
     for (const diagnostic of context.diagnostics) {
       if (diagnostic.source !== 'Changelog Hub') {
         continue;
@@ -41,7 +37,6 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       }
     }
 
-    // Add compare action if in range of an API spec
     if (this.isApiSpecFile(document)) {
       const compareAction = new vscode.CodeAction(
         'Compare with Git ref...',
@@ -80,7 +75,6 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
     action.diagnostics = [diagnostic];
     action.isPreferred = false;
 
-    // Find and remove deprecated: true
     const text = document.getText();
     const deprecatedMatch = text.match(/deprecated:\s*true/i);
     if (deprecatedMatch && deprecatedMatch.index !== undefined) {
@@ -106,7 +100,6 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
     action.diagnostics = [diagnostic];
     action.isPreferred = true;
 
-    // Insert description after the path
     const line = diagnostic.range.start.line;
     const lineText = document.lineAt(line).text;
     const indent = lineText.match(/^\s*/)?.[0] || '';
@@ -179,12 +172,11 @@ ${indent}      description: Name
 
     action.edit = new vscode.WorkspaceEdit();
 
-    // Find the end of the schema block and insert
     let insertLine = line + 1;
     for (let i = line + 1; i < document.lineCount; i++) {
       const text = document.lineAt(i).text;
       if (text.trim().startsWith('properties:')) {
-        // Already has properties, skip
+        
         return action;
       }
       if (!text.startsWith(indent + ' ') && text.trim() !== '') {

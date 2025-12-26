@@ -4,9 +4,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.AsyncApiVersion;
 
 import java.util.*;
 
-/**
- * Model representing a complete AsyncAPI specification.
- */
 public class AsyncApiSpec {
 
     private AsyncApiVersion version;
@@ -20,7 +17,7 @@ public class AsyncApiSpec {
     private String defaultContentType;
     private Map<String, AsyncServer> servers;
     private Map<String, AsyncChannel> channels;
-    private Map<String, AsyncOperation> operations; // For AsyncAPI 3.x
+    private Map<String, AsyncOperation> operations; 
     private Components components;
     private List<Tag> tags;
     private ExternalDocs externalDocs;
@@ -39,7 +36,6 @@ public class AsyncApiSpec {
         return new Builder();
     }
 
-    // Getters and setters
     public AsyncApiVersion getVersion() {
         return version;
     }
@@ -176,7 +172,6 @@ public class AsyncApiSpec {
         this.sourceFile = sourceFile;
     }
 
-    // Utility methods
     public boolean isV2() {
         return version != null && version.isV2();
     }
@@ -204,12 +199,10 @@ public class AsyncApiSpec {
     public List<AsyncMessage> getAllMessages() {
         List<AsyncMessage> messages = new ArrayList<>();
 
-        // Get messages from channels
         for (AsyncChannel channel : channels.values()) {
             messages.addAll(channel.getAllMessages());
         }
 
-        // Get messages from components
         if (components != null && components.getMessages() != null) {
             messages.addAll(components.getMessages().values());
         }
@@ -239,7 +232,6 @@ public class AsyncApiSpec {
         return stats;
     }
 
-    // Nested classes
     public static class Contact {
         private String name;
         private String url;
@@ -478,9 +470,6 @@ public class AsyncApiSpec {
         }
     }
 
-    /**
-     * Alias for getVersion() for backward compatibility.
-     */
     public AsyncApiVersion getAsyncApiVersion() {
         return version;
     }

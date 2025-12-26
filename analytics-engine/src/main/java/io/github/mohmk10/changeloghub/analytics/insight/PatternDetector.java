@@ -6,14 +6,8 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.*;
 
-/**
- * Detects patterns in API changelog history.
- */
 public class PatternDetector {
 
-    /**
-     * Represents a detected pattern.
-     */
     public static class Pattern {
         private PatternType type;
         private String description;
@@ -44,12 +38,6 @@ public class PatternDetector {
         public void addDetail(String key, Object value) { details.put(key, value); }
     }
 
-    /**
-     * Detect patterns in changelog history.
-     *
-     * @param history list of changelogs
-     * @return list of detected patterns
-     */
     public List<Pattern> detectPatterns(List<Changelog> history) {
         List<Pattern> patterns = new ArrayList<>();
 
@@ -72,9 +60,6 @@ public class PatternDetector {
         return patterns;
     }
 
-    /**
-     * Detect if breaking changes occur frequently.
-     */
     public Pattern detectFrequentBreakingChanges(List<Changelog> history) {
         if (history == null || history.isEmpty()) return null;
 
@@ -100,9 +85,6 @@ public class PatternDetector {
         return null;
     }
 
-    /**
-     * Detect seasonal release patterns.
-     */
     public Pattern detectSeasonalPattern(List<Changelog> history) {
         if (history == null || history.size() < 6) return null;
 
@@ -112,7 +94,6 @@ public class PatternDetector {
             monthCounts.merge(month, 1, Integer::sum);
         }
 
-        // Find if any months have significantly more releases
         int maxCount = monthCounts.values().stream().mapToInt(Integer::intValue).max().orElse(0);
         int avgCount = history.size() / 12;
 
@@ -135,9 +116,6 @@ public class PatternDetector {
         return null;
     }
 
-    /**
-     * Detect weekly release patterns.
-     */
     public Pattern detectWeeklyPattern(List<Changelog> history) {
         if (history == null || history.size() < 5) return null;
 
@@ -169,9 +147,6 @@ public class PatternDetector {
         return null;
     }
 
-    /**
-     * Detect burst release patterns.
-     */
     public Pattern detectBurstReleases(List<Changelog> history) {
         if (history == null || history.size() < 4) return null;
 

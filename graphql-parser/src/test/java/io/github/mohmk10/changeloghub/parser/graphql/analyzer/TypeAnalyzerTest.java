@@ -324,7 +324,6 @@ class TypeAnalyzerTest {
 
             Map<String, GraphQLType> types = analyzeToMap(sdl);
 
-            // Built-in types should not be included
             assertThat(types).doesNotContainKeys("String", "Int", "Boolean", "Float", "ID");
             assertThat(types).containsKey("User");
         }

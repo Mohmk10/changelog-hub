@@ -52,7 +52,6 @@ describe('detectBreakingChanges', () => {
         severityThreshold: 'BREAKING',
       });
 
-      // All changes should be BREAKING severity or higher
       for (const change of result.changes) {
         expect(change.severity).toBe('BREAKING');
       }

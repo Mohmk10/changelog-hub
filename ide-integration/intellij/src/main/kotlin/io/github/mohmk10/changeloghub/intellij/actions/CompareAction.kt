@@ -18,23 +18,18 @@ import io.github.mohmk10.changeloghub.intellij.util.FileUtils
 import io.github.mohmk10.changeloghub.intellij.util.Logger
 import io.github.mohmk10.changeloghub.intellij.util.showResultDialog
 
-/**
- * Action for comparing two API specification files.
- */
 class CompareAction : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val currentFile = e.getData(CommonDataKeys.VIRTUAL_FILE)
 
-        // Select old spec file
         val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
             .withTitle("Select OLD API Spec")
             .withFileFilter { FileUtils.isApiSpec(it) }
 
         val oldFile = FileChooser.chooseFile(descriptor, project, null) ?: return
 
-        // Select new spec file (or use current)
         val newFile: VirtualFile = if (currentFile != null && FileUtils.isApiSpec(currentFile)) {
             currentFile
         } else {
@@ -47,7 +42,6 @@ class CompareAction : AnAction() {
             ) ?: return
         }
 
-        // Compare in background
         compareInBackground(project, oldFile, newFile)
     }
 
@@ -73,11 +67,9 @@ class CompareAction : AnAction() {
 
                     indicator.fraction = 1.0
 
-                    // Show results on EDT
                     ApplicationManager.getApplication().invokeLater {
                         showResultDialog(project, result)
 
-                        // Also show notification
                         val notificationService = project.getService(NotificationService::class.java)
                         notificationService.showComparisonResult(result)
                     }

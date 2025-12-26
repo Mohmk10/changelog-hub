@@ -13,24 +13,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
 
-/**
- * Gradle task for comparing two API specifications.
- *
- * Usage:
- * ```
- * ./gradlew changelogCompare --old-spec=api/v1.yaml --new-spec=api/v2.yaml
- * ```
- *
- * Or configure via extension:
- * ```
- * changelogHub {
- *     oldSpec = "api/v1.yaml"
- *     newSpec = "api/v2.yaml"
- *     format = "markdown"
- *     outputDir = "build/changelog"
- * }
- * ```
- */
 abstract class CompareTask : DefaultTask() {
 
     @Internal
@@ -63,20 +45,18 @@ abstract class CompareTask : DefaultTask() {
 
     @TaskAction
     fun compare() {
-        // Check if skipped
+        
         if (extension.skip) {
             logger.lifecycle("Changelog comparison skipped (skip=true)")
             return
         }
 
-        // Resolve parameters (CLI options override extension)
         val oldSpecFile = resolveOldSpec()
         val newSpecFile = resolveNewSpec()
         val format = formatOption ?: extension.format
         val failOnBreaking = failOnBreakingOption ?: extension.failOnBreaking
         val outputDir = File(project.projectDir, outputDirOption ?: extension.outputDir)
 
-        // Validate files exist
         validateFile(oldSpecFile, "Old specification")
         validateFile(newSpecFile, "New specification")
 
@@ -85,7 +65,7 @@ abstract class CompareTask : DefaultTask() {
         logger.lifecycle("  New: ${newSpecFile.absolutePath}")
 
         try {
-            // Parse specifications
+            
             val oldSpec = ParserFactory.parse(oldSpecFile, extension.specType)
             val newSpec = ParserFactory.parse(newSpecFile, extension.specType)
 
@@ -94,33 +74,26 @@ abstract class CompareTask : DefaultTask() {
                 logger.lifecycle("Parsed new spec: ${newSpec.name} v${newSpec.version}")
             }
 
-            // Create comparator
             val comparator = DefaultApiComparator()
 
-            // Compare specifications
             val changelog = comparator.compare(oldSpec, newSpec)
 
-            // Generate report
             val report = ReportWriter.generateReport(changelog, format)
 
-            // Output to console
             logger.lifecycle("")
             logger.lifecycle(report)
 
-            // Write to file if not console format
             if (format != "console") {
                 outputDir.mkdirs()
                 val reportFile = ReportWriter.write(outputDir, changelog, format)
                 logger.lifecycle("Report written to: ${reportFile.absolutePath}")
             }
 
-            // Summary
             logger.lifecycle("")
             logger.lifecycle("Comparison complete:")
             logger.lifecycle("  Total changes: ${changelog.changes.size}")
             logger.lifecycle("  Breaking changes: ${changelog.breakingChanges.size}")
 
-            // Fail if breaking changes detected and configured to fail
             if (failOnBreaking && changelog.breakingChanges.isNotEmpty()) {
                 throw GradleException(
                     "Breaking changes detected! Found ${changelog.breakingChanges.size} breaking change(s). " +

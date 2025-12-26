@@ -7,14 +7,8 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.ProtocolType;
 
 import java.util.*;
 
-/**
- * Analyzer for parsing AsyncAPI server definitions.
- */
 public class ServerAnalyzer {
 
-    /**
-     * Analyze all servers from the servers node.
-     */
     public Map<String, AsyncServer> analyzeServers(JsonNode serversNode) {
         Map<String, AsyncServer> servers = new LinkedHashMap<>();
 
@@ -32,9 +26,6 @@ public class ServerAnalyzer {
         return servers;
     }
 
-    /**
-     * Analyze a single server definition.
-     */
     public AsyncServer analyzeServer(String name, JsonNode serverNode) {
         AsyncServer.Builder builder = AsyncServer.builder()
                 .name(name);
@@ -43,44 +34,37 @@ public class ServerAnalyzer {
             return builder.build();
         }
 
-        // URL
         if (serverNode.has(AsyncApiConstants.URL)) {
             builder.url(serverNode.get(AsyncApiConstants.URL).asText());
         }
-        // AsyncAPI 3.x uses 'host' instead of 'url'
+        
         if (serverNode.has("host")) {
             String host = serverNode.get("host").asText();
             String pathname = serverNode.has("pathname") ? serverNode.get("pathname").asText() : "";
             builder.url(host + pathname);
         }
 
-        // Protocol
         if (serverNode.has(AsyncApiConstants.PROTOCOL)) {
             String protocolStr = serverNode.get(AsyncApiConstants.PROTOCOL).asText();
             builder.protocol(getProtocol(protocolStr));
         }
 
-        // Protocol version
         if (serverNode.has(AsyncApiConstants.PROTOCOL_VERSION)) {
             builder.protocolVersion(serverNode.get(AsyncApiConstants.PROTOCOL_VERSION).asText());
         }
 
-        // Description
         if (serverNode.has(AsyncApiConstants.DESCRIPTION)) {
             builder.description(serverNode.get(AsyncApiConstants.DESCRIPTION).asText());
         }
 
-        // Variables
         if (serverNode.has(AsyncApiConstants.VARIABLES)) {
             builder.variables(parseVariables(serverNode.get(AsyncApiConstants.VARIABLES)));
         }
 
-        // Bindings
         if (serverNode.has(AsyncApiConstants.BINDINGS)) {
             builder.bindings(parseBindings(serverNode.get(AsyncApiConstants.BINDINGS)));
         }
 
-        // Deprecated
         if (serverNode.has(AsyncApiConstants.DEPRECATED)) {
             builder.deprecated(serverNode.get(AsyncApiConstants.DEPRECATED).asBoolean(false));
         }
@@ -88,16 +72,10 @@ public class ServerAnalyzer {
         return builder.build();
     }
 
-    /**
-     * Get protocol type from string.
-     */
     public ProtocolType getProtocol(String protocol) {
         return ProtocolType.fromString(protocol);
     }
 
-    /**
-     * Parse server variables.
-     */
     private Map<String, AsyncServer.ServerVariable> parseVariables(JsonNode variablesNode) {
         Map<String, AsyncServer.ServerVariable> variables = new LinkedHashMap<>();
 
@@ -115,9 +93,6 @@ public class ServerAnalyzer {
         return variables;
     }
 
-    /**
-     * Parse a single server variable.
-     */
     private AsyncServer.ServerVariable parseVariable(JsonNode varNode) {
         AsyncServer.ServerVariable variable = new AsyncServer.ServerVariable();
 
@@ -140,9 +115,6 @@ public class ServerAnalyzer {
         return variable;
     }
 
-    /**
-     * Parse bindings.
-     */
     private Map<String, Object> parseBindings(JsonNode bindingsNode) {
         Map<String, Object> bindings = new LinkedHashMap<>();
 
@@ -159,9 +131,6 @@ public class ServerAnalyzer {
         return bindings;
     }
 
-    /**
-     * Parse a binding value recursively.
-     */
     private Object parseBindingValue(JsonNode node) {
         if (node.isTextual()) {
             return node.asText();
@@ -187,9 +156,6 @@ public class ServerAnalyzer {
         return null;
     }
 
-    /**
-     * Get server names list.
-     */
     public List<String> getServerNames(JsonNode serversNode) {
         List<String> names = new ArrayList<>();
         if (serversNode != null && serversNode.isObject()) {
@@ -201,9 +167,6 @@ public class ServerAnalyzer {
         return names;
     }
 
-    /**
-     * Check if a server uses a secure protocol.
-     */
     public boolean isSecure(AsyncServer server) {
         return server.getProtocol() != null && server.getProtocol().isSecure();
     }

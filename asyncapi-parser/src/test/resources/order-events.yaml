@@ -97,7 +97,7 @@ components:
       summary: Emitted when a new order is placed
       contentType: application/json
       correlationId:
-        location: $message.header#/correlationId
+        location: $message.header
       payload:
         $ref: '#/components/schemas/OrderPlacedPayload'
       headers:

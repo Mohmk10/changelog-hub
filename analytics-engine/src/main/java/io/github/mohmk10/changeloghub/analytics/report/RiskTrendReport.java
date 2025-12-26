@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Report on API risk trends over time.
- */
 public class RiskTrendReport {
 
     private String apiName;
@@ -23,9 +20,6 @@ public class RiskTrendReport {
     private List<Recommendation> recommendations;
     private LocalDateTime generatedAt;
 
-    /**
-     * Risk data point for trend visualization.
-     */
     public static class RiskDataPoint {
         private LocalDate date;
         private int riskScore;
@@ -63,7 +57,6 @@ public class RiskTrendReport {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() { return apiName; }
     public void setApiName(String apiName) { this.apiName = apiName; }
 
@@ -99,15 +92,11 @@ public class RiskTrendReport {
     public LocalDateTime getGeneratedAt() { return generatedAt; }
     public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
 
-    /**
-     * Convert report to Markdown format.
-     */
     public String toMarkdown() {
         StringBuilder sb = new StringBuilder();
         sb.append("# Risk Trend Report: ").append(apiName).append("\n\n");
         sb.append("**Period:** ").append(startDate).append(" to ").append(endDate).append("\n\n");
 
-        // Summary
         sb.append("## Summary\n\n");
         if (overallTrend != null) {
             TrendDirection direction = overallTrend.getDirection();
@@ -118,7 +107,6 @@ public class RiskTrendReport {
                     .append(overallTrend.getRiskChange()).append("\n\n");
         }
 
-        // Risk Data Points
         if (!dataPoints.isEmpty()) {
             sb.append("## Risk Timeline\n\n");
             sb.append("| Date | Version | Risk Score | Breaking Changes |\n");
@@ -133,7 +121,6 @@ public class RiskTrendReport {
             sb.append("\n");
         }
 
-        // Period Analysis
         if (!periodRisks.isEmpty()) {
             sb.append("## Period Analysis\n\n");
             for (RiskTrend.PeriodRisk period : periodRisks) {
@@ -144,7 +131,6 @@ public class RiskTrendReport {
             sb.append("\n");
         }
 
-        // Insights
         if (!insights.isEmpty()) {
             sb.append("## Insights\n\n");
             for (Insight insight : insights) {
@@ -154,7 +140,6 @@ public class RiskTrendReport {
             sb.append("\n");
         }
 
-        // Recommendations
         if (!recommendations.isEmpty()) {
             sb.append("## Recommendations\n\n");
             for (Recommendation rec : recommendations) {

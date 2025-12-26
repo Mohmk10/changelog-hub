@@ -4,9 +4,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.ProtocolType;
 
 import java.util.*;
 
-/**
- * Model representing an AsyncAPI server (message broker).
- */
 public class AsyncServer {
 
     private String name;
@@ -31,7 +28,6 @@ public class AsyncServer {
         return new Builder();
     }
 
-    // Getters and setters
     public String getName() {
         return name;
     }
@@ -112,7 +108,6 @@ public class AsyncServer {
         this.deprecated = deprecated;
     }
 
-    // Utility methods
     public String getResolvedUrl() {
         String resolved = url;
         for (Map.Entry<String, ServerVariable> entry : variables.entrySet()) {
@@ -133,9 +128,6 @@ public class AsyncServer {
         return !bindings.isEmpty();
     }
 
-    /**
-     * Model for server variables.
-     */
     public static class ServerVariable {
         private List<String> allowedValues;
         private String defaultValue;

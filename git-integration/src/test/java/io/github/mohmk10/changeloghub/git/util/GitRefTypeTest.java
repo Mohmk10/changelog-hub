@@ -49,8 +49,8 @@ class GitRefTypeTest {
         assertThat(GitRefType.isCommitSha("ABC1234")).isTrue();
         assertThat(GitRefType.isCommitSha("abc1234567890def1234567890abcdef12345678")).isTrue();
 
-        assertThat(GitRefType.isCommitSha("abc123")).isFalse(); // too short
-        assertThat(GitRefType.isCommitSha("ghijkl")).isFalse(); // invalid hex
+        assertThat(GitRefType.isCommitSha("abc123")).isFalse(); 
+        assertThat(GitRefType.isCommitSha("ghijkl")).isFalse(); 
         assertThat(GitRefType.isCommitSha(null)).isFalse();
     }
 
@@ -59,18 +59,18 @@ class GitRefTypeTest {
         assertThat(GitRefType.isFullCommitSha("abc1234567890def1234567890abcdef12345678")).isTrue();
         assertThat(GitRefType.isFullCommitSha("ABC1234567890DEF1234567890ABCDEF12345678")).isTrue();
 
-        assertThat(GitRefType.isFullCommitSha("abc1234")).isFalse(); // too short
-        assertThat(GitRefType.isFullCommitSha("abc1234567890def1234567890abcdef1234567890")).isFalse(); // too long
+        assertThat(GitRefType.isFullCommitSha("abc1234")).isFalse(); 
+        assertThat(GitRefType.isFullCommitSha("abc1234567890def1234567890abcdef1234567890")).isFalse(); 
     }
 
     @Test
     void shouldValidateShortCommitSha() {
         assertThat(GitRefType.isShortCommitSha("abc1234")).isTrue();
         assertThat(GitRefType.isShortCommitSha("abc1234567890")).isTrue();
-        assertThat(GitRefType.isShortCommitSha("abc1234567890def1234567890abcdef1234567")).isTrue(); // 39 chars
+        assertThat(GitRefType.isShortCommitSha("abc1234567890def1234567890abcdef1234567")).isTrue(); 
 
-        assertThat(GitRefType.isShortCommitSha("abc123")).isFalse(); // 6 chars, too short
-        assertThat(GitRefType.isShortCommitSha("abc1234567890def1234567890abcdef12345678")).isFalse(); // 40 chars, full SHA
+        assertThat(GitRefType.isShortCommitSha("abc123")).isFalse(); 
+        assertThat(GitRefType.isShortCommitSha("abc1234567890def1234567890abcdef12345678")).isFalse(); 
     }
 
     @Test

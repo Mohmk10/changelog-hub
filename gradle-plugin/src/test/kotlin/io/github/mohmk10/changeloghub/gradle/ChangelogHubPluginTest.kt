@@ -14,9 +14,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for ChangelogHubPlugin.
- */
 class ChangelogHubPluginTest {
 
     @TempDir

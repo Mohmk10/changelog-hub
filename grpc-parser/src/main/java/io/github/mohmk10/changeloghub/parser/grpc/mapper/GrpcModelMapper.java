@@ -11,9 +11,6 @@ import io.github.mohmk10.changeloghub.parser.grpc.model.ProtoService;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Main mapper for converting Protocol Buffers models to core API models.
- */
 public class GrpcModelMapper {
 
     private final GrpcEndpointMapper endpointMapper;
@@ -33,35 +30,28 @@ public class GrpcModelMapper {
         this.parameterMapper = parameterMapper;
     }
 
-    /**
-     * Map a ProtoFile to an ApiSpec.
-     */
     public ApiSpec mapProtoFile(ProtoFile protoFile) {
-        // Build message lookup map
+        
         Map<String, ProtoMessage> messageMap = buildMessageMap(protoFile);
 
-        // Map endpoints from services
         List<Endpoint> endpoints = endpointMapper.mapServices(
                 protoFile.getServices(),
                 protoFile.getPackageName(),
                 messageMap
         );
 
-        // Build metadata including schemas
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("syntax", protoFile.getSyntax());
         metadata.put("package", protoFile.getPackageName());
         metadata.put("fileName", protoFile.getFileName());
         metadata.put("statistics", protoFile.getStatistics());
 
-        // Add schemas to metadata
         Map<String, Map<String, Object>> schemas = typeMapper.buildSchemaMap(
                 protoFile.getMessages(),
                 protoFile.getEnums()
         );
         metadata.put("schemas", schemas);
 
-        // Build name and version
         String name = buildApiName(protoFile);
         String version = extractVersion(protoFile);
 
@@ -75,9 +65,6 @@ public class GrpcModelMapper {
                 .build();
     }
 
-    /**
-     * Map multiple proto files to a single ApiSpec.
-     */
     public ApiSpec mapProtoFiles(List<ProtoFile> protoFiles) {
         if (protoFiles.isEmpty()) {
             return ApiSpec.builder()
@@ -88,31 +75,26 @@ public class GrpcModelMapper {
                     .build();
         }
 
-        // Use the first file as the primary source for API info
         ProtoFile primaryFile = protoFiles.get(0);
 
-        // Aggregate all endpoints and schemas
         List<Endpoint> allEndpoints = new ArrayList<>();
         Map<String, Map<String, Object>> allSchemas = new LinkedHashMap<>();
 
         for (ProtoFile protoFile : protoFiles) {
             Map<String, ProtoMessage> messageMap = buildMessageMap(protoFile);
 
-            // Map endpoints
             allEndpoints.addAll(endpointMapper.mapServices(
                     protoFile.getServices(),
                     protoFile.getPackageName(),
                     messageMap
             ));
 
-            // Map schemas
             allSchemas.putAll(typeMapper.buildSchemaMap(
                     protoFile.getMessages(),
                     protoFile.getEnums()
             ));
         }
 
-        // Build metadata
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("syntax", primaryFile.getSyntax());
         metadata.put("package", primaryFile.getPackageName());
@@ -129,9 +111,6 @@ public class GrpcModelMapper {
                 .build();
     }
 
-    /**
-     * Build API name from a ProtoFile.
-     */
     private String buildApiName(ProtoFile protoFile) {
         String packageName = protoFile.getPackageName();
         if (packageName != null && !packageName.isEmpty()) {
@@ -146,17 +125,13 @@ public class GrpcModelMapper {
         return "gRPC API";
     }
 
-    /**
-     * Extract version from proto file options or filename.
-     */
     private String extractVersion(ProtoFile protoFile) {
-        // Check for version in options
+        
         String version = protoFile.getOption("api_version");
         if (version != null) {
             return version;
         }
 
-        // Try to extract from filename (e.g., user_service_v1.proto)
         String fileName = protoFile.getFileName();
         if (fileName != null) {
             if (fileName.contains("_v")) {
@@ -168,7 +143,6 @@ public class GrpcModelMapper {
             }
         }
 
-        // Try to extract from package name (e.g., com.example.api.v1)
         String packageName = protoFile.getPackageName();
         if (packageName != null && packageName.contains(".v")) {
             String[] parts = packageName.split("\\.");
@@ -185,28 +159,21 @@ public class GrpcModelMapper {
         return "1.0.0";
     }
 
-    /**
-     * Build a map of message name to ProtoMessage.
-     */
     private Map<String, ProtoMessage> buildMessageMap(ProtoFile protoFile) {
         Map<String, ProtoMessage> messageMap = new LinkedHashMap<>();
 
         for (ProtoMessage message : protoFile.getMessages()) {
-            // Add by simple name
+            
             messageMap.put(message.getName(), message);
-            // Add by full name
+            
             messageMap.put(message.getFullName(), message);
 
-            // Add nested messages
             addNestedMessages(message, messageMap);
         }
 
         return messageMap;
     }
 
-    /**
-     * Recursively add nested messages to the map.
-     */
     private void addNestedMessages(ProtoMessage parent, Map<String, ProtoMessage> messageMap) {
         for (ProtoMessage nested : parent.getNestedMessages()) {
             messageMap.put(nested.getName(), nested);
@@ -215,9 +182,6 @@ public class GrpcModelMapper {
         }
     }
 
-    /**
-     * Get all service names from a proto file.
-     */
     public List<String> getServiceNames(ProtoFile protoFile) {
         List<String> names = new ArrayList<>();
         for (ProtoService service : protoFile.getServices()) {
@@ -226,22 +190,16 @@ public class GrpcModelMapper {
         return names;
     }
 
-    /**
-     * Get all message names from a proto file.
-     */
     public List<String> getMessageNames(ProtoFile protoFile) {
         List<String> names = new ArrayList<>();
         for (ProtoMessage message : protoFile.getMessages()) {
             names.add(message.getName());
-            // Add nested message names
+            
             addNestedMessageNames(message, names);
         }
         return names;
     }
 
-    /**
-     * Recursively add nested message names.
-     */
     private void addNestedMessageNames(ProtoMessage parent, List<String> names) {
         for (ProtoMessage nested : parent.getNestedMessages()) {
             names.add(nested.getFullName());
@@ -249,9 +207,6 @@ public class GrpcModelMapper {
         }
     }
 
-    /**
-     * Get all enum names from a proto file.
-     */
     public List<String> getEnumNames(ProtoFile protoFile) {
         List<String> names = new ArrayList<>();
         for (ProtoEnum protoEnum : protoFile.getEnums()) {

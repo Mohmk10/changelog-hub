@@ -8,16 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Analyzes GraphQL fields and their arguments.
- */
 public class FieldAnalyzer {
 
     private final DirectiveAnalyzer directiveAnalyzer = new DirectiveAnalyzer();
 
-    /**
-     * Analyzes all fields from an object type definition.
-     */
     public List<GraphQLField> analyzeFields(ObjectTypeDefinition type) {
         List<GraphQLField> fields = new ArrayList<>();
         for (FieldDefinition fieldDef : type.getFieldDefinitions()) {
@@ -26,9 +20,6 @@ public class FieldAnalyzer {
         return fields;
     }
 
-    /**
-     * Analyzes all fields from an interface type definition.
-     */
     public List<GraphQLField> analyzeFields(InterfaceTypeDefinition type) {
         List<GraphQLField> fields = new ArrayList<>();
         for (FieldDefinition fieldDef : type.getFieldDefinitions()) {
@@ -37,9 +28,6 @@ public class FieldAnalyzer {
         return fields;
     }
 
-    /**
-     * Analyzes all fields from an input object type definition.
-     */
     public List<GraphQLField> analyzeInputFields(InputObjectTypeDefinition type) {
         List<GraphQLField> fields = new ArrayList<>();
         for (InputValueDefinition inputDef : type.getInputValueDefinitions()) {
@@ -48,9 +36,6 @@ public class FieldAnalyzer {
         return fields;
     }
 
-    /**
-     * Analyzes a single field definition.
-     */
     public GraphQLField analyzeField(FieldDefinition fieldDef) {
         GraphQLField field = new GraphQLField();
         field.setName(fieldDef.getName());
@@ -65,7 +50,6 @@ public class FieldAnalyzer {
             field.setDescription(fieldDef.getDescription().getContent());
         }
 
-        // Analyze arguments
         for (InputValueDefinition argDef : fieldDef.getInputValueDefinitions()) {
             field.addArgument(analyzeArgument(argDef));
         }
@@ -73,9 +57,6 @@ public class FieldAnalyzer {
         return field;
     }
 
-    /**
-     * Analyzes an input field definition.
-     */
     public GraphQLField analyzeInputField(InputValueDefinition inputDef) {
         GraphQLField field = new GraphQLField();
         field.setName(inputDef.getName());
@@ -91,9 +72,6 @@ public class FieldAnalyzer {
         return field;
     }
 
-    /**
-     * Analyzes an argument definition.
-     */
     public GraphQLArgument analyzeArgument(InputValueDefinition argDef) {
         GraphQLArgument arg = new GraphQLArgument();
         arg.setName(argDef.getName());
@@ -111,9 +89,6 @@ public class FieldAnalyzer {
         return arg;
     }
 
-    /**
-     * Analyzes a list of input value definitions as arguments.
-     */
     public List<GraphQLArgument> analyzeArguments(List<InputValueDefinition> inputDefs) {
         List<GraphQLArgument> arguments = new ArrayList<>();
         for (InputValueDefinition inputDef : inputDefs) {
@@ -122,9 +97,6 @@ public class FieldAnalyzer {
         return arguments;
     }
 
-    /**
-     * Gets the base type name without wrappers (NonNull, List).
-     */
     public String getBaseTypeName(Type<?> type) {
         if (type instanceof NonNullType) {
             return getBaseTypeName(((NonNullType) type).getType());
@@ -136,9 +108,6 @@ public class FieldAnalyzer {
         return "Unknown";
     }
 
-    /**
-     * Gets the full type name including wrappers.
-     */
     public String getFullTypeName(Type<?> type) {
         if (type instanceof NonNullType) {
             return getFullTypeName(((NonNullType) type).getType()) + "!";
@@ -150,16 +119,10 @@ public class FieldAnalyzer {
         return "Unknown";
     }
 
-    /**
-     * Checks if a type is non-null.
-     */
     public boolean isNonNull(Type<?> type) {
         return type instanceof NonNullType;
     }
 
-    /**
-     * Checks if a type is a list.
-     */
     public boolean isList(Type<?> type) {
         if (type instanceof NonNullType) {
             return isList(((NonNullType) type).getType());
@@ -167,9 +130,6 @@ public class FieldAnalyzer {
         return type instanceof ListType;
     }
 
-    /**
-     * Checks if the list item type is non-null.
-     */
     public boolean isListItemNonNull(Type<?> type) {
         if (type instanceof NonNullType) {
             return isListItemNonNull(((NonNullType) type).getType());
@@ -181,9 +141,6 @@ public class FieldAnalyzer {
         return false;
     }
 
-    /**
-     * Converts a GraphQL value to a string representation.
-     */
     private String valueToString(Value<?> value) {
         if (value instanceof StringValue) {
             return "\"" + ((StringValue) value).getValue() + "\"";

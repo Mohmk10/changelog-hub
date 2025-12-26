@@ -54,7 +54,6 @@ class DefaultSpringParserTest {
 
         ApiSpec apiSpec = parser.parse(controllersDir);
 
-        // Should find endpoints from UserController, ProductController, OrderController, DeprecatedController
         assertThat(apiSpec.getEndpoints().size()).isGreaterThanOrEqualTo(15);
     }
 
@@ -151,7 +150,6 @@ class DefaultSpringParserTest {
 
         ApiSpec apiSpec = parser.parseFile(deprecatedController);
 
-        // All endpoints in deprecated controller should be deprecated
         assertThat(apiSpec.getEndpoints()).allMatch(Endpoint::isDeprecated);
     }
 

@@ -9,14 +9,8 @@ import io.github.mohmk10.changeloghub.parser.openapi.impl.DefaultOpenApiParser
 import org.gradle.api.GradleException
 import java.io.File
 
-/**
- * Factory for creating appropriate API specification parsers.
- */
 object ParserFactory {
 
-    /**
-     * Specification type enum.
-     */
     enum class SpecType {
         OPENAPI,
         ASYNCAPI,
@@ -25,9 +19,6 @@ object ParserFactory {
         UNKNOWN
     }
 
-    /**
-     * Detect the specification type from file content and extension.
-     */
     fun detectSpecType(file: File): SpecType {
         val extension = file.extension.lowercase()
 
@@ -47,14 +38,6 @@ object ParserFactory {
         }
     }
 
-    /**
-     * Parse a specification file and return an ApiSpec.
-     *
-     * @param file The specification file to parse
-     * @param specType Optional specification type (auto-detect if not provided)
-     * @return Parsed ApiSpec
-     * @throws GradleException if the file format is not supported
-     */
     fun parse(file: File, specType: String = "auto"): ApiSpec {
         val type = if (specType == "auto") {
             detectSpecType(file)
@@ -103,9 +86,6 @@ object ParserFactory {
         return parser.toApiSpec(protoFile)
     }
 
-    /**
-     * Get a human-readable description of supported formats.
-     */
     fun getSupportedFormats(): String {
         return """
             Supported API specification formats:

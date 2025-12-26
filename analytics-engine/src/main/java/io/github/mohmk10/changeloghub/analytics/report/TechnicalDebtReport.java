@@ -6,9 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Report on technical debt in an API.
- */
 public class TechnicalDebtReport {
 
     private String apiName;
@@ -28,7 +25,6 @@ public class TechnicalDebtReport {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() { return apiName; }
     public void setApiName(String apiName) { this.apiName = apiName; }
 

@@ -128,13 +128,11 @@ class DefaultNotificationServiceTest {
             .severity(Severity.BREAKING)
             .build();
 
-        // First should work (or fail on actual send)
         try {
             service.notify(notification);
         } catch (Exception ignored) {
         }
 
-        // Second should be filtered
         assertThatThrownBy(() -> service.notify(notification))
             .isInstanceOf(NotificationException.class)
             .satisfies(e -> assertThat(((NotificationException) e).getErrorCode())
@@ -172,8 +170,6 @@ class DefaultNotificationServiceTest {
                 .build())
             .build();
 
-        // This will fail because the webhook URL is not real,
-        // but it tests the flow
         NotificationResult result = service.notify(changelog);
 
         assertThat(result).isNotNull();
@@ -190,7 +186,6 @@ class DefaultNotificationServiceTest {
             .apiName("API")
             .build();
 
-        // Notify only Slack
         NotificationResult result = service.notify(changelog, List.of(ChannelType.SLACK));
 
         assertThat(result).isNotNull();
@@ -212,7 +207,7 @@ class DefaultNotificationServiceTest {
 
     @Test
     void shouldNotifyAsync() throws Exception {
-        service.setEnabled(false); // Disable to get quick result
+        service.setEnabled(false); 
 
         Notification notification = Notification.builder()
             .title("Test")
@@ -226,7 +221,7 @@ class DefaultNotificationServiceTest {
 
     @Test
     void shouldTestChannel() {
-        // Channel not configured - should return false
+        
         assertThat(service.testChannel(ChannelType.SLACK)).isFalse();
     }
 
@@ -234,7 +229,7 @@ class DefaultNotificationServiceTest {
     void shouldTestAllChannels() {
         Map<ChannelType, Boolean> results = service.testAllChannels();
 
-        assertThat(results).isEmpty(); // No channels configured
+        assertThat(results).isEmpty(); 
     }
 
     @Test

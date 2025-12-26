@@ -8,13 +8,6 @@ import {
   SpecType,
 } from '../types';
 
-/**
- * Parses an API specification from content.
- *
- * @param content - Raw specification content (YAML, JSON, etc.)
- * @param filename - Original filename to help determine type
- * @returns Parsed API specification
- */
 export function parseSpec(content: string, filename: string): ApiSpec {
   const ext = getFileExtension(filename);
 
@@ -44,31 +37,19 @@ export function parseSpec(content: string, filename: string): ApiSpec {
   }
 }
 
-/**
- * Extracts file extension from filename
- */
 function getFileExtension(filename: string): string {
   const parts = filename.split('.');
   return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
 }
 
-/**
- * Checks if spec is OpenAPI format
- */
 function isOpenApiSpec(spec: Record<string, unknown>): boolean {
   return Boolean(spec.openapi || spec.swagger);
 }
 
-/**
- * Checks if spec is AsyncAPI format
- */
 function isAsyncApiSpec(spec: Record<string, unknown>): boolean {
   return Boolean(spec.asyncapi);
 }
 
-/**
- * Parses OpenAPI/Swagger specification
- */
 function parseOpenApi(spec: Record<string, unknown>): ApiSpec {
   const info = (spec.info as Record<string, unknown>) || {};
   const paths = (spec.paths as Record<string, unknown>) || {};
@@ -79,7 +60,6 @@ function parseOpenApi(spec: Record<string, unknown>): ApiSpec {
   const schemas: Schema[] = [];
   const security: ApiSpec['security'] = [];
 
-  // Parse paths/endpoints
   for (const [path, pathItem] of Object.entries(paths)) {
     const pathObj = pathItem as Record<string, unknown>;
 
@@ -91,13 +71,11 @@ function parseOpenApi(spec: Record<string, unknown>): ApiSpec {
     }
   }
 
-  // Parse schemas from components (OpenAPI 3.x) or definitions (Swagger 2.x)
   const schemaSource = (components.schemas as Record<string, unknown>) || definitions;
   for (const [name, schemaDef] of Object.entries(schemaSource || {})) {
     schemas.push(parseSchema(name, schemaDef as Record<string, unknown>));
   }
 
-  // Parse security schemes
   const securitySchemes =
     (components.securitySchemes as Record<string, unknown>) ||
     (spec.securityDefinitions as Record<string, unknown>);
@@ -121,20 +99,15 @@ function parseOpenApi(spec: Record<string, unknown>): ApiSpec {
   };
 }
 
-/**
- * Parses a single endpoint from OpenAPI spec
- */
 function parseEndpoint(path: string, method: string, operation: Record<string, unknown>): Endpoint {
   const parameters: Parameter[] = [];
   const responses: Endpoint['responses'] = [];
 
-  // Parse parameters
   const params = (operation.parameters as Array<Record<string, unknown>>) || [];
   for (const param of params) {
     parameters.push(parseParameter(param));
   }
 
-  // Parse request body (OpenAPI 3.x)
   let requestBody: Endpoint['requestBody'];
   if (operation.requestBody) {
     const reqBody = operation.requestBody as Record<string, unknown>;
@@ -147,7 +120,6 @@ function parseEndpoint(path: string, method: string, operation: Record<string, u
     };
   }
 
-  // Parse responses
   const respDefs = (operation.responses as Record<string, unknown>) || {};
   for (const [code, respDef] of Object.entries(respDefs)) {
     const resp = respDef as Record<string, unknown>;
@@ -175,9 +147,6 @@ function parseEndpoint(path: string, method: string, operation: Record<string, u
   };
 }
 
-/**
- * Parses a parameter definition
- */
 function parseParameter(param: Record<string, unknown>): Parameter {
   const schema = (param.schema as Record<string, unknown>) || {};
   return {
@@ -191,9 +160,6 @@ function parseParameter(param: Record<string, unknown>): Parameter {
   };
 }
 
-/**
- * Parses a schema definition
- */
 function parseSchema(name: string, schema: Record<string, unknown>): Schema {
   const properties: SchemaProperty[] = [];
   const props = (schema.properties as Record<string, unknown>) || {};
@@ -220,9 +186,6 @@ function parseSchema(name: string, schema: Record<string, unknown>): Schema {
   };
 }
 
-/**
- * Extracts schema reference from content object
- */
 function extractSchemaRef(content: Record<string, unknown>): string | undefined {
   for (const mediaType of Object.values(content)) {
     const mt = mediaType as Record<string, unknown>;
@@ -234,9 +197,6 @@ function extractSchemaRef(content: Record<string, unknown>): string | undefined 
   return undefined;
 }
 
-/**
- * Parses AsyncAPI specification
- */
 function parseAsyncApi(spec: Record<string, unknown>): ApiSpec {
   const info = (spec.info as Record<string, unknown>) || {};
   const channels = (spec.channels as Record<string, unknown>) || {};
@@ -245,11 +205,9 @@ function parseAsyncApi(spec: Record<string, unknown>): ApiSpec {
   const endpoints: Endpoint[] = [];
   const schemas: Schema[] = [];
 
-  // Parse channels as endpoints
   for (const [channelName, channelDef] of Object.entries(channels)) {
     const channel = channelDef as Record<string, unknown>;
 
-    // Subscribe operation
     if (channel.subscribe) {
       const op = channel.subscribe as Record<string, unknown>;
       endpoints.push({
@@ -266,7 +224,6 @@ function parseAsyncApi(spec: Record<string, unknown>): ApiSpec {
       });
     }
 
-    // Publish operation
     if (channel.publish) {
       const op = channel.publish as Record<string, unknown>;
       endpoints.push({
@@ -284,7 +241,6 @@ function parseAsyncApi(spec: Record<string, unknown>): ApiSpec {
     }
   }
 
-  // Parse schemas
   const schemaSource = (components.schemas as Record<string, unknown>) || {};
   for (const [name, schemaDef] of Object.entries(schemaSource)) {
     schemas.push(parseSchema(name, schemaDef as Record<string, unknown>));
@@ -301,14 +257,10 @@ function parseAsyncApi(spec: Record<string, unknown>): ApiSpec {
   };
 }
 
-/**
- * Parses GraphQL schema
- */
 function parseGraphQL(content: string): ApiSpec {
   const endpoints: Endpoint[] = [];
   const schemas: Schema[] = [];
 
-  // Parse type definitions
   const typeRegex = /type\s+(\w+)\s*(?:implements\s+\w+)?\s*\{([^}]+)\}/g;
   let match;
 
@@ -316,7 +268,7 @@ function parseGraphQL(content: string): ApiSpec {
     const [, typeName, fields] = match;
 
     if (typeName === 'Query' || typeName === 'Mutation' || typeName === 'Subscription') {
-      // Parse operations
+      
       const fieldRegex = /(\w+)(?:\([^)]*\))?\s*:\s*(\[?\w+!?\]?!?)/g;
       let fieldMatch;
 
@@ -334,7 +286,7 @@ function parseGraphQL(content: string): ApiSpec {
         });
       }
     } else {
-      // Parse as schema
+      
       const properties: SchemaProperty[] = [];
       const propRegex = /(\w+)\s*:\s*(\[?\w+!?\]?!?)/g;
       let propMatch;
@@ -368,14 +320,10 @@ function parseGraphQL(content: string): ApiSpec {
   };
 }
 
-/**
- * Parses Protocol Buffer definition
- */
 function parseProto(content: string): ApiSpec {
   const endpoints: Endpoint[] = [];
   const schemas: Schema[] = [];
 
-  // Parse service definitions
   const serviceRegex = /service\s+(\w+)\s*\{([^}]+)\}/g;
   let serviceMatch;
 
@@ -400,7 +348,6 @@ function parseProto(content: string): ApiSpec {
     }
   }
 
-  // Parse message definitions
   const messageRegex = /message\s+(\w+)\s*\{([^}]+)\}/g;
   let messageMatch;
 
@@ -439,9 +386,6 @@ function parseProto(content: string): ApiSpec {
   };
 }
 
-/**
- * Detect the spec type from content without fully parsing
- */
 export function detectSpecType(content: string, filename: string): SpecType {
   const ext = getFileExtension(filename);
 
@@ -457,7 +401,7 @@ export function detectSpecType(content: string, filename: string): SpecType {
     if (spec.openapi || spec.swagger) return 'openapi';
     if (spec.asyncapi) return 'asyncapi';
   } catch {
-    // Ignore parse errors
+    
   }
 
   return 'unknown';

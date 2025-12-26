@@ -9,9 +9,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Analyzer for parsing Protocol Buffers message fields.
- */
 public class FieldAnalyzer {
 
     private static final Pattern FIELD_PATTERN = Pattern.compile(
@@ -27,9 +24,6 @@ public class FieldAnalyzer {
             "(\\w+)\\s*=\\s*([^,\\]]+)"
     );
 
-    /**
-     * Parse all fields from a message body.
-     */
     public List<ProtoField> analyzeFields(String messageBody) {
         List<ProtoField> fields = new ArrayList<>();
 
@@ -37,10 +31,8 @@ public class FieldAnalyzer {
             return fields;
         }
 
-        // Remove nested messages and enums first (they have their own fields)
         String cleanedBody = removeNestedTypes(messageBody);
 
-        // Parse regular fields
         Matcher fieldMatcher = FIELD_PATTERN.matcher(cleanedBody);
         while (fieldMatcher.find()) {
             String rule = fieldMatcher.group(1);
@@ -55,7 +47,6 @@ public class FieldAnalyzer {
                     .typeName(typeName)
                     .rule(ProtoFieldRule.fromString(rule));
 
-            // Check for map type
             Matcher mapMatcher = MAP_PATTERN.matcher(typeName);
             if (mapMatcher.matches()) {
                 builder.asMap(mapMatcher.group(1), mapMatcher.group(2));
@@ -63,7 +54,6 @@ public class FieldAnalyzer {
                 builder.type(ProtoFieldType.fromString(typeName));
             }
 
-            // Parse field options
             if (optionsStr != null && !optionsStr.isBlank()) {
                 Map<String, String> options = parseOptions(optionsStr);
                 builder.options(options);
@@ -81,15 +71,11 @@ public class FieldAnalyzer {
             fields.add(builder.build());
         }
 
-        // Parse oneof fields
         fields.addAll(parseOneofFields(messageBody));
 
         return fields;
     }
 
-    /**
-     * Parse oneof blocks and their fields.
-     */
     private List<ProtoField> parseOneofFields(String messageBody) {
         List<ProtoField> fields = new ArrayList<>();
 
@@ -98,7 +84,6 @@ public class FieldAnalyzer {
             String oneofName = oneofMatcher.group(1);
             String oneofBody = oneofMatcher.group(2);
 
-            // Parse fields within oneof (they don't have rule prefix)
             Pattern oneofFieldPattern = Pattern.compile(
                     "^\\s*([\\w.]+)\\s+(\\w+)\\s*=\\s*(\\d+)\\s*(?:\\[([^\\]]+)\\])?\\s*;",
                     Pattern.MULTILINE
@@ -136,9 +121,6 @@ public class FieldAnalyzer {
         return fields;
     }
 
-    /**
-     * Parse field/option key-value pairs.
-     */
     private Map<String, String> parseOptions(String optionsStr) {
         Map<String, String> options = new HashMap<>();
 
@@ -146,7 +128,7 @@ public class FieldAnalyzer {
         while (optionMatcher.find()) {
             String key = optionMatcher.group(1).trim();
             String value = optionMatcher.group(2).trim();
-            // Remove quotes from string values
+            
             if (value.startsWith("\"") && value.endsWith("\"")) {
                 value = value.substring(1, value.length() - 1);
             }
@@ -156,11 +138,8 @@ public class FieldAnalyzer {
         return options;
     }
 
-    /**
-     * Remove nested message and enum definitions to avoid parsing their fields.
-     */
     private String removeNestedTypes(String body) {
-        // Simple approach: remove content between message/enum and matching braces
+        
         StringBuilder result = new StringBuilder();
         int braceDepth = 0;
         boolean inNestedType = false;
@@ -169,7 +148,6 @@ public class FieldAnalyzer {
         for (String line : lines) {
             String trimmed = line.trim();
 
-            // Check for nested message or enum start
             if (!inNestedType &&
                 (trimmed.startsWith("message ") || trimmed.startsWith("enum ")) &&
                 trimmed.contains("{")) {
@@ -189,7 +167,6 @@ public class FieldAnalyzer {
                 continue;
             }
 
-            // Also skip oneof blocks as they're handled separately
             if (trimmed.startsWith("oneof ")) {
                 inNestedType = true;
                 braceDepth = 1;
@@ -202,9 +179,6 @@ public class FieldAnalyzer {
         return result.toString();
     }
 
-    /**
-     * Get oneof names from a message body.
-     */
     public List<String> getOneofNames(String messageBody) {
         List<String> names = new ArrayList<>();
 
@@ -220,9 +194,6 @@ public class FieldAnalyzer {
         return names;
     }
 
-    /**
-     * Parse reserved numbers from a message body.
-     */
     public Set<Integer> parseReservedNumbers(String messageBody) {
         Set<Integer> reserved = new LinkedHashSet<>();
 
@@ -239,7 +210,6 @@ public class FieldAnalyzer {
         while (matcher.find()) {
             String reservedStr = matcher.group(1);
 
-            // Handle ranges (e.g., "2 to 10")
             if (reservedStr.contains("to")) {
                 String[] parts = reservedStr.split("\\s+to\\s+");
                 int start = Integer.parseInt(parts[0].trim());
@@ -248,7 +218,7 @@ public class FieldAnalyzer {
                     reserved.add(i);
                 }
             } else {
-                // Handle comma-separated numbers
+                
                 String[] numbers = reservedStr.split("\\s*,\\s*");
                 for (String num : numbers) {
                     reserved.add(Integer.parseInt(num.trim()));
@@ -259,9 +229,6 @@ public class FieldAnalyzer {
         return reserved;
     }
 
-    /**
-     * Parse reserved names from a message body.
-     */
     public Set<String> parseReservedNames(String messageBody) {
         Set<String> reserved = new LinkedHashSet<>();
 

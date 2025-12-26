@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Represents a Protocol Buffers enum value.
- */
 public class ProtoEnumValue {
 
     private final String name;

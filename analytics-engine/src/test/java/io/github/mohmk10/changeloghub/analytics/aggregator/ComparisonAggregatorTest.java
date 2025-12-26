@@ -37,10 +37,9 @@ class ComparisonAggregatorTest {
 
         ApiMetrics result = aggregator.compare(oldMetrics, newMetrics);
 
-        // Result should show the difference or new values
-        assertThat(result.getTotalEndpoints()).isEqualTo(5); // 15 - 10
-        assertThat(result.getTotalChanges()).isEqualTo(30); // 80 - 50
-        assertThat(result.getBreakingChanges()).isEqualTo(3); // 8 - 5
+        assertThat(result.getTotalEndpoints()).isEqualTo(5); 
+        assertThat(result.getTotalChanges()).isEqualTo(30); 
+        assertThat(result.getBreakingChanges()).isEqualTo(3); 
     }
 
     @Test

@@ -6,18 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * Constants for Git integration module.
- */
 public final class GitConstants {
 
     private GitConstants() {
-        // Utility class
+        
     }
-
-    // ============================================================
-    // Git References
-    // ============================================================
 
     public static final String REFS_HEADS_PREFIX = "refs/heads/";
     public static final String REFS_TAGS_PREFIX = "refs/tags/";
@@ -28,10 +21,6 @@ public final class GitConstants {
     public static final String MASTER = "master";
     public static final String DEVELOP = "develop";
     public static final String ORIGIN = "origin";
-
-    // ============================================================
-    // File Extensions - OpenAPI
-    // ============================================================
 
     public static final Set<String> OPENAPI_EXTENSIONS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList("yaml", "yml", "json"))
@@ -45,10 +34,6 @@ public final class GitConstants {
         ))
     );
 
-    // ============================================================
-    // File Extensions - GraphQL
-    // ============================================================
-
     public static final Set<String> GRAPHQL_EXTENSIONS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList("graphql", "gql", "graphqls"))
     );
@@ -60,17 +45,9 @@ public final class GitConstants {
         ))
     );
 
-    // ============================================================
-    // File Extensions - gRPC/Protobuf
-    // ============================================================
-
     public static final Set<String> PROTOBUF_EXTENSIONS = Collections.unmodifiableSet(
         new HashSet<>(Collections.singletonList("proto"))
     );
-
-    // ============================================================
-    // File Extensions - AsyncAPI
-    // ============================================================
 
     public static final Set<String> ASYNCAPI_EXTENSIONS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList("yaml", "yml", "json"))
@@ -82,17 +59,9 @@ public final class GitConstants {
         ))
     );
 
-    // ============================================================
-    // File Extensions - Spring Boot
-    // ============================================================
-
     public static final Set<String> SPRING_EXTENSIONS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList("java", "kt", "groovy"))
     );
-
-    // ============================================================
-    // All Spec Extensions
-    // ============================================================
 
     public static final Set<String> ALL_SPEC_EXTENSIONS;
     static {
@@ -105,10 +74,6 @@ public final class GitConstants {
         ALL_SPEC_EXTENSIONS = Collections.unmodifiableSet(all);
     }
 
-    // ============================================================
-    // Patterns
-    // ============================================================
-
     public static final Pattern SEMANTIC_VERSION_PATTERN =
         Pattern.compile("v?(\\d+)\\.(\\d+)\\.(\\d+)(-[a-zA-Z0-9.]+)?(\\+[a-zA-Z0-9.]+)?");
 
@@ -117,10 +82,6 @@ public final class GitConstants {
 
     public static final Pattern FULL_COMMIT_SHA_PATTERN =
         Pattern.compile("[0-9a-fA-F]{40}");
-
-    // ============================================================
-    // Common Directories
-    // ============================================================
 
     public static final Set<String> SPEC_DIRECTORIES = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(
@@ -140,10 +101,6 @@ public final class GitConstants {
         ))
     );
 
-    // ============================================================
-    // Conventional Commit Types
-    // ============================================================
-
     public static final Set<String> CONVENTIONAL_COMMIT_TYPES = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(
             "feat", "feature", "fix", "bugfix", "docs", "style",
@@ -157,56 +114,30 @@ public final class GitConstants {
         ))
     );
 
-    // ============================================================
-    // Default Values
-    // ============================================================
-
     public static final int DEFAULT_COMMIT_LIMIT = 100;
     public static final int DEFAULT_SHORT_SHA_LENGTH = 7;
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-    // ============================================================
-    // Utility Methods
-    // ============================================================
-
-    /**
-     * Check if a file extension is a known spec extension.
-     */
     public static boolean isSpecExtension(String extension) {
         return extension != null && ALL_SPEC_EXTENSIONS.contains(extension.toLowerCase());
     }
 
-    /**
-     * Check if a directory should be ignored during spec search.
-     */
     public static boolean isIgnoredDirectory(String dirName) {
         return dirName != null && IGNORED_DIRECTORIES.contains(dirName);
     }
 
-    /**
-     * Check if a directory is likely to contain API specs.
-     */
     public static boolean isSpecDirectory(String dirName) {
         return dirName != null && SPEC_DIRECTORIES.contains(dirName.toLowerCase());
     }
 
-    /**
-     * Check if a string looks like a semantic version.
-     */
     public static boolean isSemanticVersion(String version) {
         return version != null && SEMANTIC_VERSION_PATTERN.matcher(version).matches();
     }
 
-    /**
-     * Check if a string is a valid commit SHA.
-     */
     public static boolean isCommitSha(String sha) {
         return sha != null && COMMIT_SHA_PATTERN.matcher(sha).matches();
     }
 
-    /**
-     * Check if a commit type is a conventional commit type.
-     */
     public static boolean isConventionalCommitType(String type) {
         return type != null && CONVENTIONAL_COMMIT_TYPES.contains(type.toLowerCase());
     }

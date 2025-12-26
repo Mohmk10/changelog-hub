@@ -6,9 +6,6 @@ import io.github.mohmk10.changeloghub.notification.util.NotificationConstants;
 
 import java.util.List;
 
-/**
- * Formats messages for Microsoft Teams using Adaptive Cards.
- */
 public class TeamsMessageFormatter implements MessageFormatter {
 
     @Override
@@ -41,14 +38,12 @@ public class TeamsMessageFormatter implements MessageFormatter {
         json.append("\"@type\": \"MessageCard\",");
         json.append("\"@context\": \"http://schema.org/extensions\",");
 
-        // Theme color based on severity
         int breakingCount = changelog.getBreakingChanges().size();
         String themeColor = breakingCount > 0
             ? NotificationConstants.COLOR_BREAKING.substring(1)
             : NotificationConstants.COLOR_INFO.substring(1);
         json.append("\"themeColor\": \"").append(themeColor).append("\",");
 
-        // Summary
         String summary = "API Changes";
         if (changelog.getApiName() != null) {
             summary += ": " + changelog.getApiName();
@@ -57,7 +52,6 @@ public class TeamsMessageFormatter implements MessageFormatter {
 
         json.append("\"sections\": [");
 
-        // Header section
         json.append("{");
         json.append("\"activityTitle\": \"").append(escapeJson(summary)).append("\",");
 
@@ -69,7 +63,6 @@ public class TeamsMessageFormatter implements MessageFormatter {
                 .append("\",");
         }
 
-        // Facts
         json.append("\"facts\": [");
         json.append("{\"name\": \"Total Changes\", \"value\": \"").append(changelog.getChanges().size()).append("\"},");
         json.append("{\"name\": \"Breaking Changes\", \"value\": \"").append(breakingCount).append("\"}");
@@ -78,7 +71,6 @@ public class TeamsMessageFormatter implements MessageFormatter {
         json.append("\"markdown\": true");
         json.append("}");
 
-        // Breaking changes section
         List<BreakingChange> breakingChanges = changelog.getBreakingChanges();
         if (!breakingChanges.isEmpty()) {
             json.append(",{");
@@ -106,7 +98,6 @@ public class TeamsMessageFormatter implements MessageFormatter {
             json.append("}");
         }
 
-        // Summary section
         List<Change> changes = changelog.getChanges();
         long dangerousCount = changes.stream().filter(c -> c.getSeverity() == Severity.DANGEROUS).count();
         long warningCount = changes.stream().filter(c -> c.getSeverity() == Severity.WARNING).count();
@@ -132,7 +123,6 @@ public class TeamsMessageFormatter implements MessageFormatter {
 
         json.append("],");
 
-        // Potential actions
         json.append("\"potentialAction\": [");
         json.append("{");
         json.append("\"@type\": \"OpenUri\",");

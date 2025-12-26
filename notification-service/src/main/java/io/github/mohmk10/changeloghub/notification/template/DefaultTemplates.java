@@ -6,18 +6,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Default templates for notifications.
- */
 public final class DefaultTemplates {
 
     private DefaultTemplates() {
-        // Utility class
+        
     }
-
-    // ============================================================
-    // Title Templates
-    // ============================================================
 
     public static final String BREAKING_CHANGE_TITLE =
         "⚠️ Breaking Changes Detected: ${apiName}";
@@ -30,10 +23,6 @@ public final class DefaultTemplates {
 
     public static final String DEPRECATION_TITLE =
         "🔔 Deprecation Notice: ${apiName}";
-
-    // ============================================================
-    // Body Templates
-    // ============================================================
 
     public static final String BREAKING_CHANGE_BODY = """
         Version ${fromVersion} → ${toVersion}
@@ -90,16 +79,11 @@ public final class DefaultTemplates {
         <p><a href="${reportUrl}">View Full Report</a></p>
         """;
 
-    // ============================================================
-    // Template Registry
-    // ============================================================
-
     private static final Map<String, NotificationTemplate> TEMPLATES;
 
     static {
         Map<String, NotificationTemplate> templates = new HashMap<>();
 
-        // Default templates
         templates.put("breaking_change", NotificationTemplate.builder()
             .name("breaking_change")
             .titleTemplate(BREAKING_CHANGE_TITLE)
@@ -128,7 +112,6 @@ public final class DefaultTemplates {
             .isDefault(true)
             .build());
 
-        // Slack-specific
         templates.put("slack_breaking", NotificationTemplate.builder()
             .name("slack_breaking")
             .channelType(ChannelType.SLACK)
@@ -136,7 +119,6 @@ public final class DefaultTemplates {
             .bodyTemplate(SLACK_BODY)
             .build());
 
-        // Email-specific
         templates.put("email_default", NotificationTemplate.builder()
             .name("email_default")
             .channelType(ChannelType.EMAIL)
@@ -147,59 +129,37 @@ public final class DefaultTemplates {
         TEMPLATES = Collections.unmodifiableMap(templates);
     }
 
-    /**
-     * Get all default templates.
-     */
     public static Map<String, NotificationTemplate> getAll() {
         return TEMPLATES;
     }
 
-    /**
-     * Get a template by name.
-     */
     public static NotificationTemplate get(String name) {
         return TEMPLATES.get(name);
     }
 
-    /**
-     * Get the default template for a channel.
-     */
     public static NotificationTemplate getDefault(ChannelType channelType) {
-        // First try to find channel-specific template
+        
         for (NotificationTemplate template : TEMPLATES.values()) {
             if (template.getChannelType() == channelType && template.isDefault()) {
                 return template;
             }
         }
 
-        // Fall back to generic default
         return TEMPLATES.get("breaking_change");
     }
 
-    /**
-     * Get template for breaking changes.
-     */
     public static NotificationTemplate breakingChange() {
         return TEMPLATES.get("breaking_change");
     }
 
-    /**
-     * Get template for dangerous changes.
-     */
     public static NotificationTemplate dangerousChange() {
         return TEMPLATES.get("dangerous_change");
     }
 
-    /**
-     * Get template for API releases.
-     */
     public static NotificationTemplate apiRelease() {
         return TEMPLATES.get("api_release");
     }
 
-    /**
-     * Get template for deprecations.
-     */
     public static NotificationTemplate deprecation() {
         return TEMPLATES.get("deprecation");
     }

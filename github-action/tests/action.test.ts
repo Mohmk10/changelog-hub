@@ -1,12 +1,10 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-// Mock the modules before importing
 jest.mock('@actions/core');
 jest.mock('@actions/github');
 jest.mock('@actions/exec');
 
-// Mock the imports
 jest.mock('../src/changelog/detector', () => ({
   detectBreakingChanges: jest.fn(),
 }));
@@ -38,18 +36,15 @@ describe('Action', () => {
     jest.clearAllMocks();
     mockInputs.clear();
 
-    // Mock core.getInput
     (core.getInput as jest.Mock).mockImplementation((name: string) => {
       return mockInputs.get(name) || '';
     });
 
-    // Mock core.getBooleanInput
     (core.getBooleanInput as jest.Mock).mockImplementation((name: string) => {
       const value = mockInputs.get(name);
       return value === 'true';
     });
 
-    // Mock core.summary
     const mockSummary = {
       addHeading: jest.fn().mockReturnThis(),
       addTable: jest.fn().mockReturnThis(),
@@ -59,13 +54,11 @@ describe('Action', () => {
     };
     (core as any).summary = mockSummary;
 
-    // Mock github.context
     Object.defineProperty(github, 'context', {
       value: mockContext,
       writable: true,
     });
 
-    // Mock github.getOctokit
     (github.getOctokit as jest.Mock).mockReturnValue({
       rest: {
         issues: {
@@ -82,7 +75,7 @@ describe('Action', () => {
 
   describe('run', () => {
     it('should run successfully with no breaking changes', async () => {
-      // Setup inputs
+      
       mockInputs.set('spec-path', 'api/openapi.yaml');
       mockInputs.set('base-ref', 'main');
       mockInputs.set('head-ref', 'HEAD');
@@ -90,7 +83,6 @@ describe('Action', () => {
       mockInputs.set('comment-on-pr', 'false');
       mockInputs.set('create-check', 'false');
 
-      // Mock detectBreakingChanges
       (detectBreakingChanges as jest.Mock).mockResolvedValue({
         hasBreakingChanges: false,
         breakingChangesCount: 0,
@@ -190,7 +182,6 @@ describe('Action', () => {
       mockInputs.set('fail-on-breaking', 'false');
       mockInputs.set('github-token', 'test-token');
 
-      // Set PR context
       Object.defineProperty(github, 'context', {
         value: {
           ...mockContext,
@@ -272,7 +263,6 @@ describe('Action', () => {
 
       await run();
 
-      // Verify detectBreakingChanges was called with default spec-path
       const callArgs = (detectBreakingChanges as jest.Mock).mock.calls[0][0];
       expect(callArgs.specPath).toBe('api/openapi.yaml');
     });

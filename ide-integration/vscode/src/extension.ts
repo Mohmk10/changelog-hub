@@ -18,16 +18,13 @@ let changelogProvider: ChangelogProvider;
 export function activate(context: vscode.ExtensionContext): void {
   Logger.info('Changelog Hub extension activating...');
 
-  // Create diagnostic collection
   diagnosticCollection = vscode.languages.createDiagnosticCollection('changelogHub');
   context.subscriptions.push(diagnosticCollection);
 
-  // Create providers
   apiExplorerProvider = new ApiExplorerProvider(context);
   breakingChangesProvider = new BreakingChangesProvider(context);
   changelogProvider = new ChangelogProvider(context);
 
-  // Register tree data providers
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider('changelogHub.apiExplorer', apiExplorerProvider)
   );
@@ -38,16 +35,13 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider('changelogHub.changelog', changelogProvider)
   );
 
-  // Register commands
   registerCommands(context, diagnosticCollection, breakingChangesProvider, changelogProvider);
 
-  // Register language providers
   const diagnosticProvider = new DiagnosticProvider(diagnosticCollection);
   const hoverProvider = new HoverProvider();
   const codeActionProvider = new CodeActionProvider(diagnosticCollection);
   const decorationProvider = new DecorationProvider();
 
-  // Supported document selectors
   const documentSelectors: vscode.DocumentSelector = [
     { language: 'yaml', scheme: 'file' },
     { language: 'json', scheme: 'file' },
@@ -55,19 +49,16 @@ export function activate(context: vscode.ExtensionContext): void {
     { language: 'proto3', scheme: 'file' },
   ];
 
-  // Register hover provider
   context.subscriptions.push(
     vscode.languages.registerHoverProvider(documentSelectors, hoverProvider)
   );
 
-  // Register code action provider
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(documentSelectors, codeActionProvider, {
       providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds,
     })
   );
 
-  // Watch for document changes
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       if (isApiSpec(e.document)) {
@@ -104,18 +95,15 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  // Create status bar
   const statusBar = new StatusBarManager(context);
   statusBar.show();
 
-  // Analyze open documents on activation
   vscode.workspace.textDocuments.forEach((document) => {
     if (isApiSpec(document)) {
       diagnosticProvider.updateDiagnostics(document);
     }
   });
 
-  // Refresh API explorer
   apiExplorerProvider.refresh();
 
   Logger.info('Changelog Hub extension activated successfully');
@@ -125,16 +113,12 @@ export function deactivate(): void {
   Logger.info('Changelog Hub extension deactivated');
 }
 
-/**
- * Check if a document is an API specification
- */
 function isApiSpec(document: vscode.TextDocument): boolean {
   const ext = document.fileName.split('.').pop()?.toLowerCase();
   if (!['yaml', 'yml', 'json', 'graphql', 'gql', 'proto'].includes(ext || '')) {
     return false;
   }
 
-  // Check content for API spec indicators
   const text = document.getText().substring(0, 1000);
   return (
     text.includes('openapi') ||

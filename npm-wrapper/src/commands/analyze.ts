@@ -7,9 +7,6 @@ import { readFile, fileExists } from '../utils/file';
 import { logger } from '../utils/logger';
 import { ApiSpec } from '../types';
 
-/**
- * Creates the analyze command
- */
 export function createAnalyzeCommand(): Command {
   const command = new Command('analyze');
 
@@ -25,22 +22,19 @@ export function createAnalyzeCommand(): Command {
       const spinner = ora('Analyzing API specification...').start();
 
       try {
-        // Resolve file path
+        
         const specPath = path.resolve(spec);
 
-        // Validate file exists
         if (!fileExists(specPath)) {
           spinner.fail(`Spec file not found: ${specPath}`);
           process.exit(1);
         }
 
-        // Read and parse specification
         const content = readFile(specPath);
         const parsedSpec = parseSpec(content, specPath);
 
         spinner.succeed('Analysis complete');
 
-        // Output based on format
         if (options.format === 'json') {
           outputJson(parsedSpec, options);
         } else {
@@ -57,9 +51,6 @@ export function createAnalyzeCommand(): Command {
   return command;
 }
 
-/**
- * Output analysis as JSON
- */
 function outputJson(spec: ApiSpec, options: { endpoints?: boolean; schemas?: boolean; security?: boolean }): void {
   const output: Record<string, unknown> = {
     name: spec.name,
@@ -82,7 +73,6 @@ function outputJson(spec: ApiSpec, options: { endpoints?: boolean; schemas?: boo
     output.security = spec.security;
   }
 
-  // If no specific filter, include all in verbose mode
   if (!options.endpoints && !options.schemas && !options.security) {
     output.endpoints = spec.endpoints;
     output.schemas = spec.schemas;
@@ -92,9 +82,6 @@ function outputJson(spec: ApiSpec, options: { endpoints?: boolean; schemas?: boo
   console.log(JSON.stringify(output, null, 2));
 }
 
-/**
- * Output analysis to console with formatting
- */
 function outputConsole(spec: ApiSpec, options: { verbose?: boolean; endpoints?: boolean; schemas?: boolean; security?: boolean }): void {
   console.log('');
   console.log(chalk.bold.blue('═'.repeat(60)));
@@ -102,13 +89,11 @@ function outputConsole(spec: ApiSpec, options: { verbose?: boolean; endpoints?: 
   console.log(chalk.bold.blue('═'.repeat(60)));
   console.log('');
 
-  // Basic info
   console.log(chalk.bold(`  ${spec.name}`));
   console.log(chalk.gray(`  Version: ${spec.version}`));
   console.log(chalk.gray(`  Type: ${spec.type.toUpperCase()}`));
   console.log('');
 
-  // Summary
   console.log(chalk.gray('─'.repeat(60)));
   console.log(chalk.bold('\n  SUMMARY\n'));
   console.log(`  Endpoints:        ${spec.endpoints.length}`);
@@ -116,7 +101,6 @@ function outputConsole(spec: ApiSpec, options: { verbose?: boolean; endpoints?: 
   console.log(`  Security Schemes: ${spec.security.length}`);
   console.log('');
 
-  // Detailed sections
   const showEndpoints = options.endpoints || options.verbose;
   const showSchemas = options.schemas || options.verbose;
   const showSecurity = options.security || options.verbose;
@@ -177,9 +161,6 @@ function outputConsole(spec: ApiSpec, options: { verbose?: boolean; endpoints?: 
   console.log('');
 }
 
-/**
- * Get color function based on HTTP method
- */
 function getMethodColor(method: string): (text: string) => string {
   switch (method.toUpperCase()) {
     case 'GET':

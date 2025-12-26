@@ -8,9 +8,6 @@ import io.github.mohmk10.changeloghub.parser.spring.model.SpringParameter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Maps Spring parameter models to core Parameter models.
- */
 public class SpringParameterMapper {
 
     private final TypeExtractor typeExtractor;
@@ -19,14 +16,11 @@ public class SpringParameterMapper {
         this.typeExtractor = new TypeExtractor();
     }
 
-    /**
-     * Map a list of Spring parameters to core parameters.
-     */
     public List<Parameter> mapParameters(List<SpringParameter> springParameters) {
         List<Parameter> parameters = new ArrayList<>();
 
         for (SpringParameter springParam : springParameters) {
-            // Skip body parameters - they should be handled separately as request body
+            
             if (springParam.getLocation() != SpringParameter.Location.BODY) {
                 parameters.add(mapParameter(springParam));
             }
@@ -35,9 +29,6 @@ public class SpringParameterMapper {
         return parameters;
     }
 
-    /**
-     * Map a single Spring parameter to a core parameter.
-     */
     public Parameter mapParameter(SpringParameter springParam) {
         Parameter parameter = new Parameter();
 
@@ -57,9 +48,6 @@ public class SpringParameterMapper {
         return parameter;
     }
 
-    /**
-     * Map Spring parameter location to core ParameterLocation.
-     */
     public ParameterLocation mapLocation(SpringParameter.Location location) {
         if (location == null) {
             return ParameterLocation.QUERY;
@@ -75,25 +63,18 @@ public class SpringParameterMapper {
             case COOKIE:
                 return ParameterLocation.COOKIE;
             case BODY:
-                // BODY parameters are handled separately as RequestBody
-                // This should not happen as BODY params are filtered out
+
                 return ParameterLocation.QUERY;
             default:
                 return ParameterLocation.QUERY;
         }
     }
 
-    /**
-     * Check if there's a request body in the parameters.
-     */
     public boolean hasRequestBody(List<SpringParameter> springParameters) {
         return springParameters.stream()
                 .anyMatch(p -> p.getLocation() == SpringParameter.Location.BODY);
     }
 
-    /**
-     * Get the request body parameter if present.
-     */
     public SpringParameter getRequestBody(List<SpringParameter> springParameters) {
         return springParameters.stream()
                 .filter(p -> p.getLocation() == SpringParameter.Location.BODY)

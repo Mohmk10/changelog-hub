@@ -12,16 +12,10 @@ import java.awt.Dimension
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-/**
- * Show a dialog with comparison results.
- */
 fun showResultDialog(project: Project, result: ComparisonResult, title: String = "Comparison Results") {
     ResultDialog(project, result, title).show()
 }
 
-/**
- * Dialog for displaying comparison results.
- */
 class ResultDialog(
     project: Project,
     private val result: ComparisonResult,
@@ -37,7 +31,6 @@ class ResultDialog(
         val panel = JPanel(BorderLayout())
         panel.preferredSize = Dimension(700, 500)
 
-        // Summary
         val summaryText = buildString {
             appendLine("${"═".repeat(60)}")
             appendLine("SUMMARY")
@@ -83,7 +76,6 @@ class ResultDialog(
 
         panel.add(JBScrollPane(textArea), BorderLayout.CENTER)
 
-        // Status label
         val statusLabel = JBLabel(
             if (result.breakingChangesCount > 0)
                 "⚠ ${result.breakingChangesCount} breaking change(s) detected!"

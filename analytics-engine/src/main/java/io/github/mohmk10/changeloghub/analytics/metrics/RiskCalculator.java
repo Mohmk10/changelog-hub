@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Calculates risk scores and trends for APIs.
- */
 public class RiskCalculator {
 
     private final TrendAnalyzer trendAnalyzer;
@@ -21,12 +18,6 @@ public class RiskCalculator {
         this.trendAnalyzer = new TrendAnalyzer();
     }
 
-    /**
-     * Calculate risk score for a single changelog.
-     *
-     * @param changelog the changelog to analyze
-     * @return risk score (0-100)
-     */
     public int calculateRisk(Changelog changelog) {
         if (changelog == null) {
             return 0;
@@ -39,30 +30,20 @@ public class RiskCalculator {
             return 0;
         }
 
-        // Base risk from breaking changes
         int baseRisk = Math.min(100, breakingChanges * 20);
 
-        // Modifier based on ratio
         double ratio = (double) breakingChanges / totalChanges;
         int ratioModifier = (int) (ratio * 30);
 
-        // Risk from risk assessment if available
         int assessmentRisk = 0;
         if (changelog.getRiskAssessment() != null) {
             assessmentRisk = changelog.getRiskAssessment().getOverallScore();
         }
 
-        // Combine scores
         int finalRisk = (baseRisk + ratioModifier + assessmentRisk) / 2;
         return Math.min(100, Math.max(0, finalRisk));
     }
 
-    /**
-     * Calculate cumulative risk from multiple changelogs.
-     *
-     * @param history list of changelogs
-     * @return cumulative risk score
-     */
     public int calculateCumulativeRisk(List<Changelog> history) {
         if (history == null || history.isEmpty()) {
             return 0;
@@ -76,7 +57,6 @@ public class RiskCalculator {
             count++;
         }
 
-        // Weight recent changelogs more heavily
         int recentWeight = 0;
         int recentCount = Math.min(3, history.size());
         List<Changelog> sorted = new ArrayList<>(history);
@@ -89,17 +69,9 @@ public class RiskCalculator {
         double avgRisk = (double) totalRisk / count;
         double recentAvg = recentCount > 0 ? (double) recentWeight / recentCount : 0;
 
-        // Weighted average: 60% recent, 40% overall
         return (int) Math.round((recentAvg * 0.6) + (avgRisk * 0.4));
     }
 
-    /**
-     * Analyze risk trend over multiple periods.
-     *
-     * @param history list of changelogs
-     * @param periods number of periods to analyze
-     * @return risk trend analysis
-     */
     public RiskTrend analyzeTrend(List<Changelog> history, int periods) {
         if (history == null || history.isEmpty()) {
             return RiskTrend.builder()
@@ -110,11 +82,9 @@ public class RiskCalculator {
                     .build();
         }
 
-        // Sort by date
         List<Changelog> sorted = new ArrayList<>(history);
         sorted.sort(Comparator.comparing(Changelog::getGeneratedAt));
 
-        // Calculate risk for each changelog
         List<Integer> riskScores = new ArrayList<>();
         List<RiskDataPoint> dataPoints = new ArrayList<>();
 
@@ -130,20 +100,15 @@ public class RiskCalculator {
             ));
         }
 
-        // Determine trend - for risk scores, we need to INVERT the direction
-        // because lower risk is better (IMPROVING), higher risk is worse (DEGRADING)
         TrendDirection rawDirection = trendAnalyzer.analyzeTrend(riskScores);
         TrendDirection direction = invertForRisk(rawDirection);
 
-        // Current and previous scores
         int currentScore = riskScores.isEmpty() ? 0 : riskScores.get(riskScores.size() - 1);
         int previousScore = riskScores.size() < 2 ? currentScore : riskScores.get(riskScores.size() - 2);
 
-        // Change percentage
         double changePercentage = previousScore == 0 ? 0 :
                 ((double) (currentScore - previousScore) / previousScore) * 100;
 
-        // Project next score based on trend
         int projectedNext = projectNextScore(riskScores, direction);
 
         return RiskTrend.builder()
@@ -159,12 +124,6 @@ public class RiskCalculator {
                 .build();
     }
 
-    /**
-     * Analyze risk trend with default period count.
-     *
-     * @param history list of changelogs
-     * @return risk trend analysis
-     */
     public RiskTrend analyzeTrend(List<Changelog> history) {
         return analyzeTrend(history, history != null ? history.size() : 0);
     }
@@ -193,17 +152,12 @@ public class RiskCalculator {
         return RiskLevel.LOW;
     }
 
-    /**
-     * Invert trend direction for risk scores.
-     * For risk: decreasing values (negative slope) = IMPROVING
-     *           increasing values (positive slope) = DEGRADING
-     */
     private TrendDirection invertForRisk(TrendDirection direction) {
         switch (direction) {
             case IMPROVING:
-                return TrendDirection.DEGRADING; // Values going up means risk increasing = bad
+                return TrendDirection.DEGRADING; 
             case DEGRADING:
-                return TrendDirection.IMPROVING; // Values going down means risk decreasing = good
+                return TrendDirection.IMPROVING; 
             default:
                 return TrendDirection.STABLE;
         }

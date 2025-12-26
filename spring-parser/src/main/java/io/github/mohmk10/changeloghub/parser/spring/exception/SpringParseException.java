@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.spring.exception;
 
-/**
- * Exception thrown when parsing Spring annotations fails.
- */
 public class SpringParseException extends RuntimeException {
 
     public SpringParseException(String message) {

@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Represents a GraphQL type (Object, Input, Interface, Union, Enum).
- */
 public class GraphQLType {
 
     private String name;
@@ -18,9 +15,9 @@ public class GraphQLType {
     private boolean deprecated;
     private String deprecationReason;
     private List<GraphQLField> fields = new ArrayList<>();
-    private List<String> interfaces = new ArrayList<>();      // For object types implementing interfaces
-    private List<String> possibleTypes = new ArrayList<>();   // For interfaces and unions
-    private List<String> enumValues = new ArrayList<>();      // For enum types
+    private List<String> interfaces = new ArrayList<>();      
+    private List<String> possibleTypes = new ArrayList<>();   
+    private List<String> enumValues = new ArrayList<>();      
 
     public GraphQLType() {
     }
@@ -148,7 +145,6 @@ public class GraphQLType {
         return kind == GraphQLTypeKind.SCALAR;
     }
 
-    // Alias methods for convenience
     public boolean isEnum() {
         return isEnumType();
     }

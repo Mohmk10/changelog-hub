@@ -40,7 +40,6 @@ class ValidateMojoTest {
     void testExecuteWithValidSpec() throws Exception {
         mojo.setSpec(validSpec);
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -49,7 +48,6 @@ class ValidateMojoTest {
         mojo.setSpec(new File("nonexistent.yaml"));
         mojo.setSkip(true);
 
-        // Should not throw when skipped
         mojo.execute();
     }
 
@@ -67,7 +65,6 @@ class ValidateMojoTest {
         mojo.setSpec(specWithDeprecated);
         mojo.setStrict(true);
 
-        // Should throw because strict mode treats warnings as errors
         assertThatThrownBy(() -> mojo.execute())
             .isInstanceOf(MojoFailureException.class)
             .hasMessageContaining("warning");
@@ -78,26 +75,22 @@ class ValidateMojoTest {
         mojo.setSpec(specWithDeprecated);
         mojo.setStrict(false);
 
-        // Should not throw with strict mode disabled
         mojo.execute();
     }
 
     @Test
     void testExecuteWithFailOnErrorDisabled() throws Exception {
-        // Create invalid spec file
+        
         File invalidSpec = tempDir.resolve("invalid.yaml").toFile();
         Files.writeString(invalidSpec.toPath(), "not: valid: yaml: content: [broken");
 
         mojo.setSpec(invalidSpec);
         mojo.setFailOnError(false);
 
-        // Should not throw when failOnError is false
-        // Note: This might still throw MojoExecutionException for parse errors
-        // depending on implementation
         try {
             mojo.execute();
         } catch (MojoExecutionException e) {
-            // Parse errors are expected for truly invalid YAML
+            
             assertThat(e.getMessage()).contains("Failed to parse");
         }
     }
@@ -107,7 +100,6 @@ class ValidateMojoTest {
         mojo.setSpec(validSpec);
         mojo.setVerbose(true);
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -117,7 +109,6 @@ class ValidateMojoTest {
         mojo.setStrict(false);
         mojo.setVerbose(true);
 
-        // Should not throw (deprecated is a warning, not an error)
         mojo.execute();
     }
 
@@ -125,7 +116,6 @@ class ValidateMojoTest {
     void testValidSemanticVersion() throws Exception {
         mojo.setSpec(validSpec);
 
-        // api-v1.yaml has version 1.0.0 which is valid semver
         mojo.execute();
     }
 

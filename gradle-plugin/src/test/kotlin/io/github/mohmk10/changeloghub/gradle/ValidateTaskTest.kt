@@ -14,9 +14,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for ValidateTask.
- */
 class ValidateTaskTest {
 
     @TempDir
@@ -44,7 +41,6 @@ class ValidateTaskTest {
     fun `task skips when skip is true`() {
         task.extension.skip = true
 
-        // Should not throw even without spec file
         task.validate()
     }
 

@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.analytics.util;
 
-/**
- * Stability grades for API stability scoring.
- */
 public enum StabilityGrade {
     A("Excellent", 90, 100, "Highly stable API with minimal breaking changes"),
     B("Good", 80, 89, "Stable API with occasional breaking changes"),

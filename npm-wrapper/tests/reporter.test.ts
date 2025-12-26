@@ -187,7 +187,6 @@ describe('generateReport', () => {
       const result = getComparisonResult();
       const report = generateReport(result, 'html');
 
-      // Should contain properly formatted HTML
       expect(report).toContain('<html');
       expect(report).toContain('</html>');
     });

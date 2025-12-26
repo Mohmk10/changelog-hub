@@ -6,9 +6,6 @@ import { ApiSpec, Endpoint, Schema } from '../types';
 
 type TreeItemType = ApiFileItem | EndpointItem | SchemaItem | PropertyItem;
 
-/**
- * Provides tree data for the API Explorer view
- */
 export class ApiExplorerProvider implements vscode.TreeDataProvider<TreeItemType> {
   private _onDidChangeTreeData = new vscode.EventEmitter<TreeItemType | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -37,7 +34,7 @@ export class ApiExplorerProvider implements vscode.TreeDataProvider<TreeItemType
           const spec = parseSpec(content, file.fsPath);
           this.apiSpecs.set(file.fsPath, spec);
         } catch {
-          // Skip invalid files
+          
         }
       }
     }
@@ -49,7 +46,7 @@ export class ApiExplorerProvider implements vscode.TreeDataProvider<TreeItemType
 
   getChildren(element?: TreeItemType): Thenable<TreeItemType[]> {
     if (!element) {
-      // Root level - show API files
+      
       const items: ApiFileItem[] = [];
       for (const [filePath, spec] of this.apiSpecs) {
         items.push(new ApiFileItem(filePath, spec));
@@ -58,17 +55,15 @@ export class ApiExplorerProvider implements vscode.TreeDataProvider<TreeItemType
     }
 
     if (element instanceof ApiFileItem) {
-      // Show endpoints and schemas
+      
       const items: TreeItemType[] = [];
 
-      // Endpoints section
       if (element.spec.endpoints.length > 0) {
         for (const endpoint of element.spec.endpoints) {
           items.push(new EndpointItem(endpoint, element.filePath));
         }
       }
 
-      // Schemas section (collapsed by default)
       if (element.spec.schemas.length > 0) {
         for (const schema of element.spec.schemas) {
           items.push(new SchemaItem(schema, element.filePath));
@@ -79,7 +74,7 @@ export class ApiExplorerProvider implements vscode.TreeDataProvider<TreeItemType
     }
 
     if (element instanceof SchemaItem) {
-      // Show schema properties
+      
       const items: PropertyItem[] = [];
       for (const prop of element.schema.properties) {
         items.push(new PropertyItem(prop.name, prop.type, prop.required));

@@ -10,9 +10,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.AsyncApiConstants;
 import java.util.*;
 import java.util.regex.Matcher;
 
-/**
- * Analyzer for parsing AsyncAPI channel definitions.
- */
 public class ChannelAnalyzer {
 
     private final OperationAnalyzer operationAnalyzer;
@@ -31,9 +28,6 @@ public class ChannelAnalyzer {
         this.schemaAnalyzer = schemaAnalyzer;
     }
 
-    /**
-     * Analyze all channels from the channels node.
-     */
     public Map<String, AsyncChannel> analyzeChannels(JsonNode channelsNode) {
         Map<String, AsyncChannel> channels = new LinkedHashMap<>();
 
@@ -51,9 +45,6 @@ public class ChannelAnalyzer {
         return channels;
     }
 
-    /**
-     * Analyze a single channel definition.
-     */
     public AsyncChannel analyzeChannel(String name, JsonNode channelNode) {
         AsyncChannel.Builder builder = AsyncChannel.builder()
                 .name(name);
@@ -62,56 +53,46 @@ public class ChannelAnalyzer {
             return builder.build();
         }
 
-        // Address (AsyncAPI 3.x)
         if (channelNode.has(AsyncApiConstants.ADDRESS)) {
             builder.address(channelNode.get(AsyncApiConstants.ADDRESS).asText());
         }
 
-        // Description
         if (channelNode.has(AsyncApiConstants.DESCRIPTION)) {
             builder.description(channelNode.get(AsyncApiConstants.DESCRIPTION).asText());
         }
 
-        // Publish operation (AsyncAPI 2.x)
         if (channelNode.has(AsyncApiConstants.PUBLISH)) {
             AsyncOperation pubOp = operationAnalyzer.analyzePublishOperation(
                     channelNode.get(AsyncApiConstants.PUBLISH));
             builder.publishOperation(pubOp);
         }
 
-        // Subscribe operation (AsyncAPI 2.x)
         if (channelNode.has(AsyncApiConstants.SUBSCRIBE)) {
             AsyncOperation subOp = operationAnalyzer.analyzeSubscribeOperation(
                     channelNode.get(AsyncApiConstants.SUBSCRIBE));
             builder.subscribeOperation(subOp);
         }
 
-        // Parameters
         if (channelNode.has(AsyncApiConstants.PARAMETERS)) {
             builder.parameters(parseParameters(channelNode.get(AsyncApiConstants.PARAMETERS)));
         }
 
-        // Bindings
         if (channelNode.has(AsyncApiConstants.BINDINGS)) {
             builder.bindings(parseBindings(channelNode.get(AsyncApiConstants.BINDINGS)));
         }
 
-        // Servers
         if (channelNode.has(AsyncApiConstants.SERVERS)) {
             builder.servers(parseServers(channelNode.get(AsyncApiConstants.SERVERS)));
         }
 
-        // Messages (AsyncAPI 3.x)
         if (channelNode.has(AsyncApiConstants.MESSAGES)) {
             builder.messages(parseMessages(channelNode.get(AsyncApiConstants.MESSAGES)));
         }
 
-        // Tags
         if (channelNode.has(AsyncApiConstants.TAGS)) {
             builder.tags(parseTags(channelNode.get(AsyncApiConstants.TAGS)));
         }
 
-        // Deprecated
         if (channelNode.has(AsyncApiConstants.DEPRECATED)) {
             builder.deprecated(channelNode.get(AsyncApiConstants.DEPRECATED).asBoolean(false));
         }
@@ -119,9 +100,6 @@ public class ChannelAnalyzer {
         return builder.build();
     }
 
-    /**
-     * Extract parameter names from channel path.
-     */
     public List<String> extractChannelParameters(String channelName) {
         List<String> params = new ArrayList<>();
         if (channelName == null) {
@@ -135,9 +113,6 @@ public class ChannelAnalyzer {
         return params;
     }
 
-    /**
-     * Check if channel is deprecated.
-     */
     public boolean isDeprecated(JsonNode channelNode) {
         if (channelNode == null) {
             return false;
@@ -146,9 +121,6 @@ public class ChannelAnalyzer {
                channelNode.get(AsyncApiConstants.DEPRECATED).asBoolean(false);
     }
 
-    /**
-     * Parse channel parameters.
-     */
     private Map<String, AsyncChannel.ChannelParameter> parseParameters(JsonNode parametersNode) {
         Map<String, AsyncChannel.ChannelParameter> parameters = new LinkedHashMap<>();
 
@@ -166,9 +138,6 @@ public class ChannelAnalyzer {
         return parameters;
     }
 
-    /**
-     * Parse a single channel parameter.
-     */
     private AsyncChannel.ChannelParameter parseParameter(String name, JsonNode paramNode) {
         AsyncChannel.ChannelParameter param = new AsyncChannel.ChannelParameter();
         param.setName(name);
@@ -177,7 +146,6 @@ public class ChannelAnalyzer {
             return param;
         }
 
-        // Check for reference
         if (paramNode.has(AsyncApiConstants.REF)) {
             param.setRef(paramNode.get(AsyncApiConstants.REF).asText());
             return param;
@@ -198,9 +166,6 @@ public class ChannelAnalyzer {
         return param;
     }
 
-    /**
-     * Parse bindings.
-     */
     private Map<String, Object> parseBindings(JsonNode bindingsNode) {
         Map<String, Object> bindings = new LinkedHashMap<>();
 
@@ -217,9 +182,6 @@ public class ChannelAnalyzer {
         return bindings;
     }
 
-    /**
-     * Parse servers list.
-     */
     private List<String> parseServers(JsonNode serversNode) {
         List<String> servers = new ArrayList<>();
 
@@ -241,9 +203,6 @@ public class ChannelAnalyzer {
         return servers;
     }
 
-    /**
-     * Parse messages (AsyncAPI 3.x).
-     */
     private Map<String, AsyncMessage> parseMessages(JsonNode messagesNode) {
         Map<String, AsyncMessage> messages = new LinkedHashMap<>();
 
@@ -263,9 +222,6 @@ public class ChannelAnalyzer {
         return messages;
     }
 
-    /**
-     * Parse tags.
-     */
     private List<String> parseTags(JsonNode tagsNode) {
         List<String> tags = new ArrayList<>();
 
@@ -284,9 +240,6 @@ public class ChannelAnalyzer {
         return tags;
     }
 
-    /**
-     * Parse any JSON value.
-     */
     private Object parseValue(JsonNode node) {
         if (node.isTextual()) {
             return node.asText();
@@ -312,9 +265,6 @@ public class ChannelAnalyzer {
         return null;
     }
 
-    /**
-     * Get all channel names.
-     */
     public List<String> getChannelNames(JsonNode channelsNode) {
         List<String> names = new ArrayList<>();
         if (channelsNode != null && channelsNode.isObject()) {

@@ -79,7 +79,7 @@ class TrendAnalyzerTest {
 
     @Test
     void calculateSlope_withLinearData_shouldReturnExactSlope() {
-        // y = 2x, slope should be 2
+        
         List<Integer> values = Arrays.asList(2, 4, 6, 8, 10);
         double slope = analyzer.calculateSlope(values);
         assertThat(slope).isCloseTo(2.0, within(0.01));
@@ -87,7 +87,7 @@ class TrendAnalyzerTest {
 
     @Test
     void calculateSlope_withNoisyData_shouldReturnApproximateSlope() {
-        // Roughly increasing with some noise
+        
         List<Integer> values = Arrays.asList(1, 3, 2, 4, 6, 5, 7);
         double slope = analyzer.calculateSlope(values);
         assertThat(slope).isGreaterThan(0);

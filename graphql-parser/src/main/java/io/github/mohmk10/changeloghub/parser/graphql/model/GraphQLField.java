@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents a GraphQL field in an object or interface type.
- */
 public class GraphQLField {
 
     private String name;

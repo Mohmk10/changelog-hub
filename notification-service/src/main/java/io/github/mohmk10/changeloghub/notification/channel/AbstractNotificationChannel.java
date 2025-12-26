@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Abstract base class for notification channels.
- */
 public abstract class AbstractNotificationChannel implements NotificationChannel {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -40,7 +37,6 @@ public abstract class AbstractNotificationChannel implements NotificationChannel
             String formattedMessage = formatMessage(notification);
             NotificationResult result = doSend(notification, formattedMessage);
 
-            // Add duration to result
             Duration duration = Duration.between(start, Instant.now());
             return NotificationResult.builder()
                 .notificationId(result.getNotificationId())
@@ -65,14 +61,8 @@ public abstract class AbstractNotificationChannel implements NotificationChannel
         }
     }
 
-    /**
-     * Actually send the notification. Subclasses implement this.
-     */
     protected abstract NotificationResult doSend(Notification notification, String formattedMessage);
 
-    /**
-     * Format the message for this channel.
-     */
     protected String formatMessage(Notification notification) {
         if (formatter != null) {
             if (notification.hasChangelog()) {
@@ -83,9 +73,6 @@ public abstract class AbstractNotificationChannel implements NotificationChannel
         return buildDefaultMessage(notification);
     }
 
-    /**
-     * Build a default message if no formatter is set.
-     */
     protected String buildDefaultMessage(Notification notification) {
         StringBuilder sb = new StringBuilder();
         if (notification.getTitle() != null) {
@@ -97,9 +84,6 @@ public abstract class AbstractNotificationChannel implements NotificationChannel
         return sb.toString();
     }
 
-    /**
-     * Validate the configuration before sending.
-     */
     protected void validateConfiguration() {
         if (config == null) {
             throw NotificationException.channelNotConfigured(getType());
@@ -112,9 +96,6 @@ public abstract class AbstractNotificationChannel implements NotificationChannel
         }
     }
 
-    /**
-     * Validate the notification before sending.
-     */
     protected void validateNotification(Notification notification) {
         if (notification == null) {
             throw new IllegalArgumentException("Notification cannot be null");
@@ -148,16 +129,10 @@ public abstract class AbstractNotificationChannel implements NotificationChannel
         return formatter;
     }
 
-    /**
-     * Get timeout from config or default.
-     */
     protected int getTimeout() {
         return config != null ? config.getTimeoutMs() : 30000;
     }
 
-    /**
-     * Get retry count from config or default.
-     */
     protected int getRetryCount() {
         return config != null ? config.getRetryCount() : 3;
     }

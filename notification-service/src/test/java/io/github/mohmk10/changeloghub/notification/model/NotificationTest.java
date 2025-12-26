@@ -148,7 +148,7 @@ class NotificationTest {
 
         assertThat(targeted.isTargetedTo(ChannelType.SLACK)).isTrue();
         assertThat(targeted.isTargetedTo(ChannelType.DISCORD)).isFalse();
-        assertThat(untargeted.isTargetedTo(ChannelType.DISCORD)).isTrue(); // Empty means all
+        assertThat(untargeted.isTargetedTo(ChannelType.DISCORD)).isTrue(); 
     }
 
     @Test

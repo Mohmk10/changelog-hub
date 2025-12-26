@@ -27,7 +27,6 @@ class DetectBreakingChangesMojoTest {
         mojo = new DetectBreakingChangesMojo();
         mojo.setVerbose(false);
         mojo.setFormat("console");
-        // Default is failOnBreaking=true for detect goal
 
         oldSpec = getResourceFile("api-v1.yaml");
         newSpec = getResourceFile("api-v2-minor.yaml");
@@ -44,7 +43,6 @@ class DetectBreakingChangesMojoTest {
         mojo.setNewSpec(newSpec);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw - no breaking changes
         mojo.execute();
     }
 
@@ -54,14 +52,11 @@ class DetectBreakingChangesMojoTest {
         mojo.setNewSpec(newSpecBreaking);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // The changelog generator should detect breaking changes (path changes, etc.)
-        // If no breaking changes are detected, the test passes without throwing
         try {
             mojo.execute();
-            // If no exception, breaking changes weren't detected - this is acceptable
-            // as it depends on the detection algorithm
+
         } catch (MojoFailureException e) {
-            // Expected when breaking changes are detected
+            
             assertThat(e.getMessage()).containsIgnoringCase("breaking");
         }
     }
@@ -73,7 +68,6 @@ class DetectBreakingChangesMojoTest {
         mojo.setFailOnBreaking(false);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw when failOnBreaking is disabled
         mojo.execute();
     }
 
@@ -83,7 +77,6 @@ class DetectBreakingChangesMojoTest {
         mojo.setNewSpec(newSpecBreaking);
         mojo.setSkip(true);
 
-        // Should not throw when skipped
         mojo.execute();
     }
 
@@ -150,7 +143,6 @@ class DetectBreakingChangesMojoTest {
         mojo.setVerbose(true);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -161,7 +153,6 @@ class DetectBreakingChangesMojoTest {
         mojo.setFailOnBreaking(false);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should execute without throwing when failOnBreaking is false
         mojo.execute();
     }
 
@@ -188,7 +179,6 @@ class DetectBreakingChangesMojoTest {
         mojo.setVerbose(true);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should complete successfully and generate a changelog
         mojo.execute();
     }
 }

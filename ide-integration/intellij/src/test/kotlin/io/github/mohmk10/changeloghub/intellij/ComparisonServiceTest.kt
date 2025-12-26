@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.intellij
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-/**
- * Tests for comparison functionality and risk assessment.
- */
 class ComparisonServiceTest {
 
     @Test

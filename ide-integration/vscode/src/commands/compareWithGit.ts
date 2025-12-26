@@ -14,7 +14,7 @@ export async function compareWithGitCommand(
   changelogProvider?: ChangelogProvider
 ): Promise<void> {
   try {
-    // Get current file
+    
     const editor = vscode.window.activeTextEditor;
     const fileUri = uri || editor?.document.uri;
 
@@ -23,11 +23,9 @@ export async function compareWithGitCommand(
       return;
     }
 
-    // Get Git ref
     const config = getConfig();
     const defaultRef = config.baseRef;
 
-    // Show quick pick with common options
     const refOptions = [
       { label: defaultRef, description: 'Default branch' },
       { label: 'HEAD~1', description: 'Previous commit' },
@@ -55,7 +53,6 @@ export async function compareWithGitCommand(
       gitRef = customRef;
     }
 
-    // Get workspace folder
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(fileUri);
     if (!workspaceFolder) {
       vscode.window.showErrorMessage('Changelog Hub: File is not in a workspace');
@@ -69,12 +66,11 @@ export async function compareWithGitCommand(
         cancellable: false,
       },
       async (progress) => {
-        // Get relative path
+        
         const relativePath = vscode.workspace.asRelativePath(fileUri);
 
         progress.report({ increment: 20, message: 'Getting old version from Git...' });
 
-        // Get old content from Git
         let oldContent: string;
         try {
           oldContent = execSync(`git show ${gitRef}:${relativePath}`, {
@@ -89,12 +85,10 @@ export async function compareWithGitCommand(
 
         progress.report({ increment: 20, message: 'Reading current version...' });
 
-        // Get new content
         const newContent = (await vscode.workspace.fs.readFile(fileUri)).toString();
 
         progress.report({ increment: 20, message: 'Parsing specifications...' });
 
-        // Parse and compare
         const oldSpec = parseSpec(oldContent, fileUri.fsPath);
         const newSpec = parseSpec(newContent, fileUri.fsPath);
 
@@ -104,7 +98,6 @@ export async function compareWithGitCommand(
 
         progress.report({ increment: 20 });
 
-        // Update views
         if (breakingChangesProvider) {
           breakingChangesProvider.setBreakingChanges(result.breakingChanges);
         }
@@ -112,7 +105,6 @@ export async function compareWithGitCommand(
           changelogProvider.setChanges(result.changes);
         }
 
-        // Show results
         const format = config.defaultFormat;
         const report = generateReport(result, format);
 
@@ -126,7 +118,6 @@ export async function compareWithGitCommand(
           viewColumn: vscode.ViewColumn.Beside,
         });
 
-        // Notification
         const breakingCount = result.breakingChanges.length;
         if (breakingCount > 0) {
           vscode.window.showWarningMessage(

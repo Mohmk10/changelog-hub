@@ -17,10 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
-/**
- * Default implementation of AsyncApiParser.
- * Uses Jackson for YAML/JSON parsing and custom analyzers for AsyncAPI-specific parsing.
- */
 public class DefaultAsyncApiParser implements AsyncApiParser {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultAsyncApiParser.class);
@@ -172,17 +168,13 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         }
     }
 
-    /**
-     * Parse content to JsonNode, auto-detecting YAML or JSON format.
-     */
     private JsonNode parseToJsonNode(String content) throws AsyncApiParseException {
         String trimmed = content.trim();
 
-        // Try YAML first (YAML is a superset of JSON)
         try {
             return yamlMapper.readTree(content);
         } catch (Exception yamlEx) {
-            // If YAML fails and looks like JSON, try JSON parser
+            
             if (trimmed.startsWith("{")) {
                 try {
                     return jsonMapper.readTree(content);
@@ -194,11 +186,8 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         }
     }
 
-    /**
-     * Parse AsyncApiSpec from JsonNode.
-     */
     private AsyncApiSpec parseFromJsonNode(JsonNode rootNode) throws AsyncApiParseException {
-        // Validate asyncapi field
+        
         if (!rootNode.has(AsyncApiConstants.ASYNCAPI)) {
             throw new AsyncApiParseException("Missing required 'asyncapi' field");
         }
@@ -215,37 +204,30 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         AsyncApiSpec.Builder builder = AsyncApiSpec.builder()
                 .asyncApiVersion(version);
 
-        // Parse info
         if (rootNode.has(AsyncApiConstants.INFO)) {
             parseInfo(builder, rootNode.get(AsyncApiConstants.INFO));
         }
 
-        // Parse servers
         if (rootNode.has(AsyncApiConstants.SERVERS)) {
             builder.servers(serverAnalyzer.analyzeServers(rootNode.get(AsyncApiConstants.SERVERS)));
         }
 
-        // Parse channels
         if (rootNode.has(AsyncApiConstants.CHANNELS)) {
             builder.channels(channelAnalyzer.analyzeChannels(rootNode.get(AsyncApiConstants.CHANNELS)));
         }
 
-        // Parse operations (AsyncAPI 3.x)
         if (version.isV3() && rootNode.has(AsyncApiConstants.OPERATIONS)) {
             builder.operations(operationAnalyzer.analyzeOperationsV3(rootNode.get(AsyncApiConstants.OPERATIONS)));
         }
 
-        // Parse components
         if (rootNode.has(AsyncApiConstants.COMPONENTS)) {
             builder.components(parseComponents(rootNode.get(AsyncApiConstants.COMPONENTS)));
         }
 
-        // Parse tags
         if (rootNode.has(AsyncApiConstants.TAGS)) {
             builder.tags(parseTags(rootNode.get(AsyncApiConstants.TAGS)));
         }
 
-        // Parse external docs
         if (rootNode.has(AsyncApiConstants.EXTERNAL_DOCS)) {
             builder.externalDocs(parseExternalDocs(rootNode.get(AsyncApiConstants.EXTERNAL_DOCS)));
         }
@@ -253,9 +235,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return builder.build();
     }
 
-    /**
-     * Parse info section.
-     */
     private void parseInfo(AsyncApiSpec.Builder builder, JsonNode infoNode) {
         if (infoNode.has(AsyncApiConstants.TITLE)) {
             builder.title(infoNode.get(AsyncApiConstants.TITLE).asText());
@@ -273,20 +252,15 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
             builder.termsOfService(infoNode.get(AsyncApiConstants.TERMS_OF_SERVICE).asText());
         }
 
-        // Contact
         if (infoNode.has(AsyncApiConstants.CONTACT)) {
             builder.contact(parseContact(infoNode.get(AsyncApiConstants.CONTACT)));
         }
 
-        // License
         if (infoNode.has(AsyncApiConstants.LICENSE)) {
             builder.license(parseLicense(infoNode.get(AsyncApiConstants.LICENSE)));
         }
     }
 
-    /**
-     * Parse contact info.
-     */
     private AsyncApiSpec.Contact parseContact(JsonNode contactNode) {
         AsyncApiSpec.Contact contact = new AsyncApiSpec.Contact();
         if (contactNode.has(AsyncApiConstants.NAME)) {
@@ -301,9 +275,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return contact;
     }
 
-    /**
-     * Parse license info.
-     */
     private AsyncApiSpec.License parseLicense(JsonNode licenseNode) {
         AsyncApiSpec.License license = new AsyncApiSpec.License();
         if (licenseNode.has(AsyncApiConstants.NAME)) {
@@ -315,61 +286,49 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return license;
     }
 
-    /**
-     * Parse components section.
-     */
     private AsyncApiSpec.Components parseComponents(JsonNode componentsNode) {
         AsyncApiSpec.Components components = new AsyncApiSpec.Components();
 
-        // Schemas
         if (componentsNode.has(AsyncApiConstants.SCHEMAS)) {
             components.setSchemas(schemaAnalyzer.analyzeSchemas(
                     componentsNode.get(AsyncApiConstants.SCHEMAS)));
         }
 
-        // Messages
         if (componentsNode.has(AsyncApiConstants.MESSAGES)) {
             components.setMessages(messageAnalyzer.analyzeMessages(
                     componentsNode.get(AsyncApiConstants.MESSAGES)));
         }
 
-        // Security schemes
         if (componentsNode.has(AsyncApiConstants.SECURITY_SCHEMES)) {
             components.setSecuritySchemes(parseSecuritySchemes(
                     componentsNode.get(AsyncApiConstants.SECURITY_SCHEMES)));
         }
 
-        // Parameters
         if (componentsNode.has(AsyncApiConstants.PARAMETERS)) {
             components.setParameters(parseComponentParameters(
                     componentsNode.get(AsyncApiConstants.PARAMETERS)));
         }
 
-        // Correlation IDs
         if (componentsNode.has(AsyncApiConstants.CORRELATION_IDS)) {
             components.setCorrelationIds(parseCorrelationIds(
                     componentsNode.get(AsyncApiConstants.CORRELATION_IDS)));
         }
 
-        // Server bindings
         if (componentsNode.has(AsyncApiConstants.SERVER_BINDINGS)) {
             components.setServerBindings(parseBindingsMap(
                     componentsNode.get(AsyncApiConstants.SERVER_BINDINGS)));
         }
 
-        // Channel bindings
         if (componentsNode.has(AsyncApiConstants.CHANNEL_BINDINGS)) {
             components.setChannelBindings(parseBindingsMap(
                     componentsNode.get(AsyncApiConstants.CHANNEL_BINDINGS)));
         }
 
-        // Operation bindings
         if (componentsNode.has(AsyncApiConstants.OPERATION_BINDINGS)) {
             components.setOperationBindings(parseBindingsMap(
                     componentsNode.get(AsyncApiConstants.OPERATION_BINDINGS)));
         }
 
-        // Message bindings
         if (componentsNode.has(AsyncApiConstants.MESSAGE_BINDINGS)) {
             components.setMessageBindings(parseBindingsMap(
                     componentsNode.get(AsyncApiConstants.MESSAGE_BINDINGS)));
@@ -378,9 +337,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return components;
     }
 
-    /**
-     * Parse security schemes.
-     */
     private Map<String, Object> parseSecuritySchemes(JsonNode node) {
         Map<String, Object> schemes = new LinkedHashMap<>();
         if (node != null && node.isObject()) {
@@ -393,9 +349,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return schemes;
     }
 
-    /**
-     * Parse component parameters.
-     */
     private Map<String, AsyncChannel.ChannelParameter> parseComponentParameters(JsonNode node) {
         Map<String, AsyncChannel.ChannelParameter> params = new LinkedHashMap<>();
         if (node != null && node.isObject()) {
@@ -422,9 +375,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return params;
     }
 
-    /**
-     * Parse correlation IDs.
-     */
     private Map<String, Object> parseCorrelationIds(JsonNode node) {
         Map<String, Object> ids = new LinkedHashMap<>();
         if (node != null && node.isObject()) {
@@ -437,9 +387,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return ids;
     }
 
-    /**
-     * Parse bindings map.
-     */
     private Map<String, Object> parseBindingsMap(JsonNode node) {
         Map<String, Object> bindings = new LinkedHashMap<>();
         if (node != null && node.isObject()) {
@@ -452,9 +399,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return bindings;
     }
 
-    /**
-     * Parse object node to map.
-     */
     private Map<String, Object> parseObjectNode(JsonNode node) {
         Map<String, Object> map = new LinkedHashMap<>();
         if (node != null && node.isObject()) {
@@ -467,9 +411,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return map;
     }
 
-    /**
-     * Parse any JSON value.
-     */
     private Object parseValue(JsonNode node) {
         if (node == null || node.isNull()) {
             return null;
@@ -491,9 +432,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return null;
     }
 
-    /**
-     * Parse tags array.
-     */
     private List<AsyncApiSpec.Tag> parseTags(JsonNode tagsNode) {
         List<AsyncApiSpec.Tag> tags = new ArrayList<>();
         if (tagsNode != null && tagsNode.isArray()) {
@@ -514,9 +452,6 @@ public class DefaultAsyncApiParser implements AsyncApiParser {
         return tags;
     }
 
-    /**
-     * Parse external docs.
-     */
     private AsyncApiSpec.ExternalDocs parseExternalDocs(JsonNode docsNode) {
         AsyncApiSpec.ExternalDocs docs = new AsyncApiSpec.ExternalDocs();
         if (docsNode.has(AsyncApiConstants.URL)) {

@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.graphql.exception;
 
-/**
- * Exception thrown when parsing GraphQL schemas fails.
- */
 public class GraphQLParseException extends RuntimeException {
 
     public GraphQLParseException(String message) {

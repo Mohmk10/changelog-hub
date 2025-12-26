@@ -174,7 +174,6 @@ class HtmlReporterTest {
 
         String report = reporter.report(changelog);
 
-        // The malicious script tag should be escaped
         assertThat(report).contains("&lt;script&gt;alert");
         assertThat(report).contains("&lt;/script&gt;");
     }

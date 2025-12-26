@@ -384,7 +384,7 @@ class DefaultGraphQLParserTest {
 
             assertThat(apiSpec).isNotNull();
             assertThat(apiSpec.getType()).isEqualTo(ApiType.GRAPHQL);
-            assertThat(apiSpec.getEndpoints()).hasSize(3); // 2 queries + 1 mutation
+            assertThat(apiSpec.getEndpoints()).hasSize(3); 
         }
 
         @Test
@@ -454,22 +454,16 @@ class DefaultGraphQLParserTest {
         void shouldParseCompleteSchema() throws GraphQLParseException {
             GraphQLSchema schema = parser.parseFile("src/test/resources/schemas/schema-v1.graphql");
 
-            // Verify types
             assertThat(schema.getTypes()).containsKeys("User", "Product", "Order", "Review");
 
-            // Verify enums
             assertThat(schema.getTypes()).containsKeys("UserRole", "OrderStatus", "ProductCategory");
 
-            // Verify interfaces
             assertThat(schema.getTypes()).containsKeys("Node", "Timestamped");
 
-            // Verify union
             assertThat(schema.getTypes()).containsKey("SearchResult");
 
-            // Verify input types
             assertThat(schema.getTypes()).containsKeys("CreateUserInput", "ProductFilter");
 
-            // Verify operations
             assertThat(schema.getQueries()).hasSizeGreaterThan(5);
             assertThat(schema.getMutations()).hasSizeGreaterThan(5);
             assertThat(schema.getSubscriptions()).hasSizeGreaterThan(0);

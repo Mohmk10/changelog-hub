@@ -7,9 +7,6 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Result of sending a notification.
- */
 public class NotificationResult {
 
     private final String notificationId;
@@ -84,9 +81,6 @@ public class NotificationResult {
         return retryCount > 0;
     }
 
-    /**
-     * Create a success result.
-     */
     public static NotificationResult success(String notificationId, ChannelType channelType) {
         return builder()
             .notificationId(notificationId)
@@ -95,9 +89,6 @@ public class NotificationResult {
             .build();
     }
 
-    /**
-     * Create a success result with message ID.
-     */
     public static NotificationResult success(String notificationId, ChannelType channelType, String messageId) {
         return builder()
             .notificationId(notificationId)
@@ -107,9 +98,6 @@ public class NotificationResult {
             .build();
     }
 
-    /**
-     * Create a failure result.
-     */
     public static NotificationResult failure(String notificationId, ChannelType channelType, String errorMessage) {
         return builder()
             .notificationId(notificationId)
@@ -119,9 +107,6 @@ public class NotificationResult {
             .build();
     }
 
-    /**
-     * Create a failure result with exception.
-     */
     public static NotificationResult failure(String notificationId, ChannelType channelType, Throwable error) {
         return builder()
             .notificationId(notificationId)
@@ -132,9 +117,6 @@ public class NotificationResult {
             .build();
     }
 
-    /**
-     * Create a failure result with HTTP status.
-     */
     public static NotificationResult httpFailure(String notificationId, ChannelType channelType,
                                                   int statusCode, String errorMessage) {
         return builder()

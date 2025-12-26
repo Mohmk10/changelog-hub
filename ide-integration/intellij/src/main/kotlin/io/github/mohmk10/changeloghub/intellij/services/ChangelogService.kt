@@ -5,15 +5,9 @@ import com.intellij.openapi.project.Project
 import io.github.mohmk10.changeloghub.intellij.settings.ChangelogHubSettings
 import io.github.mohmk10.changeloghub.intellij.util.Logger
 
-/**
- * Service for generating changelogs in various formats.
- */
 @Service(Service.Level.PROJECT)
 class ChangelogService(private val project: Project) {
 
-    /**
-     * Generate a changelog from comparison result.
-     */
     fun generateChangelog(result: ComparisonResult, format: String? = null): String {
         val settings = project.getService(ChangelogHubSettings::class.java)
         val outputFormat = format ?: settings.state.defaultFormat

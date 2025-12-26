@@ -2,28 +2,17 @@ import { ComparisonResult } from './comparator';
 import { Change } from './detector';
 import { ApiSpec } from './parser';
 
-/**
- * Report generation options
- */
 export interface ReportOptions {
-  /** Old API spec info */
+  
   oldSpec: ApiSpec;
-  /** New API spec info */
+  
   newSpec: ApiSpec;
-  /** Include migration suggestions */
+  
   includeMigration?: boolean;
-  /** Include timestamps */
+  
   includeTimestamp?: boolean;
 }
 
-/**
- * Generates a report from comparison results in the specified format.
- *
- * @param result - Comparison result
- * @param format - Output format (console, markdown, json)
- * @param options - Additional options for report generation
- * @returns Formatted report string
- */
 export function generateReport(
   result: ComparisonResult,
   format: string,
@@ -40,9 +29,6 @@ export function generateReport(
   }
 }
 
-/**
- * Generates a JSON report
- */
 function generateJsonReport(result: ComparisonResult, options: ReportOptions): string {
   const report = {
     metadata: {
@@ -84,21 +70,15 @@ function generateJsonReport(result: ComparisonResult, options: ReportOptions): s
   return JSON.stringify(report, null, 2);
 }
 
-/**
- * Generates a Markdown report
- */
 function generateMarkdownReport(result: ComparisonResult, options: ReportOptions): string {
   const lines: string[] = [];
 
-  // Header
   lines.push('# API Changelog');
   lines.push('');
 
-  // Version info
   lines.push(`**${options.oldSpec.name}** v${options.oldSpec.version} → v${options.newSpec.version}`);
   lines.push('');
 
-  // Summary table
   lines.push('## Summary');
   lines.push('');
   lines.push('| Metric | Value |');
@@ -112,7 +92,6 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
   lines.push(`| Schemas Modified | ${result.summary.schemasModified} |`);
   lines.push('');
 
-  // Breaking changes section
   if (result.breakingChanges.length > 0) {
     lines.push('## 🔴 Breaking Changes');
     lines.push('');
@@ -141,7 +120,6 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
     }
   }
 
-  // Dangerous changes
   const dangerousChanges = result.changes.filter((c) => c.severity === 'DANGEROUS');
   if (dangerousChanges.length > 0) {
     lines.push('## 🟠 Dangerous Changes');
@@ -154,7 +132,6 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
     lines.push('');
   }
 
-  // Warnings
   const warnings = result.changes.filter((c) => c.severity === 'WARNING');
   if (warnings.length > 0) {
     lines.push('## 🟡 Deprecations & Warnings');
@@ -165,7 +142,6 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
     lines.push('');
   }
 
-  // Additions
   const additions = result.changes.filter((c) => c.type === 'ADDED' && c.severity === 'INFO');
   if (additions.length > 0) {
     lines.push('## 🟢 Additions');
@@ -181,7 +157,6 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
     }
   }
 
-  // Other modifications
   const modifications = result.changes.filter(
     (c) => c.type === 'MODIFIED' && c.severity === 'INFO'
   );
@@ -194,7 +169,6 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
     lines.push('');
   }
 
-  // Footer
   if (options.includeTimestamp !== false) {
     lines.push('---');
     lines.push(`*Generated at ${new Date().toISOString()} by Changelog Hub*`);
@@ -203,15 +177,11 @@ function generateMarkdownReport(result: ComparisonResult, options: ReportOptions
   return lines.join('\n');
 }
 
-/**
- * Generates a console-friendly report
- */
 function generateConsoleReport(result: ComparisonResult, options: ReportOptions): string {
   const lines: string[] = [];
   const separator = '═'.repeat(60);
   const thinSeparator = '─'.repeat(60);
 
-  // Header
   lines.push(separator);
   lines.push('  API CHANGELOG');
   lines.push(separator);
@@ -221,7 +191,6 @@ function generateConsoleReport(result: ComparisonResult, options: ReportOptions)
   lines.push('');
   lines.push(thinSeparator);
 
-  // Summary
   lines.push('  SUMMARY');
   lines.push(thinSeparator);
   lines.push(`  Total Changes:       ${result.changes.length}`);
@@ -229,7 +198,6 @@ function generateConsoleReport(result: ComparisonResult, options: ReportOptions)
   lines.push(`  Risk Score:          ${result.riskScore}/100`);
   lines.push('');
 
-  // Breaking changes
   if (result.breakingChanges.length > 0) {
     lines.push(thinSeparator);
     lines.push('  🔴 BREAKING CHANGES');
@@ -242,7 +210,6 @@ function generateConsoleReport(result: ComparisonResult, options: ReportOptions)
     }
   }
 
-  // Dangerous changes
   const dangerousChanges = result.changes.filter((c) => c.severity === 'DANGEROUS');
   if (dangerousChanges.length > 0) {
     lines.push(thinSeparator);
@@ -254,7 +221,6 @@ function generateConsoleReport(result: ComparisonResult, options: ReportOptions)
     lines.push('');
   }
 
-  // Warnings
   const warnings = result.changes.filter((c) => c.severity === 'WARNING');
   if (warnings.length > 0) {
     lines.push(thinSeparator);
@@ -266,7 +232,6 @@ function generateConsoleReport(result: ComparisonResult, options: ReportOptions)
     lines.push('');
   }
 
-  // Additions
   const additions = result.changes.filter((c) => c.type === 'ADDED' && c.severity === 'INFO');
   if (additions.length > 0) {
     lines.push(thinSeparator);
@@ -283,9 +248,6 @@ function generateConsoleReport(result: ComparisonResult, options: ReportOptions)
   return lines.join('\n');
 }
 
-/**
- * Groups changes by category
- */
 function groupByCategory<T extends Change>(changes: T[]): Record<string, T[]> {
   const grouped: Record<string, T[]> = {};
   for (const change of changes) {
@@ -297,9 +259,6 @@ function groupByCategory<T extends Change>(changes: T[]): Record<string, T[]> {
   return grouped;
 }
 
-/**
- * Formats a category name for display
- */
 function formatCategory(category: string): string {
   const categoryMap: Record<string, string> = {
     ENDPOINT: 'Endpoints',
@@ -313,9 +272,6 @@ function formatCategory(category: string): string {
   return categoryMap[category] || category;
 }
 
-/**
- * Generates a short summary suitable for PR titles or commit messages
- */
 export function generateShortSummary(result: ComparisonResult): string {
   const parts: string[] = [];
 
@@ -345,9 +301,6 @@ export function generateShortSummary(result: ComparisonResult): string {
   return `API changes: ${parts.join(', ')}`;
 }
 
-/**
- * Generates a release notes section
- */
 export function generateReleaseNotes(result: ComparisonResult, options: ReportOptions): string {
   const lines: string[] = [];
 

@@ -10,9 +10,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for ParserFactory.
- */
 class ParserFactoryTest {
 
     @TempDir
@@ -130,7 +127,6 @@ class ParserFactoryTest {
 
         val spec = ParserFactory.parse(file, "graphql")
 
-        // GraphQL parser should work
         assertNotNull(spec)
     }
 

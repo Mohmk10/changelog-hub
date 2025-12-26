@@ -100,8 +100,8 @@ class ComplexityAnalyzerTest {
         ApiSpec spec = new ApiSpec();
         List<Endpoint> endpoints = Arrays.asList(
                 createEndpoint("/api/users", false, "Get users"),
-                createEndpoint("/api/GetPosts", false, "Get posts"), // CamelCase
-                createEndpoint("/API/comments", false, "Get comments") // Uppercase
+                createEndpoint("/api/GetPosts", false, "Get posts"), 
+                createEndpoint("/API/comments", false, "Get comments") 
         );
         spec.setEndpoints(endpoints);
 
@@ -113,7 +113,7 @@ class ComplexityAnalyzerTest {
     void analyzeTechnicalDebt_shouldCalculateDebtScore() {
         ApiSpec spec = new ApiSpec();
         List<Endpoint> endpoints = Arrays.asList(
-                createEndpoint("/api/v1", true, null), // deprecated + missing doc
+                createEndpoint("/api/v1", true, null), 
                 createEndpoint("/api/v2", false, "Description")
         );
         spec.setEndpoints(endpoints);

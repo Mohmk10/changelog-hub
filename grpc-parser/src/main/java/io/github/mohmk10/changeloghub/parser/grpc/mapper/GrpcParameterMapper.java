@@ -8,22 +8,15 @@ import io.github.mohmk10.changeloghub.parser.grpc.model.ProtoRpcMethod;
 
 import java.util.*;
 
-/**
- * Mapper for converting Protocol Buffers fields to core Parameter objects.
- */
 public class GrpcParameterMapper {
 
-    /**
-     * Map a ProtoField to a Parameter.
-     */
     public Parameter mapField(ProtoField field, String messageContext) {
         Parameter param = new Parameter();
         param.setName(field.getName());
         param.setType(mapFieldType(field));
         param.setRequired(field.isRequired());
-        param.setLocation(ParameterLocation.BODY); // gRPC always uses body
+        param.setLocation(ParameterLocation.BODY); 
 
-        // Build description
         StringBuilder description = new StringBuilder();
         description.append("Field ").append(field.getName());
         description.append(" (").append(field.getFullTypeSignature()).append(")");
@@ -39,15 +32,11 @@ public class GrpcParameterMapper {
 
         param.setDescription(description.toString());
 
-        // Add default value if present
         field.getDefaultValue().ifPresent(param::setDefaultValue);
 
         return param;
     }
 
-    /**
-     * Map all fields from a request message to parameters.
-     */
     public List<Parameter> mapRequestFields(ProtoMessage requestMessage) {
         List<Parameter> parameters = new ArrayList<>();
 
@@ -62,9 +51,6 @@ public class GrpcParameterMapper {
         return parameters;
     }
 
-    /**
-     * Map RPC method input to parameters.
-     */
     public List<Parameter> mapRpcInput(ProtoRpcMethod method, Map<String, ProtoMessage> messages) {
         List<Parameter> parameters = new ArrayList<>();
 
@@ -72,10 +58,10 @@ public class GrpcParameterMapper {
         ProtoMessage inputMessage = messages.get(inputType);
 
         if (inputMessage != null) {
-            // Add each field as a parameter
+            
             parameters.addAll(mapRequestFields(inputMessage));
         } else {
-            // Create a single body parameter for the input message
+            
             Parameter param = new Parameter();
             param.setName("request");
             param.setType("object");
@@ -85,7 +71,6 @@ public class GrpcParameterMapper {
             parameters.add(param);
         }
 
-        // Add streaming indicator if client streaming
         if (method.isClientStreaming()) {
             Parameter streamParam = new Parameter();
             streamParam.setName("_streaming");
@@ -100,9 +85,6 @@ public class GrpcParameterMapper {
         return parameters;
     }
 
-    /**
-     * Map a field type to a string representation.
-     */
     private String mapFieldType(ProtoField field) {
         if (field.isMap()) {
             return "map<" + field.getMapKeyType().orElse("?") +
@@ -116,9 +98,6 @@ public class GrpcParameterMapper {
         return field.getType().getApiType();
     }
 
-    /**
-     * Create a summary of parameters for an RPC method.
-     */
     public Map<String, Object> createParameterSummary(ProtoRpcMethod method, Map<String, ProtoMessage> messages) {
         Map<String, Object> summary = new LinkedHashMap<>();
 
@@ -146,9 +125,6 @@ public class GrpcParameterMapper {
         return summary;
     }
 
-    /**
-     * Compare parameters between two versions.
-     */
     public Map<String, List<Parameter>> compareParameters(
             List<Parameter> oldParams,
             List<Parameter> newParams) {
@@ -172,21 +148,18 @@ public class GrpcParameterMapper {
             newMap.put(p.getName(), p);
         }
 
-        // Find added
         for (String name : newNames) {
             if (!oldNames.contains(name)) {
                 result.get("added").add(newMap.get(name));
             }
         }
 
-        // Find removed
         for (String name : oldNames) {
             if (!newNames.contains(name)) {
                 result.get("removed").add(oldMap.get(name));
             }
         }
 
-        // Find modified
         for (String name : oldNames) {
             if (newNames.contains(name)) {
                 Parameter oldParam = oldMap.get(name);

@@ -756,12 +756,11 @@ class GraphQLSchemaComparatorTest {
 
             List<Change> changes = comparator.compare(v1, v2Minor);
 
-            // Minor version should have INFO and WARNING changes, fewer BREAKING
             long infoCount = changes.stream().filter(c -> c.getSeverity() == Severity.INFO).count();
             long warningCount = changes.stream().filter(c -> c.getSeverity() == Severity.WARNING).count();
 
             assertThat(infoCount).isGreaterThan(0);
-            // Minor changes include deprecations which are warnings
+            
         }
     }
 }

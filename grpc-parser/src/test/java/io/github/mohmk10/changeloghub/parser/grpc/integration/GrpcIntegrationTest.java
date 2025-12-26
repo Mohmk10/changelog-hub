@@ -57,12 +57,10 @@ class GrpcIntegrationTest {
             assertEquals("proto3", protoFile.getSyntax());
             assertEquals("com.example.user.v1", protoFile.getPackageName());
 
-            // Check services
             assertEquals(2, protoFile.getServices().size());
             assertTrue(protoFile.hasService("UserService"));
             assertTrue(protoFile.hasService("BulkUserService"));
 
-            // Check UserService methods
             var userService = protoFile.getService("UserService").orElseThrow();
             assertEquals(6, userService.getMethodCount());
             assertTrue(userService.hasMethod("GetUser"));
@@ -72,12 +70,10 @@ class GrpcIntegrationTest {
             assertTrue(userService.hasMethod("ListUsers"));
             assertTrue(userService.hasMethod("WatchUsers"));
 
-            // Check streaming methods
             var watchUsers = userService.getMethod("WatchUsers").orElseThrow();
             assertTrue(watchUsers.isServerStreaming());
             assertFalse(watchUsers.isClientStreaming());
 
-            // Check BulkUserService methods
             var bulkService = protoFile.getService("BulkUserService").orElseThrow();
             assertEquals(2, bulkService.getMethodCount());
 
@@ -89,19 +85,16 @@ class GrpcIntegrationTest {
             assertTrue(syncUsers.isClientStreaming());
             assertTrue(syncUsers.isServerStreaming());
 
-            // Check messages
             assertTrue(protoFile.getMessages().size() >= 10);
             assertTrue(protoFile.hasMessage("User"));
             assertTrue(protoFile.hasMessage("Address"));
             assertTrue(protoFile.hasMessage("GetUserRequest"));
             assertTrue(protoFile.hasMessage("CreateUserRequest"));
 
-            // Check enums
             assertEquals(2, protoFile.getEnums().size());
             assertTrue(protoFile.hasEnum("UserStatus"));
             assertTrue(protoFile.hasEnum("Role"));
 
-            // Check User message fields
             var userMessage = protoFile.getMessage("User").orElseThrow();
             assertEquals(12, userMessage.getFieldCount());
             assertTrue(userMessage.hasField("id"));
@@ -120,13 +113,10 @@ class GrpcIntegrationTest {
             assertEquals("proto3", protoFile.getSyntax());
             assertEquals("com.example.user.v2", protoFile.getPackageName());
 
-            // BulkUserService should be removed
             assertFalse(protoFile.hasService("BulkUserService"));
 
-            // AdminService should be added
             assertTrue(protoFile.hasService("AdminService"));
 
-            // Check UserStatus enum - SUSPENDED should be removed
             var userStatus = protoFile.getEnum("UserStatus").orElseThrow();
             assertFalse(userStatus.hasValue("USER_STATUS_SUSPENDED"));
             assertTrue(userStatus.hasValue("USER_STATUS_BANNED"));
@@ -141,10 +131,8 @@ class GrpcIntegrationTest {
             assertEquals("proto3", protoFile.getSyntax());
             assertEquals("com.example.user.v1", protoFile.getPackageName());
 
-            // Should have NotificationService added
             assertTrue(protoFile.hasService("NotificationService"));
 
-            // UserService should have new methods
             var userService = protoFile.getService("UserService").orElseThrow();
             assertTrue(userService.hasMethod("GetUserByEmail"));
             assertTrue(userService.hasMethod("VerifyEmail"));
@@ -166,14 +154,11 @@ class GrpcIntegrationTest {
             assertFalse(changes.isEmpty());
             assertTrue(protoComparator.hasBreakingChanges(changes));
 
-            // Count changes by severity
             Map<Severity, List<BreakingChange>> bySeverity = protoComparator.groupBySeverity(changes);
 
-            // Should have breaking changes
             assertFalse(bySeverity.get(Severity.BREAKING).isEmpty(),
                     "Should have BREAKING changes");
 
-            // Verify specific breaking changes
             assertTrue(changes.stream().anyMatch(c ->
                             c.getCategory() == ChangeCategory.PACKAGE &&
                                     c.getSeverity() == Severity.BREAKING),
@@ -189,7 +174,6 @@ class GrpcIntegrationTest {
                                     c.getType() == ChangeType.REMOVED),
                     "Should detect enum value removed");
 
-            // Print summary
             System.out.println("=== Breaking Changes Summary (v1 -> v2_breaking) ===");
             System.out.println("Total changes: " + changes.size());
             System.out.println("BREAKING: " + bySeverity.get(Severity.BREAKING).size());
@@ -208,19 +192,15 @@ class GrpcIntegrationTest {
 
             assertFalse(changes.isEmpty());
 
-            // Should not have breaking changes for package (same package)
             assertFalse(changes.stream().anyMatch(c ->
                             c.getCategory() == ChangeCategory.PACKAGE),
                     "Should not have package changes");
 
-            // Count changes by severity
             Map<Severity, List<BreakingChange>> bySeverity = protoComparator.groupBySeverity(changes);
 
-            // Should mostly be INFO (additions)
             assertFalse(bySeverity.get(Severity.INFO).isEmpty(),
                     "Should have INFO changes (additions)");
 
-            // Verify specific additions
             assertTrue(changes.stream().anyMatch(c ->
                             c.getCategory() == ChangeCategory.SERVICE &&
                                     c.getType() == ChangeType.ADDED &&
@@ -237,7 +217,6 @@ class GrpcIntegrationTest {
                                     c.getType() == ChangeType.ADDED),
                     "Should detect new enum values added");
 
-            // Print summary
             System.out.println("=== Minor Changes Summary (v1 -> v2_minor) ===");
             System.out.println("Total changes: " + changes.size());
             System.out.println("BREAKING: " + bySeverity.get(Severity.BREAKING).size());
@@ -262,15 +241,12 @@ class GrpcIntegrationTest {
             assertNotNull(apiSpec.getName());
             assertTrue(apiSpec.getName().contains("com.example.user.v1"));
 
-            // Check endpoints (one per RPC method)
             assertFalse(apiSpec.getEndpoints().isEmpty());
-            assertTrue(apiSpec.getEndpoints().size() >= 8); // 6 UserService + 2 BulkUserService
+            assertTrue(apiSpec.getEndpoints().size() >= 8); 
 
-            // Check metadata contains schemas
             assertNotNull(apiSpec.getMetadata());
             assertTrue(apiSpec.getMetadata().containsKey("schemas"));
 
-            // Print API info
             System.out.println("=== ApiSpec Info ===");
             System.out.println("Name: " + apiSpec.getName());
             System.out.println("Version: " + apiSpec.getVersion());
@@ -309,7 +285,6 @@ class GrpcIntegrationTest {
 
             List<BreakingChange> changes = protoComparator.compare(v1, v2);
 
-            // Create changelog
             Changelog changelog = new Changelog();
             changelog.setFromVersion("1.0.0");
             changelog.setToVersion("2.0.0");
@@ -382,31 +357,26 @@ class GrpcIntegrationTest {
         @Test
         @DisplayName("Should execute complete changelog generation flow")
         void shouldExecuteCompleteChangelogGenerationFlow() {
-            // 1. Parse proto files
+            
             ProtoFile oldProto = loadProtoFile("user_service_v1.proto");
             ProtoFile newProto = loadProtoFile("user_service_v2_breaking.proto");
 
             assertNotNull(oldProto);
             assertNotNull(newProto);
 
-            // 2. Compare and detect changes
             List<BreakingChange> changes = protoComparator.compare(oldProto, newProto);
             assertFalse(changes.isEmpty());
 
-            // 3. Verify breaking changes exist
             assertTrue(protoComparator.hasBreakingChanges(changes));
 
-            // 4. Get statistics
             Map<String, Object> stats = protoComparator.getStatistics(changes);
             assertTrue((int) stats.get("totalChanges") > 0);
 
-            // 5. Create changelog
             Changelog changelog = new Changelog();
             changelog.setFromVersion("1.0.0");
             changelog.setToVersion("2.0.0");
             changelog.getBreakingChanges().addAll(changes);
 
-            // 6. Generate reports in all formats
             for (ReportFormat format : ReportFormat.values()) {
                 Reporter reporter = ReporterFactory.create(format);
                 String report = reporter.report(changelog);
@@ -414,7 +384,6 @@ class GrpcIntegrationTest {
                 assertFalse(report.isEmpty());
             }
 
-            // Print final summary
             System.out.println("=== Complete Flow Test Summary ===");
             System.out.println("Old proto: " + oldProto.getPackageName());
             System.out.println("New proto: " + newProto.getPackageName());

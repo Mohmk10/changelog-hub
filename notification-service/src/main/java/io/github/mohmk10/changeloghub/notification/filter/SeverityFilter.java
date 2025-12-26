@@ -7,25 +7,16 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * Filter notifications by severity level.
- */
 public class SeverityFilter implements NotificationFilter {
 
     private final Severity minimumSeverity;
     private final Set<Severity> allowedSeverities;
 
-    /**
-     * Create a filter with minimum severity.
-     */
     public SeverityFilter(Severity minimumSeverity) {
         this.minimumSeverity = Objects.requireNonNull(minimumSeverity);
         this.allowedSeverities = null;
     }
 
-    /**
-     * Create a filter with explicit allowed severities.
-     */
     public SeverityFilter(Set<Severity> allowedSeverities) {
         this.minimumSeverity = null;
         this.allowedSeverities = EnumSet.copyOf(Objects.requireNonNull(allowedSeverities));
@@ -40,7 +31,7 @@ public class SeverityFilter implements NotificationFilter {
         }
 
         if (minimumSeverity != null && severity != null) {
-            // Lower ordinal = higher severity (BREAKING=0, INFO=3)
+            
             return severity.ordinal() <= minimumSeverity.ordinal();
         }
 
@@ -59,33 +50,21 @@ public class SeverityFilter implements NotificationFilter {
 
     @Override
     public int getPriority() {
-        return 10; // Run early
+        return 10; 
     }
 
-    /**
-     * Create a filter that only allows breaking changes.
-     */
     public static SeverityFilter breakingOnly() {
         return new SeverityFilter(EnumSet.of(Severity.BREAKING));
     }
 
-    /**
-     * Create a filter that allows breaking and dangerous changes.
-     */
     public static SeverityFilter criticalOnly() {
         return new SeverityFilter(EnumSet.of(Severity.BREAKING, Severity.DANGEROUS));
     }
 
-    /**
-     * Create a filter with minimum severity.
-     */
     public static SeverityFilter minimum(Severity minSeverity) {
         return new SeverityFilter(minSeverity);
     }
 
-    /**
-     * Create a filter that allows all severities.
-     */
     public static SeverityFilter allowAll() {
         return new SeverityFilter(EnumSet.allOf(Severity.class));
     }

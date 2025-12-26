@@ -8,9 +8,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.model.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Maps complete AsyncAPI specification to core ApiSpec model.
- */
 public class AsyncApiModelMapper {
 
     private final AsyncApiEndpointMapper endpointMapper;
@@ -27,9 +24,6 @@ public class AsyncApiModelMapper {
         this.schemaMapper = schemaMapper;
     }
 
-    /**
-     * Map AsyncApiSpec to core ApiSpec.
-     */
     public ApiSpec map(AsyncApiSpec asyncSpec) {
         if (asyncSpec == null) {
             return null;
@@ -37,18 +31,14 @@ public class AsyncApiModelMapper {
 
         ApiSpec.Builder builder = ApiSpec.builder();
 
-        // Name and version
         builder.name(asyncSpec.getTitle() != null ? asyncSpec.getTitle() : "Untitled AsyncAPI");
         builder.version(asyncSpec.getApiVersion() != null ? asyncSpec.getApiVersion() : "1.0.0");
 
-        // Type is ASYNCAPI
         builder.type(ApiType.ASYNCAPI);
 
-        // Map endpoints from channels/operations
         List<Endpoint> endpoints = mapEndpoints(asyncSpec);
         builder.endpoints(endpoints);
 
-        // Metadata
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("asyncapi_version", asyncSpec.getAsyncApiVersion() != null ?
                 asyncSpec.getAsyncApiVersion().getVersion() : "2.6.0");
@@ -93,7 +83,6 @@ public class AsyncApiModelMapper {
             metadata.put("tags", tagNames);
         }
 
-        // Add server info
         String baseUrl = extractBaseUrl(asyncSpec);
         if (baseUrl != null) {
             metadata.put("baseUrl", baseUrl);
@@ -101,15 +90,11 @@ public class AsyncApiModelMapper {
 
         builder.metadata(metadata);
 
-        // Parsed at
         builder.parsedAt(LocalDateTime.now());
 
         return builder.build();
     }
 
-    /**
-     * Map endpoints from channels and operations.
-     */
     public List<Endpoint> mapEndpoints(AsyncApiSpec asyncSpec) {
         List<Endpoint> endpoints = new ArrayList<>();
 
@@ -117,21 +102,20 @@ public class AsyncApiModelMapper {
             return endpoints;
         }
 
-        // Check AsyncAPI version
         boolean isV3 = asyncSpec.getAsyncApiVersion() != null &&
                        asyncSpec.getAsyncApiVersion().isV3();
 
         if (isV3) {
-            // AsyncAPI 3.x: operations are separate from channels
+            
             if (asyncSpec.getOperations() != null && !asyncSpec.getOperations().isEmpty()) {
                 endpoints.addAll(endpointMapper.mapAllOperationsV3(
                         asyncSpec.getOperations(), asyncSpec.getChannels()));
             } else if (asyncSpec.getChannels() != null) {
-                // Fallback to channel-based mapping
+                
                 endpoints.addAll(endpointMapper.mapAllChannels(asyncSpec.getChannels()));
             }
         } else {
-            // AsyncAPI 2.x: operations embedded in channels
+            
             if (asyncSpec.getChannels() != null) {
                 endpoints.addAll(endpointMapper.mapAllChannels(asyncSpec.getChannels()));
             }
@@ -140,15 +124,11 @@ public class AsyncApiModelMapper {
         return endpoints;
     }
 
-    /**
-     * Extract base URL from servers.
-     */
     public String extractBaseUrl(AsyncApiSpec asyncSpec) {
         if (asyncSpec == null || asyncSpec.getServers() == null || asyncSpec.getServers().isEmpty()) {
             return null;
         }
 
-        // Try to find a production server first
         for (Map.Entry<String, AsyncServer> entry : asyncSpec.getServers().entrySet()) {
             String serverName = entry.getKey().toLowerCase();
             if (serverName.contains("prod") || serverName.contains("production")) {
@@ -156,14 +136,10 @@ public class AsyncApiModelMapper {
             }
         }
 
-        // Otherwise return first server
         AsyncServer firstServer = asyncSpec.getServers().values().iterator().next();
         return buildServerUrl(firstServer);
     }
 
-    /**
-     * Build URL from server definition.
-     */
     private String buildServerUrl(AsyncServer server) {
         if (server == null || server.getUrl() == null) {
             return null;
@@ -171,10 +147,9 @@ public class AsyncApiModelMapper {
 
         String url = server.getUrl();
 
-        // Add protocol if not present
         if (!url.contains("://") && server.getProtocol() != null) {
             String protocol = server.getProtocol().name().toLowerCase();
-            // Map messaging protocols to URL schemes
+            
             switch (protocol) {
                 case "kafka":
                     url = "kafka://" + url;
@@ -201,9 +176,6 @@ public class AsyncApiModelMapper {
         return url;
     }
 
-    /**
-     * Get all channel names from spec.
-     */
     public List<String> getChannelNames(AsyncApiSpec asyncSpec) {
         List<String> names = new ArrayList<>();
         if (asyncSpec != null && asyncSpec.getChannels() != null) {
@@ -212,9 +184,6 @@ public class AsyncApiModelMapper {
         return names;
     }
 
-    /**
-     * Get all operation IDs from spec.
-     */
     public List<String> getOperationIds(AsyncApiSpec asyncSpec) {
         List<String> ids = new ArrayList<>();
 
@@ -222,12 +191,10 @@ public class AsyncApiModelMapper {
             return ids;
         }
 
-        // AsyncAPI 3.x operations
         if (asyncSpec.getOperations() != null) {
             ids.addAll(asyncSpec.getOperations().keySet());
         }
 
-        // AsyncAPI 2.x channel operations
         if (asyncSpec.getChannels() != null) {
             for (AsyncChannel channel : asyncSpec.getChannels().values()) {
                 if (channel.getPublishOperation() != null &&
@@ -244,9 +211,6 @@ public class AsyncApiModelMapper {
         return ids;
     }
 
-    /**
-     * Get all message names from spec.
-     */
     public List<String> getMessageNames(AsyncApiSpec asyncSpec) {
         Set<String> names = new LinkedHashSet<>();
 
@@ -254,12 +218,10 @@ public class AsyncApiModelMapper {
             return new ArrayList<>(names);
         }
 
-        // Component messages
         if (asyncSpec.getComponents() != null && asyncSpec.getComponents().getMessages() != null) {
             names.addAll(asyncSpec.getComponents().getMessages().keySet());
         }
 
-        // Channel messages
         if (asyncSpec.getChannels() != null) {
             for (AsyncChannel channel : asyncSpec.getChannels().values()) {
                 if (channel.getMessages() != null) {
@@ -271,9 +233,6 @@ public class AsyncApiModelMapper {
         return new ArrayList<>(names);
     }
 
-    /**
-     * Get all server names from spec.
-     */
     public List<String> getServerNames(AsyncApiSpec asyncSpec) {
         List<String> names = new ArrayList<>();
         if (asyncSpec != null && asyncSpec.getServers() != null) {
@@ -282,9 +241,6 @@ public class AsyncApiModelMapper {
         return names;
     }
 
-    /**
-     * Get statistics from mapped spec.
-     */
     public Map<String, Integer> getStatistics(AsyncApiSpec asyncSpec) {
         Map<String, Integer> stats = new LinkedHashMap<>();
 
@@ -307,20 +263,15 @@ public class AsyncApiModelMapper {
         return stats;
     }
 
-    /**
-     * Check if spec is valid (has at least channels or operations).
-     */
     public boolean isValidSpec(AsyncApiSpec asyncSpec) {
         if (asyncSpec == null) {
             return false;
         }
 
-        // Must have title
         if (asyncSpec.getTitle() == null || asyncSpec.getTitle().isEmpty()) {
             return false;
         }
 
-        // Must have channels or operations
         boolean hasChannels = asyncSpec.getChannels() != null && !asyncSpec.getChannels().isEmpty();
         boolean hasOperations = asyncSpec.getOperations() != null && !asyncSpec.getOperations().isEmpty();
 

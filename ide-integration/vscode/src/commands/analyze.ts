@@ -5,7 +5,7 @@ import { ApiSpec } from '../types';
 
 export async function analyzeCommand(uri?: vscode.Uri): Promise<void> {
   try {
-    // Get file to analyze
+    
     let fileUri = uri;
     if (!fileUri) {
       const editor = vscode.window.activeTextEditor;
@@ -43,7 +43,6 @@ export async function analyzeCommand(uri?: vscode.Uri): Promise<void> {
 
         progress.report({ increment: 30 });
 
-        // Show analysis
         await showAnalysis(spec, fileUri!);
       }
     );
@@ -74,7 +73,6 @@ async function showAnalysis(spec: ApiSpec, uri: vscode.Uri): Promise<void> {
   lines.push(`| Security Schemes | ${spec.security.length} |`);
   lines.push('');
 
-  // Endpoints section
   if (spec.endpoints.length > 0) {
     lines.push('## Endpoints');
     lines.push('');
@@ -89,7 +87,6 @@ async function showAnalysis(spec: ApiSpec, uri: vscode.Uri): Promise<void> {
     lines.push('');
   }
 
-  // Schemas section
   if (spec.schemas.length > 0) {
     lines.push('## Schemas');
     lines.push('');
@@ -112,7 +109,6 @@ async function showAnalysis(spec: ApiSpec, uri: vscode.Uri): Promise<void> {
     }
   }
 
-  // Security section
   if (spec.security.length > 0) {
     lines.push('## Security Schemes');
     lines.push('');
@@ -126,7 +122,6 @@ async function showAnalysis(spec: ApiSpec, uri: vscode.Uri): Promise<void> {
     lines.push('');
   }
 
-  // Statistics
   lines.push('## Statistics');
   lines.push('');
 

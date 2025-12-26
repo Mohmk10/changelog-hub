@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.intellij.model
 
-/**
- * API specification model.
- */
 data class ApiSpec(
     val name: String,
     val version: String,
@@ -11,9 +8,6 @@ data class ApiSpec(
     val schemas: List<Schema> = emptyList()
 )
 
-/**
- * API type enumeration.
- */
 enum class ApiType {
     REST,
     GRAPHQL,
@@ -21,9 +15,6 @@ enum class ApiType {
     ASYNCAPI
 }
 
-/**
- * Endpoint model.
- */
 data class Endpoint(
     val method: String,
     val path: String,
@@ -34,9 +25,6 @@ data class Endpoint(
     val deprecated: Boolean = false
 )
 
-/**
- * Parameter model.
- */
 data class Parameter(
     val name: String,
     val location: String,
@@ -45,35 +33,23 @@ data class Parameter(
     val description: String? = null
 )
 
-/**
- * Schema model.
- */
 data class Schema(
     val name: String,
     val type: String,
     val properties: List<Property> = emptyList()
 )
 
-/**
- * Property model.
- */
 data class Property(
     val name: String,
     val type: String,
     val required: Boolean = false
 )
 
-/**
- * Changelog model.
- */
 data class Changelog(
     val changes: List<Change>,
     val breakingChanges: List<Change> = changes.filter { it.severity == Severity.BREAKING }
 )
 
-/**
- * Change model.
- */
 data class Change(
     val path: String,
     val changeType: ChangeType,
@@ -84,9 +60,6 @@ data class Change(
     val impactScore: Int = 0
 )
 
-/**
- * Change type enumeration.
- */
 enum class ChangeType {
     ADDED,
     REMOVED,
@@ -94,9 +67,6 @@ enum class ChangeType {
     DEPRECATED
 }
 
-/**
- * Change category enumeration.
- */
 enum class ChangeCategory {
     ENDPOINT,
     PARAMETER,
@@ -105,9 +75,6 @@ enum class ChangeCategory {
     SECURITY
 }
 
-/**
- * Severity enumeration.
- */
 enum class Severity {
     SAFE,
     INFO,

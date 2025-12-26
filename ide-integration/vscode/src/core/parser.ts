@@ -8,9 +8,6 @@ import {
   SpecType,
 } from '../types';
 
-/**
- * Parses an API specification from content.
- */
 export function parseSpec(content: string, filename: string): ApiSpec {
   const ext = getFileExtension(filename);
 
@@ -64,7 +61,6 @@ function parseOpenApi(spec: Record<string, unknown>): ApiSpec {
   const schemas: Schema[] = [];
   const security: ApiSpec['security'] = [];
 
-  // Parse paths/endpoints
   for (const [path, pathItem] of Object.entries(paths)) {
     const pathObj = pathItem as Record<string, unknown>;
 
@@ -80,14 +76,12 @@ function parseOpenApi(spec: Record<string, unknown>): ApiSpec {
     }
   }
 
-  // Parse schemas
   const schemaSource =
     (components.schemas as Record<string, unknown>) || definitions;
   for (const [name, schemaDef] of Object.entries(schemaSource || {})) {
     schemas.push(parseSchema(name, schemaDef as Record<string, unknown>));
   }
 
-  // Parse security schemes
   const securitySchemes =
     (components.securitySchemes as Record<string, unknown>) ||
     (spec.securityDefinitions as Record<string, unknown>);
@@ -402,9 +396,6 @@ function parseProto(content: string): ApiSpec {
   };
 }
 
-/**
- * Detect the spec type from content
- */
 export function detectSpecType(content: string, filename: string): SpecType {
   const ext = getFileExtension(filename);
 
@@ -420,7 +411,7 @@ export function detectSpecType(content: string, filename: string): SpecType {
     if (spec.openapi || spec.swagger) return 'openapi';
     if (spec.asyncapi) return 'asyncapi';
   } catch {
-    // Ignore parse errors
+    
   }
 
   return 'unknown';

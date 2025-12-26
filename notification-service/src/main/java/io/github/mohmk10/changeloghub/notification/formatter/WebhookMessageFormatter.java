@@ -9,9 +9,6 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Formats messages as structured JSON for generic webhooks.
- */
 public class WebhookMessageFormatter implements MessageFormatter {
 
     private static final DateTimeFormatter ISO_FORMAT = DateTimeFormatter.ISO_INSTANT;
@@ -49,7 +46,6 @@ public class WebhookMessageFormatter implements MessageFormatter {
             json.append("},");
         }
 
-        // Remove trailing comma
         if (json.charAt(json.length() - 1) == ',') {
             json.deleteCharAt(json.length() - 1);
         }
@@ -77,7 +73,6 @@ public class WebhookMessageFormatter implements MessageFormatter {
             json.append("\"toVersion\": \"").append(escapeJson(changelog.getToVersion())).append("\",");
         }
 
-        // Summary
         json.append("\"summary\": {");
         json.append("\"totalChanges\": ").append(changelog.getChanges().size()).append(",");
         json.append("\"breakingChanges\": ").append(changelog.getBreakingChanges().size()).append(",");
@@ -92,7 +87,6 @@ public class WebhookMessageFormatter implements MessageFormatter {
         json.append("\"info\": ").append(infoCount);
         json.append("},");
 
-        // Breaking changes array
         json.append("\"breakingChanges\": [");
         List<BreakingChange> breakingChanges = changelog.getBreakingChanges();
         for (int i = 0; i < breakingChanges.size(); i++) {
@@ -114,7 +108,6 @@ public class WebhookMessageFormatter implements MessageFormatter {
         }
         json.append("],");
 
-        // All changes array
         json.append("\"changes\": [");
         for (int i = 0; i < changes.size(); i++) {
             if (i > 0) json.append(",");

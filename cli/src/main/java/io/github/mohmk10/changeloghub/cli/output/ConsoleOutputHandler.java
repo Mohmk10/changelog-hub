@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.cli.output;
 import java.io.IOException;
 import java.io.PrintStream;
 
-/**
- * Output handler that writes to the console (stdout/stderr).
- */
 public class ConsoleOutputHandler implements OutputHandler {
 
     private final PrintStream out;
@@ -74,9 +71,6 @@ public class ConsoleOutputHandler implements OutputHandler {
         return !os.contains("win");
     }
 
-    /**
-     * ANSI color codes for terminal output.
-     */
     public static final class AnsiColors {
         public static final String RESET = "\u001B[0m";
         public static final String RED = "\u001B[31m";

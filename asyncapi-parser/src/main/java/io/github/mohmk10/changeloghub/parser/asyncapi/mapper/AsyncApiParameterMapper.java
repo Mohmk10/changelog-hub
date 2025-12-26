@@ -8,9 +8,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.model.AsyncSchema;
 
 import java.util.*;
 
-/**
- * Maps AsyncAPI message fields and channel parameters to core Parameter model.
- */
 public class AsyncApiParameterMapper {
 
     private final AsyncApiSchemaMapper schemaMapper;
@@ -23,9 +20,6 @@ public class AsyncApiParameterMapper {
         this.schemaMapper = schemaMapper;
     }
 
-    /**
-     * Map channel parameters to core Parameters.
-     */
     public List<Parameter> mapChannelParameters(AsyncChannel channel) {
         List<Parameter> parameters = new ArrayList<>();
 
@@ -43,14 +37,11 @@ public class AsyncApiParameterMapper {
         return parameters;
     }
 
-    /**
-     * Map a single channel parameter.
-     */
     public Parameter mapChannelParameter(String name, AsyncChannel.ChannelParameter channelParam) {
         Parameter param = new Parameter();
         param.setName(name);
         param.setLocation(ParameterLocation.PATH);
-        param.setRequired(true); // Channel parameters are always required
+        param.setRequired(true); 
 
         if (channelParam != null) {
             if (channelParam.getDescription() != null) {
@@ -60,7 +51,7 @@ public class AsyncApiParameterMapper {
             if (channelParam.getSchema() != null) {
                 param.setType(schemaMapper.mapToType(channelParam.getSchema()));
             } else {
-                // Default to string type for channel parameters
+                
                 param.setType("string");
             }
         } else {
@@ -70,9 +61,6 @@ public class AsyncApiParameterMapper {
         return param;
     }
 
-    /**
-     * Map message payload fields to parameters.
-     */
     public List<Parameter> mapMessagePayloadFields(AsyncMessage message) {
         List<Parameter> parameters = new ArrayList<>();
 
@@ -97,9 +85,6 @@ public class AsyncApiParameterMapper {
         return parameters;
     }
 
-    /**
-     * Map a payload field to a parameter.
-     */
     public Parameter mapPayloadField(String name, AsyncSchema fieldSchema, boolean required) {
         Parameter param = new Parameter();
         param.setName(name);
@@ -121,9 +106,6 @@ public class AsyncApiParameterMapper {
         return param;
     }
 
-    /**
-     * Map message header fields to parameters.
-     */
     public List<Parameter> mapMessageHeaders(AsyncMessage message) {
         List<Parameter> parameters = new ArrayList<>();
 
@@ -148,9 +130,6 @@ public class AsyncApiParameterMapper {
         return parameters;
     }
 
-    /**
-     * Map a header field to a parameter.
-     */
     public Parameter mapHeaderField(String name, AsyncSchema fieldSchema, boolean required) {
         Parameter param = new Parameter();
         param.setName(name);
@@ -168,31 +147,21 @@ public class AsyncApiParameterMapper {
         return param;
     }
 
-    /**
-     * Map all parameters from a message (payload + headers).
-     */
     public List<Parameter> mapAllMessageParameters(AsyncMessage message) {
         List<Parameter> parameters = new ArrayList<>();
 
-        // Add payload fields
         parameters.addAll(mapMessagePayloadFields(message));
 
-        // Add header fields
         parameters.addAll(mapMessageHeaders(message));
 
         return parameters;
     }
 
-    /**
-     * Map all parameters for an endpoint (channel + message).
-     */
     public List<Parameter> mapEndpointParameters(AsyncChannel channel, AsyncMessage message) {
         List<Parameter> parameters = new ArrayList<>();
 
-        // Channel parameters (path)
         parameters.addAll(mapChannelParameters(channel));
 
-        // Message parameters (body + headers)
         if (message != null) {
             parameters.addAll(mapAllMessageParameters(message));
         }
@@ -200,9 +169,6 @@ public class AsyncApiParameterMapper {
         return parameters;
     }
 
-    /**
-     * Get parameter names by location.
-     */
     public List<String> getParameterNamesByLocation(List<Parameter> parameters, ParameterLocation location) {
         List<String> names = new ArrayList<>();
         if (parameters != null) {
@@ -215,9 +181,6 @@ public class AsyncApiParameterMapper {
         return names;
     }
 
-    /**
-     * Find a parameter by name.
-     */
     public Parameter findParameter(List<Parameter> parameters, String name) {
         if (parameters == null || name == null) {
             return null;
@@ -230,9 +193,6 @@ public class AsyncApiParameterMapper {
         return null;
     }
 
-    /**
-     * Get required parameters.
-     */
     public List<Parameter> getRequiredParameters(List<Parameter> parameters) {
         List<Parameter> required = new ArrayList<>();
         if (parameters != null) {
@@ -245,9 +205,6 @@ public class AsyncApiParameterMapper {
         return required;
     }
 
-    /**
-     * Get optional parameters.
-     */
     public List<Parameter> getOptionalParameters(List<Parameter> parameters) {
         List<Parameter> optional = new ArrayList<>();
         if (parameters != null) {
@@ -260,9 +217,6 @@ public class AsyncApiParameterMapper {
         return optional;
     }
 
-    /**
-     * Create parameter signature for comparison.
-     */
     public String createParameterSignature(Parameter param) {
         if (param == null) {
             return "null";
@@ -282,9 +236,6 @@ public class AsyncApiParameterMapper {
         return sb.toString();
     }
 
-    /**
-     * Create parameters signature for comparison.
-     */
     public String createParametersSignature(List<Parameter> parameters) {
         if (parameters == null || parameters.isEmpty()) {
             return "[]";

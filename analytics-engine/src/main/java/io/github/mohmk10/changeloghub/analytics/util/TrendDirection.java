@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.analytics.util;
 
-/**
- * Trend direction for analytics metrics over time.
- */
 public enum TrendDirection {
     IMPROVING("Improving", "Metrics are getting better over time", 1),
     STABLE("Stable", "Metrics are remaining consistent", 0),

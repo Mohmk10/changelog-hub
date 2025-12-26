@@ -16,14 +16,7 @@ repositories {
 }
 
 dependencies {
-    // Core module dependencies - uncomment when integrating with actual modules
-    // implementation("io.github.mohmk10:core:1.0.0-SNAPSHOT")
-    // implementation("io.github.mohmk10:openapi-parser:1.0.0-SNAPSHOT")
-    // implementation("io.github.mohmk10:graphql-parser:1.0.0-SNAPSHOT")
-    // implementation("io.github.mohmk10:grpc-parser:1.0.0-SNAPSHOT")
-    // implementation("io.github.mohmk10:asyncapi-parser:1.0.0-SNAPSHOT")
 
-    // YAML parsing
     implementation("org.yaml:snakeyaml:2.2")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")

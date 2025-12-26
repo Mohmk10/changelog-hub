@@ -535,8 +535,8 @@ class ProtoComparatorTest {
             List<BreakingChange> changes = comparator.compare(oldFile, newFile);
             Map<Severity, List<BreakingChange>> grouped = comparator.groupBySeverity(changes);
 
-            assertFalse(grouped.get(Severity.INFO).isEmpty()); // field added
-            assertFalse(grouped.get(Severity.WARNING).isEmpty()); // deprecation
+            assertFalse(grouped.get(Severity.INFO).isEmpty()); 
+            assertFalse(grouped.get(Severity.WARNING).isEmpty()); 
         }
 
         @Test

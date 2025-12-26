@@ -4,9 +4,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.OperationType;
 
 import java.util.*;
 
-/**
- * Model representing an AsyncAPI operation (publish/subscribe).
- */
 public class AsyncOperation {
 
     private String operationId;
@@ -14,11 +11,11 @@ public class AsyncOperation {
     private String summary;
     private String description;
     private AsyncMessage message;
-    private List<AsyncMessage> messages; // For multiple messages
+    private List<AsyncMessage> messages; 
     private Map<String, Object> bindings;
     private List<String> tags;
-    private String channelRef; // For AsyncAPI 3.x
-    private Map<String, Object> reply; // For AsyncAPI 3.x
+    private String channelRef; 
+    private Map<String, Object> reply; 
     private List<Map<String, Object>> security;
     private boolean deprecated;
     private Map<String, Object> extensions;
@@ -35,7 +32,6 @@ public class AsyncOperation {
         return new Builder();
     }
 
-    // Getters and setters
     public String getOperationId() {
         return operationId;
     }
@@ -140,7 +136,6 @@ public class AsyncOperation {
         this.extensions = extensions != null ? new LinkedHashMap<>(extensions) : new LinkedHashMap<>();
     }
 
-    // Utility methods
     public boolean isPublish() {
         return type == OperationType.PUBLISH;
     }

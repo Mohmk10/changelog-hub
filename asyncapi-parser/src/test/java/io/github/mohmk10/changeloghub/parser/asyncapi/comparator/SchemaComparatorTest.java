@@ -15,9 +15,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for SchemaComparator.
- */
 class SchemaComparatorTest {
 
     private SchemaComparator comparator;
@@ -83,7 +80,6 @@ class SchemaComparatorTest {
 
         Map<String, AsyncSchema> newProps = new HashMap<>();
         newProps.put("id", AsyncSchema.builder().type("string").build());
-        // name is removed
 
         AsyncSchema oldSchema = AsyncSchema.builder()
                 .type("object")
@@ -148,7 +144,6 @@ class SchemaComparatorTest {
 
         Map<String, AsyncSchema> newProps = new HashMap<>();
         newProps.put("id", AsyncSchema.builder().type("string").build());
-        // description (optional) is removed
 
         AsyncSchema oldSchema = AsyncSchema.builder()
                 .type("object")

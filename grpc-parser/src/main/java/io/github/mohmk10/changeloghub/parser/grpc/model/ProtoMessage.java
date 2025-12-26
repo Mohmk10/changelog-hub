@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.grpc.model;
 
 import java.util.*;
 
-/**
- * Represents a Protocol Buffers message definition.
- */
 public class ProtoMessage {
 
     private final String name;

@@ -84,7 +84,6 @@ class HistoryAggregatorTest {
         ApiEvolution evolution = aggregator.aggregate(history);
         List<ApiEvolution.VersionSummary> versions = evolution.getVersions();
 
-        // Should be sorted by date
         assertThat(versions.get(0).getReleaseDate()).isBefore(versions.get(1).getReleaseDate());
     }
 

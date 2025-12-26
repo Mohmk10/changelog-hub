@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.analytics.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Comprehensive metrics for an API specification.
- */
 public class ApiMetrics {
 
     private String apiName;
@@ -32,7 +29,6 @@ public class ApiMetrics {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }

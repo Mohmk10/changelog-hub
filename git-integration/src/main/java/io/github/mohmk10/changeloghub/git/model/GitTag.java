@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.git.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Represents a Git tag (lightweight or annotated).
- */
 public class GitTag {
 
     private String name;
@@ -83,18 +80,12 @@ public class GitTag {
         return !annotated;
     }
 
-    /**
-     * Check if this tag follows semantic versioning pattern.
-     */
     public boolean isSemanticVersion() {
         if (name == null) return false;
         String version = name.startsWith("v") ? name.substring(1) : name;
         return version.matches("\\d+\\.\\d+\\.\\d+.*");
     }
 
-    /**
-     * Extract version string without 'v' prefix.
-     */
     public String getVersion() {
         if (name == null) return null;
         return name.startsWith("v") ? name.substring(1) : name;

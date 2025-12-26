@@ -24,9 +24,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Default implementation of the AnalyticsService.
- */
 public class DefaultAnalyticsService implements AnalyticsService {
 
     private final MetricsCalculator metricsCalculator;
@@ -54,8 +51,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
         this.historyAggregator = new HistoryAggregator();
         this.comparisonAggregator = new ComparisonAggregator();
     }
-
-    // ========== Metrics Calculation ==========
 
     @Override
     public ApiMetrics calculateMetrics(ApiSpec spec) {
@@ -87,8 +82,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
         return historyAggregator.aggregate(history);
     }
 
-    // ========== Insight Generation ==========
-
     @Override
     public List<Insight> generateInsights(List<Changelog> history) {
         return insightGenerator.generate(null, history);
@@ -103,8 +96,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
     public List<Recommendation> generateDebtRecommendations(TechnicalDebt debt) {
         return recommendationEngine.recommendForHighDebt(debt);
     }
-
-    // ========== Report Generation ==========
 
     @Override
     public ApiEvolutionReport generateEvolutionReport(String apiName, List<Changelog> history) {
@@ -199,7 +190,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
                         .max(LocalDate::compareTo)
                         .orElse(LocalDate.now());
 
-        // Create risk data points from history
         List<RiskTrendReport.RiskDataPoint> dataPoints = new ArrayList<>();
         for (Changelog changelog : history) {
             int riskScore = riskCalculator.calculateRisk(changelog);
@@ -228,10 +218,8 @@ public class DefaultAnalyticsService implements AnalyticsService {
         List<ComplianceReport.ComplianceCheck> checks = new ArrayList<>();
         List<ComplianceReport.ComplianceViolation> violations = new ArrayList<>();
 
-        // Run compliance checks
         runComplianceChecks(spec, history, checks, violations);
 
-        // Determine overall status
         ComplianceStatus.Status overallStatus = determineComplianceStatus(checks);
 
         int passedCount = (int) checks.stream()
@@ -267,11 +255,9 @@ public class DefaultAnalyticsService implements AnalyticsService {
                 .build();
     }
 
-    // ========== Aggregation ==========
-
     @Override
     public ApiMetrics aggregateMetrics(List<ApiSpec> specs) {
-        // Calculate total metrics across all specs
+        
         int totalEndpoints = 0;
         int totalDeprecated = 0;
         double totalDocCoverage = 0;
@@ -299,7 +285,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
         ApiMetrics oldMetrics = calculateMetrics(oldSpec);
         ApiMetrics newMetrics = calculateMetrics(newSpec);
 
-        // Calculate difference
         return ApiMetrics.builder()
                 .totalEndpoints(newMetrics.getTotalEndpoints() - oldMetrics.getTotalEndpoints())
                 .totalChanges(newMetrics.getTotalChanges() - oldMetrics.getTotalChanges())
@@ -309,8 +294,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
                 .complexityScore(newMetrics.getComplexityScore() - oldMetrics.getComplexityScore())
                 .build();
     }
-
-    // ========== Private Helper Methods ==========
 
     private int calculateDebtPriority(TechnicalDebt debt) {
         int priority = 0;
@@ -324,7 +307,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
                                       List<ComplianceReport.ComplianceCheck> checks,
                                       List<ComplianceReport.ComplianceViolation> violations) {
 
-        // Check: API has version
         boolean hasVersion = spec != null && spec.getVersion() != null && !spec.getVersion().isEmpty();
         checks.add(new ComplianceReport.ComplianceCheck(
                 "API Version",
@@ -342,7 +324,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
             ));
         }
 
-        // Check: API has name (description equivalent)
         boolean hasName = spec != null && spec.getName() != null && !spec.getName().isEmpty();
         checks.add(new ComplianceReport.ComplianceCheck(
                 "API Name",
@@ -352,7 +333,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
                 hasName ? "API name is provided" : "API name is missing"
         ));
 
-        // Check: Breaking changes have deprecation period
         if (history != null && !history.isEmpty()) {
             boolean hasProperDeprecation = checkDeprecationPolicy(history);
             checks.add(new ComplianceReport.ComplianceCheck(
@@ -364,7 +344,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
             ));
         }
 
-        // Check: Semantic versioning
         boolean followsSemver = checkSemverCompliance(history);
         checks.add(new ComplianceReport.ComplianceCheck(
                 "Semantic Versioning",
@@ -374,7 +353,6 @@ public class DefaultAnalyticsService implements AnalyticsService {
                 followsSemver ? "Semantic versioning is followed" : "Inconsistent version increments detected"
         ));
 
-        // Check: Endpoints have documentation
         if (spec != null && spec.getEndpoints() != null) {
             long documented = spec.getEndpoints().stream()
                     .filter(e -> e.getDescription() != null && !e.getDescription().isEmpty())
@@ -394,10 +372,10 @@ public class DefaultAnalyticsService implements AnalyticsService {
     }
 
     private boolean checkDeprecationPolicy(List<Changelog> history) {
-        // Check if there are breaking changes without prior deprecation warnings
+        
         for (Changelog changelog : history) {
             if (!changelog.getBreakingChanges().isEmpty()) {
-                // Check if there were deprecation changes prior to breaking changes
+                
                 long deprecatedChanges = changelog.getChanges().stream()
                         .filter(c -> c.getType() == ChangeType.DEPRECATED)
                         .count();
@@ -414,16 +392,14 @@ public class DefaultAnalyticsService implements AnalyticsService {
             return true;
         }
 
-        // Simple check: breaking changes should increment major version
         for (Changelog changelog : history) {
             if (!changelog.getBreakingChanges().isEmpty()) {
                 String version = changelog.getToVersion();
                 if (version != null && version.startsWith("0.")) {
-                    // Pre-1.0 versions can have breaking changes in minor
+                    
                     continue;
                 }
-                // For 1.0+, breaking changes should be major version bumps
-                // This is a simplified check
+
             }
         }
         return true;

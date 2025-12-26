@@ -1,6 +1,5 @@
 import { Change, BreakingChange } from '../src/changelog/detector';
 
-// We'll test the logic components that don't require mocking exec
 describe('Detector Logic', () => {
   describe('Risk Level Calculation', () => {
     function calculateRiskLevel(score: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
@@ -171,7 +170,7 @@ describe('Detector Logic', () => {
         },
       ];
       const score = calculateRiskScore([], changes);
-      expect(score).toBe(10); // 2 * 5
+      expect(score).toBe(10); 
     });
 
     it('should cap additional score at 20', () => {
@@ -185,7 +184,7 @@ describe('Detector Logic', () => {
           description: 'Removed',
         }));
       const score = calculateRiskScore([], changes);
-      expect(score).toBe(20); // capped
+      expect(score).toBe(20); 
     });
 
     it('should cap total score at 100', () => {

@@ -6,9 +6,6 @@ import io.github.mohmk10.changeloghub.notification.model.NotificationEvent;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/**
- * Filter notifications by API name.
- */
 public class ApiFilter implements NotificationFilter {
 
     private final Set<String> includedApis;
@@ -35,11 +32,10 @@ public class ApiFilter implements NotificationFilter {
     public boolean shouldSend(Notification notification) {
         String apiName = getApiName(notification);
         if (apiName == null || apiName.isEmpty()) {
-            // If no API name, allow by default unless we have specific includes
+            
             return includedApis.isEmpty() && includePatterns.isEmpty();
         }
 
-        // Check exclusions first
         if (excludedApis.contains(apiName)) {
             return false;
         }
@@ -50,12 +46,10 @@ public class ApiFilter implements NotificationFilter {
             }
         }
 
-        // If no includes specified, allow all non-excluded
         if (includedApis.isEmpty() && includePatterns.isEmpty()) {
             return true;
         }
 
-        // Check includes
         if (includedApis.contains(apiName)) {
             return true;
         }
@@ -95,16 +89,10 @@ public class ApiFilter implements NotificationFilter {
         return new Builder();
     }
 
-    /**
-     * Create a filter that includes only specified APIs.
-     */
     public static ApiFilter include(String... apis) {
         return builder().include(apis).build();
     }
 
-    /**
-     * Create a filter that excludes specified APIs.
-     */
     public static ApiFilter exclude(String... apis) {
         return builder().exclude(apis).build();
     }

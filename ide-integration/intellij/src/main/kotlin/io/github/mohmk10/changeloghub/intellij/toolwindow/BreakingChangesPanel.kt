@@ -14,9 +14,6 @@ import javax.swing.DefaultListModel
 import javax.swing.JList
 import javax.swing.JPanel
 
-/**
- * Panel displaying breaking changes in the tool window.
- */
 class BreakingChangesPanel(private val project: Project) {
 
     val component: JPanel = JPanel(BorderLayout())
@@ -33,7 +30,6 @@ class BreakingChangesPanel(private val project: Project) {
         component.add(header, BorderLayout.NORTH)
         component.add(JBScrollPane(list), BorderLayout.CENTER)
 
-        // Initial message
         listModel.addElement(BreakingChangeItem(
             path = "Run 'Compare API Specs' to detect breaking changes",
             type = "",

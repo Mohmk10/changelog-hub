@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.cli.config;
 
 import io.github.mohmk10.changeloghub.core.reporter.ReportFormat;
 
-/**
- * Configuration settings for the CLI application.
- */
 public class CliConfig {
 
     private boolean colorsEnabled;

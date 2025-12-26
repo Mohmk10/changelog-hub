@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.grpc.model;
 
 import java.util.*;
 
-/**
- * Represents a parsed Protocol Buffers file.
- */
 public class ProtoFile {
 
     private final String fileName;
@@ -129,9 +126,6 @@ public class ProtoFile {
         return options.get(key);
     }
 
-    /**
-     * Get the full name of a type including the package prefix.
-     */
     public String getFullTypeName(String typeName) {
         if (typeName.contains(".")) {
             return typeName;
@@ -142,9 +136,6 @@ public class ProtoFile {
         return typeName;
     }
 
-    /**
-     * Get all RPC methods from all services.
-     */
     public List<ProtoRpcMethod> getAllRpcMethods() {
         List<ProtoRpcMethod> allMethods = new ArrayList<>();
         for (ProtoService service : services) {
@@ -153,9 +144,6 @@ public class ProtoFile {
         return allMethods;
     }
 
-    /**
-     * Get all gRPC paths from all services.
-     */
     public List<String> getAllGrpcPaths() {
         List<String> paths = new ArrayList<>();
         for (ProtoService service : services) {
@@ -164,9 +152,6 @@ public class ProtoFile {
         return paths;
     }
 
-    /**
-     * Get statistics about this proto file.
-     */
     public Map<String, Integer> getStatistics() {
         Map<String, Integer> stats = new LinkedHashMap<>();
         stats.put("services", services.size());

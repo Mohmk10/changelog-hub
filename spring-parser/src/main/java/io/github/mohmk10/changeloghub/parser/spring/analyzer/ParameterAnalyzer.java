@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Analyzer for Spring controller method parameters.
- */
 public class ParameterAnalyzer {
 
     private final AnnotationExtractor annotationExtractor;
@@ -22,9 +19,6 @@ public class ParameterAnalyzer {
         this.annotationExtractor = new AnnotationExtractor();
     }
 
-    /**
-     * Analyze all parameters of a method.
-     */
     public List<SpringParameter> analyzeParameters(MethodDeclaration method) {
         List<SpringParameter> result = new ArrayList<>();
 
@@ -35,14 +29,9 @@ public class ParameterAnalyzer {
         return result;
     }
 
-    /**
-     * Analyze a single parameter.
-     * Returns empty if the parameter has no Spring annotation.
-     */
     public Optional<SpringParameter> analyzeParameter(Parameter param) {
         SpringParameter.Location location = getLocation(param);
 
-        // If no Spring annotation, skip this parameter (it might be injected by Spring)
         if (location == null) {
             return Optional.empty();
         }
@@ -57,9 +46,6 @@ public class ParameterAnalyzer {
         return Optional.of(springParam);
     }
 
-    /**
-     * Get the parameter location based on annotations.
-     */
     public SpringParameter.Location getLocation(Parameter param) {
         if (annotationExtractor.hasAnnotation(param, SpringAnnotations.PATH_VARIABLE)) {
             return SpringParameter.Location.PATH;
@@ -79,11 +65,8 @@ public class ParameterAnalyzer {
         return null;
     }
 
-    /**
-     * Get the parameter name from annotation or parameter name.
-     */
     public String getParameterName(Parameter param) {
-        // Check annotations for explicit name
+        
         for (String annotationName : List.of(
                 SpringAnnotations.PATH_VARIABLE,
                 SpringAnnotations.REQUEST_PARAM,
@@ -92,13 +75,12 @@ public class ParameterAnalyzer {
 
             Optional<AnnotationExpr> annotation = annotationExtractor.getAnnotation(param, annotationName);
             if (annotation.isPresent()) {
-                // Try 'value' attribute
+                
                 Optional<String> value = annotationExtractor.getValueAttribute(annotation.get());
                 if (value.isPresent() && !value.get().isEmpty()) {
                     return value.get();
                 }
 
-                // Try 'name' attribute
                 Optional<String> name = annotationExtractor.getStringAttribute(annotation.get(), SpringAnnotations.NAME);
                 if (name.isPresent() && !name.get().isEmpty()) {
                     return name.get();
@@ -106,15 +88,11 @@ public class ParameterAnalyzer {
             }
         }
 
-        // Fall back to parameter name
         return param.getNameAsString();
     }
 
-    /**
-     * Check if the parameter is required.
-     */
     public boolean isRequired(Parameter param) {
-        // @RequestBody is required by default
+        
         if (annotationExtractor.hasAnnotation(param, SpringAnnotations.REQUEST_BODY)) {
             Optional<AnnotationExpr> annotation = annotationExtractor.getAnnotation(param, SpringAnnotations.REQUEST_BODY);
             if (annotation.isPresent()) {
@@ -124,7 +102,6 @@ public class ParameterAnalyzer {
             return true;
         }
 
-        // @PathVariable is required by default
         if (annotationExtractor.hasAnnotation(param, SpringAnnotations.PATH_VARIABLE)) {
             Optional<AnnotationExpr> annotation = annotationExtractor.getAnnotation(param, SpringAnnotations.PATH_VARIABLE);
             if (annotation.isPresent()) {
@@ -134,7 +111,6 @@ public class ParameterAnalyzer {
             return true;
         }
 
-        // Check other annotations
         for (String annotationName : List.of(
                 SpringAnnotations.REQUEST_PARAM,
                 SpringAnnotations.REQUEST_HEADER,
@@ -143,9 +119,9 @@ public class ParameterAnalyzer {
             Optional<AnnotationExpr> annotation = annotationExtractor.getAnnotation(param, annotationName);
             if (annotation.isPresent()) {
                 Optional<Boolean> required = annotationExtractor.getBooleanAttribute(annotation.get(), SpringAnnotations.REQUIRED);
-                // @RequestParam defaults to required=true, but if defaultValue is set, it's optional
+                
                 if (required.isEmpty()) {
-                    // Check if defaultValue is set
+                    
                     Optional<String> defaultValue = annotationExtractor.getStringAttribute(annotation.get(), SpringAnnotations.DEFAULT_VALUE);
                     return defaultValue.isEmpty();
                 }
@@ -156,9 +132,6 @@ public class ParameterAnalyzer {
         return true;
     }
 
-    /**
-     * Get the default value for the parameter.
-     */
     public Optional<String> getDefaultValue(Parameter param) {
         for (String annotationName : List.of(
                 SpringAnnotations.REQUEST_PARAM,

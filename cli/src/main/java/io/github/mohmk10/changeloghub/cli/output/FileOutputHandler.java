@@ -8,9 +8,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * Output handler that writes to a file.
- */
 public class FileOutputHandler implements OutputHandler {
 
     private final File outputFile;

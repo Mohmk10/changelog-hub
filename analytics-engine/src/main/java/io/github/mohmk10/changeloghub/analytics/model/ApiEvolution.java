@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents the evolution of an API over time.
- */
 public class ApiEvolution {
 
     private String apiName;
@@ -31,7 +28,6 @@ public class ApiEvolution {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }
@@ -131,9 +127,6 @@ public class ApiEvolution {
         return Objects.hash(apiName, startDate, endDate);
     }
 
-    /**
-     * Summary of a single API version.
-     */
     public static class VersionSummary {
         private String version;
         private LocalDate releaseDate;

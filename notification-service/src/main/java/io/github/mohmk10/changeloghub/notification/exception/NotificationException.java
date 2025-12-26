@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.notification.exception;
 
 import io.github.mohmk10.changeloghub.notification.util.ChannelType;
 
-/**
- * Exception thrown when notification operations fail.
- */
 public class NotificationException extends RuntimeException {
 
     private final ErrorCode errorCode;
@@ -87,10 +84,6 @@ public class NotificationException extends RuntimeException {
     public boolean isRetryable() {
         return errorCode.isRetryable();
     }
-
-    // ============================================================
-    // Factory Methods
-    // ============================================================
 
     public static NotificationException channelNotConfigured(ChannelType channelType) {
         return new NotificationException(
@@ -180,9 +173,6 @@ public class NotificationException extends RuntimeException {
         return new Builder();
     }
 
-    /**
-     * Error codes for notification failures.
-     */
     public enum ErrorCode {
         UNKNOWN("Unknown error", false),
         CHANNEL_NOT_CONFIGURED("Channel not configured", false),

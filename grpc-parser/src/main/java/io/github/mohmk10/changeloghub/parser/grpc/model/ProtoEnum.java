@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.grpc.model;
 
 import java.util.*;
 
-/**
- * Represents a Protocol Buffers enum definition.
- */
 public class ProtoEnum {
 
     private final String name;

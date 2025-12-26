@@ -2,7 +2,7 @@ import { compareSpecs, ComparisonResult } from '../src/changelog/comparator';
 import { ApiSpec, Endpoint, Schema } from '../src/changelog/parser';
 
 describe('Comparator', () => {
-  // Helper to create a minimal spec
+  
   function createSpec(overrides: Partial<ApiSpec> = {}): ApiSpec {
     return {
       name: 'Test API',
@@ -16,7 +16,6 @@ describe('Comparator', () => {
     };
   }
 
-  // Helper to create an endpoint
   function createEndpoint(overrides: Partial<Endpoint> = {}): Endpoint {
     const path = overrides.path || '/test';
     const method = overrides.method || 'GET';
@@ -32,7 +31,6 @@ describe('Comparator', () => {
     };
   }
 
-  // Helper to create a schema
   function createSchema(name: string, overrides: Partial<Schema> = {}): Schema {
     return {
       name,

@@ -10,17 +10,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Aggregates API change history for evolution analysis.
- */
 public class HistoryAggregator {
 
-    /**
-     * Aggregate changelog history into evolution data.
-     *
-     * @param changelogs list of changelogs
-     * @return API evolution summary
-     */
     public ApiEvolution aggregate(List<Changelog> changelogs) {
         if (changelogs == null || changelogs.isEmpty()) {
             return ApiEvolution.builder().build();
@@ -86,14 +77,6 @@ public class HistoryAggregator {
                 .build();
     }
 
-    /**
-     * Get evolution between two dates.
-     *
-     * @param changelogs list of changelogs
-     * @param startDate start date (inclusive)
-     * @param endDate end date (inclusive)
-     * @return filtered API evolution
-     */
     public ApiEvolution aggregateBetween(List<Changelog> changelogs, LocalDate startDate, LocalDate endDate) {
         if (changelogs == null) {
             return ApiEvolution.builder().build();

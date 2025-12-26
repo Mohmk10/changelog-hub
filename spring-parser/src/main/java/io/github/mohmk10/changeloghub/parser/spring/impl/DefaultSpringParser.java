@@ -29,10 +29,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Default implementation of SpringParser.
- * Uses JavaParser to parse Java source files and extract Spring annotations.
- */
 public class DefaultSpringParser implements SpringParser {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultSpringParser.class);
@@ -139,7 +135,7 @@ public class DefaultSpringParser implements SpringParser {
                 controller.ifPresent(controllers::add);
             } catch (Exception e) {
                 logger.warn("Failed to parse file: {}", file, e);
-                // Continue with other files
+                
             }
         }
 
@@ -155,7 +151,6 @@ public class DefaultSpringParser implements SpringParser {
 
         CompilationUnit cu = cuOpt.get();
 
-        // Find controller classes
         List<ClassOrInterfaceDeclaration> controllerClasses = cu.findAll(ClassOrInterfaceDeclaration.class)
                 .stream()
                 .filter(controllerAnalyzer::isController)
@@ -165,7 +160,6 @@ public class DefaultSpringParser implements SpringParser {
             return Optional.empty();
         }
 
-        // Parse the first controller class
         ClassOrInterfaceDeclaration clazz = controllerClasses.get(0);
 
         SpringController controller = new SpringController();
@@ -176,7 +170,6 @@ public class DefaultSpringParser implements SpringParser {
         controller.setProduces(controllerAnalyzer.getProduces(clazz));
         controller.setConsumes(controllerAnalyzer.getConsumes(clazz));
 
-        // Parse methods
         List<MethodDeclaration> endpointMethods = controllerAnalyzer.getEndpointMethods(clazz);
         for (MethodDeclaration method : endpointMethods) {
             SpringMethod springMethod = parseMethod(method, controller);
@@ -196,20 +189,16 @@ public class DefaultSpringParser implements SpringParser {
         springMethod.setPath(requestMappingAnalyzer.getPath(method));
         springMethod.setDeprecated(requestMappingAnalyzer.isDeprecated(method));
 
-        // Set produces/consumes (method level overrides controller level)
         List<String> produces = requestMappingAnalyzer.getProduces(method);
         springMethod.setProduces(produces.isEmpty() ? controller.getProduces() : produces);
 
         List<String> consumes = requestMappingAnalyzer.getConsumes(method);
         springMethod.setConsumes(consumes.isEmpty() ? controller.getConsumes() : consumes);
 
-        // Response status
         requestMappingAnalyzer.getResponseStatus(method).ifPresent(springMethod::setResponseStatus);
 
-        // Return type
         springMethod.setReturnType(responseAnalyzer.getActualReturnType(method));
 
-        // Parameters
         List<SpringParameter> parameters = parameterAnalyzer.analyzeParameters(method);
         springMethod.setParameters(parameters);
 

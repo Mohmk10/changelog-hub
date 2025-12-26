@@ -24,8 +24,6 @@ class DefaultAnalyticsServiceTest {
         service = new DefaultAnalyticsService();
     }
 
-    // ========== Metrics Calculation Tests ==========
-
     @Test
     void calculateMetrics_shouldReturnMetrics() {
         ApiSpec spec = createApiSpec(10, 2);
@@ -101,8 +99,6 @@ class DefaultAnalyticsServiceTest {
         assertThat(evolution.getVersions()).hasSize(5);
     }
 
-    // ========== Insight Generation Tests ==========
-
     @Test
     void generateInsights_shouldReturnInsights() {
         List<Changelog> history = createHistory(5, 3);
@@ -141,8 +137,6 @@ class DefaultAnalyticsServiceTest {
         assertThat(recommendations).isNotNull();
         assertThat(recommendations).isNotEmpty();
     }
-
-    // ========== Report Generation Tests ==========
 
     @Test
     void generateEvolutionReport_shouldReturnReport() {
@@ -212,8 +206,6 @@ class DefaultAnalyticsServiceTest {
         assertThat(report.getChecks()).isNotEmpty();
     }
 
-    // ========== Aggregation Tests ==========
-
     @Test
     void aggregateMetrics_shouldCombineMetrics() {
         List<ApiSpec> specs = Arrays.asList(
@@ -237,8 +229,6 @@ class DefaultAnalyticsServiceTest {
         assertThat(diff).isNotNull();
         assertThat(diff.getTotalEndpoints()).isEqualTo(5);
     }
-
-    // ========== Helper Methods ==========
 
     private ApiSpec createApiSpec(int endpointCount, int deprecatedCount) {
         ApiSpec spec = new ApiSpec();

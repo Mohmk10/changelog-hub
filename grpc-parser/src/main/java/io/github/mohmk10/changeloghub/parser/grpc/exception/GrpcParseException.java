@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.grpc.exception;
 
-/**
- * Exception thrown when parsing Protocol Buffer files fails.
- */
 public class GrpcParseException extends RuntimeException {
 
     public GrpcParseException(String message) {

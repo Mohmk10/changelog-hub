@@ -7,9 +7,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.AsyncApiConstants;
 
 import java.util.*;
 
-/**
- * Analyzer for parsing AsyncAPI message definitions.
- */
 public class MessageAnalyzer {
 
     private final SchemaAnalyzer schemaAnalyzer;
@@ -22,9 +19,6 @@ public class MessageAnalyzer {
         this.schemaAnalyzer = schemaAnalyzer;
     }
 
-    /**
-     * Analyze a message node.
-     */
     public AsyncMessage analyzeMessage(JsonNode messageNode) {
         if (messageNode == null || messageNode.isNull()) {
             return null;
@@ -32,53 +26,43 @@ public class MessageAnalyzer {
 
         AsyncMessage.Builder builder = AsyncMessage.builder();
 
-        // Check for reference
         if (messageNode.has(AsyncApiConstants.REF)) {
             builder.ref(messageNode.get(AsyncApiConstants.REF).asText());
             return builder.build();
         }
 
-        // Name
         if (messageNode.has(AsyncApiConstants.NAME)) {
             builder.name(messageNode.get(AsyncApiConstants.NAME).asText());
         }
 
-        // Message ID
         if (messageNode.has(AsyncApiConstants.MESSAGE_ID)) {
             builder.messageId(messageNode.get(AsyncApiConstants.MESSAGE_ID).asText());
         }
 
-        // Title
         if (messageNode.has(AsyncApiConstants.TITLE)) {
             builder.title(messageNode.get(AsyncApiConstants.TITLE).asText());
         }
 
-        // Summary
         if (messageNode.has(AsyncApiConstants.SUMMARY)) {
             builder.summary(messageNode.get(AsyncApiConstants.SUMMARY).asText());
         }
 
-        // Description
         if (messageNode.has(AsyncApiConstants.DESCRIPTION)) {
             builder.description(messageNode.get(AsyncApiConstants.DESCRIPTION).asText());
         }
 
-        // Content type
         if (messageNode.has(AsyncApiConstants.CONTENT_TYPE)) {
             builder.contentType(messageNode.get(AsyncApiConstants.CONTENT_TYPE).asText());
         }
 
-        // Payload
         if (messageNode.has(AsyncApiConstants.PAYLOAD)) {
             builder.payload(schemaAnalyzer.analyzeSchema(messageNode.get(AsyncApiConstants.PAYLOAD)));
         }
 
-        // Headers
         if (messageNode.has(AsyncApiConstants.HEADERS)) {
             builder.headers(schemaAnalyzer.analyzeSchema(messageNode.get(AsyncApiConstants.HEADERS)));
         }
 
-        // Correlation ID
         if (messageNode.has(AsyncApiConstants.CORRELATION_ID)) {
             JsonNode corrIdNode = messageNode.get(AsyncApiConstants.CORRELATION_ID);
             if (corrIdNode.isTextual()) {
@@ -88,22 +72,18 @@ public class MessageAnalyzer {
             }
         }
 
-        // Schema format
         if (messageNode.has(AsyncApiConstants.SCHEMA_FORMAT)) {
             builder.schemaFormat(messageNode.get(AsyncApiConstants.SCHEMA_FORMAT).asText());
         }
 
-        // Bindings
         if (messageNode.has(AsyncApiConstants.BINDINGS)) {
             builder.bindings(parseBindings(messageNode.get(AsyncApiConstants.BINDINGS)));
         }
 
-        // Tags
         if (messageNode.has(AsyncApiConstants.TAGS)) {
             builder.tags(parseTags(messageNode.get(AsyncApiConstants.TAGS)));
         }
 
-        // Deprecated
         if (messageNode.has(AsyncApiConstants.DEPRECATED)) {
             builder.deprecated(messageNode.get(AsyncApiConstants.DEPRECATED).asBoolean(false));
         }
@@ -111,9 +91,6 @@ public class MessageAnalyzer {
         return builder.build();
     }
 
-    /**
-     * Analyze a named message (with name from components).
-     */
     public AsyncMessage analyzeMessage(String name, JsonNode messageNode) {
         AsyncMessage message = analyzeMessage(messageNode);
         if (message != null && message.getName() == null) {
@@ -122,21 +99,16 @@ public class MessageAnalyzer {
         return message;
     }
 
-    /**
-     * Analyze a message reference.
-     */
     public AsyncMessage analyzeMessageRef(String ref, JsonNode componentsNode) {
         if (ref == null || componentsNode == null) {
             return AsyncMessage.builder().ref(ref).build();
         }
 
-        // Extract message name from reference
         String messageName = AsyncApiConstants.extractRefName(ref);
         if (messageName == null) {
             return AsyncMessage.builder().ref(ref).build();
         }
 
-        // Try to find the message in components
         if (componentsNode.has(AsyncApiConstants.MESSAGES)) {
             JsonNode messagesNode = componentsNode.get(AsyncApiConstants.MESSAGES);
             if (messagesNode.has(messageName)) {
@@ -151,9 +123,6 @@ public class MessageAnalyzer {
         return AsyncMessage.builder().ref(ref).name(messageName).build();
     }
 
-    /**
-     * Get content type from message node.
-     */
     public String getContentType(JsonNode messageNode) {
         if (messageNode == null) {
             return null;
@@ -164,9 +133,6 @@ public class MessageAnalyzer {
         return null;
     }
 
-    /**
-     * Get payload schema from message node.
-     */
     public JsonNode getPayloadSchema(JsonNode messageNode) {
         if (messageNode == null) {
             return null;
@@ -174,9 +140,6 @@ public class MessageAnalyzer {
         return messageNode.get(AsyncApiConstants.PAYLOAD);
     }
 
-    /**
-     * Get headers from message node.
-     */
     public JsonNode getHeaders(JsonNode messageNode) {
         if (messageNode == null) {
             return null;
@@ -184,9 +147,6 @@ public class MessageAnalyzer {
         return messageNode.get(AsyncApiConstants.HEADERS);
     }
 
-    /**
-     * Analyze all messages from components.
-     */
     public Map<String, AsyncMessage> analyzeMessages(JsonNode messagesNode) {
         Map<String, AsyncMessage> messages = new LinkedHashMap<>();
 
@@ -206,9 +166,6 @@ public class MessageAnalyzer {
         return messages;
     }
 
-    /**
-     * Parse bindings.
-     */
     private Map<String, Object> parseBindings(JsonNode bindingsNode) {
         Map<String, Object> bindings = new LinkedHashMap<>();
 
@@ -225,9 +182,6 @@ public class MessageAnalyzer {
         return bindings;
     }
 
-    /**
-     * Parse tags.
-     */
     private List<String> parseTags(JsonNode tagsNode) {
         List<String> tags = new ArrayList<>();
 
@@ -246,9 +200,6 @@ public class MessageAnalyzer {
         return tags;
     }
 
-    /**
-     * Parse any JSON value.
-     */
     private Object parseValue(JsonNode node) {
         if (node.isTextual()) {
             return node.asText();

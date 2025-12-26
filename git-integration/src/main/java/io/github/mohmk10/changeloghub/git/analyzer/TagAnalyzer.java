@@ -21,9 +21,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-/**
- * Analyzes Git tags.
- */
 public class TagAnalyzer {
 
     private static final Logger logger = LoggerFactory.getLogger(TagAnalyzer.class);
@@ -40,9 +37,6 @@ public class TagAnalyzer {
         this.config = config;
     }
 
-    /**
-     * Get all tags in the repository.
-     */
     public List<GitTag> getAllTags() {
         List<GitTag> tags = new ArrayList<>();
 
@@ -64,9 +58,6 @@ public class TagAnalyzer {
         return tags;
     }
 
-    /**
-     * Get a specific tag.
-     */
     public Optional<GitTag> getTag(String tagName) {
         try {
             String fullTagName = tagName.startsWith("refs/tags/")
@@ -87,27 +78,18 @@ public class TagAnalyzer {
         }
     }
 
-    /**
-     * Get semantic version tags only.
-     */
     public List<GitTag> getSemanticVersionTags() {
         return getAllTags().stream()
             .filter(GitTag::isSemanticVersion)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get tags sorted by semantic version (newest first).
-     */
     public List<GitTag> getTagsSortedByVersion() {
         return getSemanticVersionTags().stream()
             .sorted((t1, t2) -> compareVersions(t2.getVersion(), t1.getVersion()))
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get tags sorted by date (newest first).
-     */
     public List<GitTag> getTagsSortedByDate() {
         return getAllTags().stream()
             .filter(t -> t.getDate() != null)
@@ -115,25 +97,16 @@ public class TagAnalyzer {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get the latest tag (by version).
-     */
     public Optional<GitTag> getLatestTag() {
         List<GitTag> sorted = getTagsSortedByVersion();
         return sorted.isEmpty() ? Optional.empty() : Optional.of(sorted.get(0));
     }
 
-    /**
-     * Get the latest tag (by date).
-     */
     public Optional<GitTag> getLatestTagByDate() {
         List<GitTag> sorted = getTagsSortedByDate();
         return sorted.isEmpty() ? Optional.empty() : Optional.of(sorted.get(0));
     }
 
-    /**
-     * Get tags between two versions.
-     */
     public List<GitTag> getTagsBetweenVersions(String fromVersion, String toVersion) {
         List<GitTag> allTags = getTagsSortedByVersion();
         List<GitTag> result = new ArrayList<>();
@@ -158,9 +131,6 @@ public class TagAnalyzer {
         return result;
     }
 
-    /**
-     * Get previous tag (by version).
-     */
     public Optional<GitTag> getPreviousTag(String tagName) {
         List<GitTag> sorted = getTagsSortedByVersion();
         String version = tagName.startsWith("v") ? tagName.substring(1) : tagName;
@@ -174,9 +144,6 @@ public class TagAnalyzer {
         return Optional.empty();
     }
 
-    /**
-     * Get next tag (by version).
-     */
     public Optional<GitTag> getNextTag(String tagName) {
         List<GitTag> sorted = getTagsSortedByVersion();
         String version = tagName.startsWith("v") ? tagName.substring(1) : tagName;
@@ -190,9 +157,6 @@ public class TagAnalyzer {
         return Optional.empty();
     }
 
-    /**
-     * Filter tags by major version.
-     */
     public List<GitTag> filterByMajorVersion(int major) {
         return getSemanticVersionTags().stream()
             .filter(tag -> {
@@ -202,9 +166,6 @@ public class TagAnalyzer {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Group tags by major version.
-     */
     public Map<Integer, List<GitTag>> groupByMajorVersion() {
         return getSemanticVersionTags().stream()
             .collect(Collectors.groupingBy(
@@ -214,34 +175,21 @@ public class TagAnalyzer {
             ));
     }
 
-    /**
-     * Check if a tag exists.
-     */
     public boolean tagExists(String tagName) {
         return getTag(tagName).isPresent();
     }
 
-    /**
-     * Get annotated tags only.
-     */
     public List<GitTag> getAnnotatedTags() {
         return getAllTags().stream()
             .filter(GitTag::isAnnotated)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get lightweight tags only.
-     */
     public List<GitTag> getLightweightTags() {
         return getAllTags().stream()
             .filter(GitTag::isLightweight)
             .collect(Collectors.toList());
     }
-
-    // ============================================================
-    // Helper Methods
-    // ============================================================
 
     private GitTag parseTag(Ref ref, RevWalk revWalk) {
         try {
@@ -270,7 +218,7 @@ public class TagAnalyzer {
                     ));
                 }
             } else {
-                // For lightweight tags, get date from commit
+                
                 RevCommit commit = revWalk.parseCommit(objectId);
                 builder.date(LocalDateTime.ofInstant(
                     commit.getAuthorIdent().getWhen().toInstant(),

@@ -4,9 +4,6 @@ import io.github.mohmk10.changeloghub.notification.util.ChannelType;
 
 import java.util.Objects;
 
-/**
- * Represents a notification template.
- */
 public class NotificationTemplate {
 
     private final String name;
@@ -49,9 +46,6 @@ public class NotificationTemplate {
         return isDefault;
     }
 
-    /**
-     * Check if this template applies to a specific channel.
-     */
     public boolean appliesTo(ChannelType channel) {
         return channelType == null || channelType == channel;
     }

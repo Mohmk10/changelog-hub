@@ -12,13 +12,6 @@ import {
   SemverRecommendation,
 } from '../types';
 
-/**
- * Compares two API specifications and identifies all changes.
- *
- * @param oldSpec - The previous/base API specification
- * @param newSpec - The new/head API specification
- * @returns Comparison result with all changes
- */
 export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResult {
   const changes: Change[] = [];
   const breakingChanges: BreakingChange[] = [];
@@ -35,26 +28,21 @@ export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResu
     parametersModified: 0,
   };
 
-  // Compare endpoints
   const endpointChanges = compareEndpoints(oldSpec.endpoints, newSpec.endpoints, summary);
   changes.push(...endpointChanges);
 
-  // Compare schemas
   const schemaChanges = compareSchemas(oldSpec.schemas, newSpec.schemas, summary);
   changes.push(...schemaChanges);
 
-  // Compare security definitions
   const securityChanges = compareSecurity(oldSpec.security, newSpec.security);
   changes.push(...securityChanges);
 
-  // Extract breaking changes
   for (const change of changes) {
     if (change.severity === 'BREAKING') {
       breakingChanges.push(createBreakingChange(change));
     }
   }
 
-  // Calculate risk score
   const riskScore = calculateRiskScore(breakingChanges, changes);
   const riskLevel = calculateRiskLevel(riskScore);
   const semverRecommendation = getSemverRecommendation(breakingChanges, changes);
@@ -73,9 +61,6 @@ export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResu
   };
 }
 
-/**
- * Compares endpoint definitions
- */
 function compareEndpoints(
   oldEndpoints: Endpoint[],
   newEndpoints: Endpoint[],
@@ -85,7 +70,6 @@ function compareEndpoints(
   const oldMap = new Map(oldEndpoints.map((e) => [e.id, e]));
   const newMap = new Map(newEndpoints.map((e) => [e.id, e]));
 
-  // Removed endpoints (BREAKING)
   for (const [id, oldEndpoint] of oldMap) {
     if (!newMap.has(id)) {
       summary.endpointsRemoved++;
@@ -100,7 +84,6 @@ function compareEndpoints(
     }
   }
 
-  // Added endpoints (INFO)
   for (const [id, newEndpoint] of newMap) {
     if (!oldMap.has(id)) {
       summary.endpointsAdded++;
@@ -115,7 +98,6 @@ function compareEndpoints(
     }
   }
 
-  // Modified endpoints
   for (const [id, newEndpoint] of newMap) {
     const oldEndpoint = oldMap.get(id);
     if (oldEndpoint) {
@@ -130,9 +112,6 @@ function compareEndpoints(
   return changes;
 }
 
-/**
- * Compares details of two endpoints
- */
 function compareEndpointDetails(
   oldEndpoint: Endpoint,
   newEndpoint: Endpoint,
@@ -141,7 +120,6 @@ function compareEndpointDetails(
   const changes: Change[] = [];
   const basePath = `${newEndpoint.method} ${newEndpoint.path}`;
 
-  // Check deprecation
   if (!oldEndpoint.deprecated && newEndpoint.deprecated) {
     summary.endpointsDeprecated++;
     changes.push({
@@ -153,7 +131,6 @@ function compareEndpointDetails(
     });
   }
 
-  // Compare parameters
   const paramChanges = compareParameters(
     oldEndpoint.parameters,
     newEndpoint.parameters,
@@ -162,7 +139,6 @@ function compareEndpointDetails(
   );
   changes.push(...paramChanges);
 
-  // Compare request body
   if (oldEndpoint.requestBody || newEndpoint.requestBody) {
     const reqBodyChanges = compareRequestBody(
       oldEndpoint.requestBody,
@@ -172,16 +148,12 @@ function compareEndpointDetails(
     changes.push(...reqBodyChanges);
   }
 
-  // Compare responses
   const responseChanges = compareResponses(oldEndpoint.responses, newEndpoint.responses, basePath);
   changes.push(...responseChanges);
 
   return changes;
 }
 
-/**
- * Compares parameters between endpoints
- */
 function compareParameters(
   oldParams: Parameter[],
   newParams: Parameter[],
@@ -192,7 +164,6 @@ function compareParameters(
   const oldMap = new Map(oldParams.map((p) => [`${p.location}:${p.name}`, p]));
   const newMap = new Map(newParams.map((p) => [`${p.location}:${p.name}`, p]));
 
-  // Removed parameters
   for (const [key, oldParam] of oldMap) {
     if (!newMap.has(key)) {
       summary.parametersRemoved++;
@@ -208,7 +179,6 @@ function compareParameters(
     }
   }
 
-  // Added parameters
   for (const [key, newParam] of newMap) {
     if (!oldMap.has(key)) {
       summary.parametersAdded++;
@@ -224,7 +194,6 @@ function compareParameters(
     }
   }
 
-  // Modified parameters
   for (const [key, newParam] of newMap) {
     const oldParam = oldMap.get(key);
     if (oldParam) {
@@ -239,9 +208,6 @@ function compareParameters(
   return changes;
 }
 
-/**
- * Compares details of two parameters
- */
 function compareParameterDetails(
   oldParam: Parameter,
   newParam: Parameter,
@@ -250,7 +216,6 @@ function compareParameterDetails(
   const changes: Change[] = [];
   const paramPath = `${basePath} -> ${newParam.location}:${newParam.name}`;
 
-  // Required changed from false to true (BREAKING)
   if (!oldParam.required && newParam.required) {
     changes.push({
       type: 'MODIFIED',
@@ -263,7 +228,6 @@ function compareParameterDetails(
     });
   }
 
-  // Type changed (potentially BREAKING)
   if (oldParam.type !== newParam.type) {
     const isCompatible = isTypeCompatible(oldParam.type, newParam.type);
     changes.push({
@@ -280,9 +244,6 @@ function compareParameterDetails(
   return changes;
 }
 
-/**
- * Compares request body definitions
- */
 function compareRequestBody(
   oldBody: Endpoint['requestBody'],
   newBody: Endpoint['requestBody'],
@@ -342,9 +303,6 @@ function compareRequestBody(
   return changes;
 }
 
-/**
- * Compares response definitions
- */
 function compareResponses(
   oldResponses: Endpoint['responses'],
   newResponses: Endpoint['responses'],
@@ -383,9 +341,6 @@ function compareResponses(
   return changes;
 }
 
-/**
- * Compares schema definitions
- */
 function compareSchemas(
   oldSchemas: Schema[],
   newSchemas: Schema[],
@@ -437,9 +392,6 @@ function compareSchemas(
   return changes;
 }
 
-/**
- * Compares details of two schemas
- */
 function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
   const changes: Change[] = [];
   const basePath = `#/components/schemas/${newSchema.name}`;
@@ -504,9 +456,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
   return changes;
 }
 
-/**
- * Compares security definitions
- */
 function compareSecurity(
   oldSecurity: ApiSpec['security'],
   newSecurity: ApiSpec['security']
@@ -544,9 +493,6 @@ function compareSecurity(
   return changes;
 }
 
-/**
- * Checks if two types are compatible
- */
 function isTypeCompatible(oldType: string, newType: string): boolean {
   if (oldType === newType) return true;
   if (oldType === 'number' && newType === 'integer') return true;
@@ -554,9 +500,6 @@ function isTypeCompatible(oldType: string, newType: string): boolean {
   return false;
 }
 
-/**
- * Creates a breaking change with migration suggestion
- */
 function createBreakingChange(change: Change): BreakingChange {
   return {
     ...change,
@@ -565,9 +508,6 @@ function createBreakingChange(change: Change): BreakingChange {
   };
 }
 
-/**
- * Generates a migration suggestion based on the change
- */
 function generateMigrationSuggestion(change: Change): string {
   switch (change.category) {
     case 'ENDPOINT':
@@ -601,9 +541,6 @@ function generateMigrationSuggestion(change: Change): string {
   return 'Review and update client code accordingly';
 }
 
-/**
- * Calculates the impact score for a breaking change
- */
 function calculateImpactScore(change: Change): number {
   let score = 50;
   if (change.category === 'ENDPOINT') score += 30;
@@ -612,9 +549,6 @@ function calculateImpactScore(change: Change): number {
   return Math.min(100, score);
 }
 
-/**
- * Calculates overall risk score
- */
 function calculateRiskScore(breakingChanges: BreakingChange[], allChanges: Change[]): number {
   if (allChanges.length === 0) return 0;
 
@@ -630,9 +564,6 @@ function calculateRiskScore(breakingChanges: BreakingChange[], allChanges: Chang
   return Math.min(100, Math.round((totalScore / Math.max(maxPossible, 100)) * 100));
 }
 
-/**
- * Determines the risk level based on score
- */
 function calculateRiskLevel(score: number): RiskLevel {
   if (score >= 75) return 'CRITICAL';
   if (score >= 50) return 'HIGH';
@@ -640,9 +571,6 @@ function calculateRiskLevel(score: number): RiskLevel {
   return 'LOW';
 }
 
-/**
- * Determines the recommended semantic version bump
- */
 function getSemverRecommendation(
   breakingChanges: BreakingChange[],
   changes: Change[]

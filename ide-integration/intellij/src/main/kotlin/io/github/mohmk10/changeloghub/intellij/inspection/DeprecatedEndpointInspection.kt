@@ -8,9 +8,6 @@ import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
 
-/**
- * Inspection for detecting deprecated endpoints in API specifications.
- */
 class DeprecatedEndpointInspection : LocalInspectionTool() {
 
     override fun getDisplayName(): String = "Deprecated endpoint"
@@ -27,7 +24,6 @@ class DeprecatedEndpointInspection : LocalInspectionTool() {
             return PsiElementVisitor.EMPTY_VISITOR
         }
 
-        // Check if this is an API spec file
         val content = file.text
         if (!isApiSpec(content)) {
             return PsiElementVisitor.EMPTY_VISITOR
@@ -39,7 +35,6 @@ class DeprecatedEndpointInspection : LocalInspectionTool() {
 
                 val key = keyValue.keyText
                 if (key == "deprecated" && keyValue.valueText == "true") {
-                    // Find the parent path/operation
                     val parent = findOperationParent(keyValue)
                     if (parent != null) {
                         holder.registerProblem(

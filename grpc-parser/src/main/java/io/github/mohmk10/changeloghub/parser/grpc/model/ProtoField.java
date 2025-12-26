@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Represents a Protocol Buffers message field.
- */
 public class ProtoField {
 
     private final String name;
@@ -111,9 +108,6 @@ public class ProtoField {
         return options.get(key);
     }
 
-    /**
-     * Get the full type signature including rule (e.g., "repeated string", "map<string, int32>").
-     */
     public String getFullTypeSignature() {
         if (isMap()) {
             return "map<" + mapKeyType + ", " + mapValueType + ">";

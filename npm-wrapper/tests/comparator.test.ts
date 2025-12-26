@@ -134,7 +134,7 @@ describe('compareSpecs', () => {
 
       expect(result.totalChanges).toBe(0);
       expect(result.breakingChanges.length).toBe(0);
-      // When no changes, semver returns PATCH (minimal version bump)
+      
       expect(result.semverRecommendation).toBe('PATCH');
     });
   });

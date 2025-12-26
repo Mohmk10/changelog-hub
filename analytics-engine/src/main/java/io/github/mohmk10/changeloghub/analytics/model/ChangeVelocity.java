@@ -4,9 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Represents the velocity of API changes over time.
- */
 public class ChangeVelocity {
 
     private String apiName;
@@ -32,7 +29,6 @@ public class ChangeVelocity {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }

@@ -18,9 +18,6 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Analyzes Git branches.
- */
 public class BranchAnalyzer {
 
     private static final Logger logger = LoggerFactory.getLogger(BranchAnalyzer.class);
@@ -37,23 +34,14 @@ public class BranchAnalyzer {
         this.config = config;
     }
 
-    /**
-     * Get all local branches.
-     */
     public List<GitBranch> getLocalBranches() {
         return getBranches(ListBranchCommand.ListMode.ALL, false);
     }
 
-    /**
-     * Get all remote branches.
-     */
     public List<GitBranch> getRemoteBranches() {
         return getBranches(ListBranchCommand.ListMode.REMOTE, true);
     }
 
-    /**
-     * Get all branches (local and remote).
-     */
     public List<GitBranch> getAllBranches() {
         List<GitBranch> branches = new ArrayList<>();
         branches.addAll(getLocalBranches());
@@ -63,9 +51,6 @@ public class BranchAnalyzer {
         return branches;
     }
 
-    /**
-     * Get a specific branch.
-     */
     public Optional<GitBranch> getBranch(String branchName) {
         try {
             String fullName = branchName.startsWith("refs/")
@@ -74,7 +59,7 @@ public class BranchAnalyzer {
 
             Ref ref = repository.findRef(fullName);
             if (ref == null) {
-                // Try remote
+                
                 ref = repository.findRef("refs/remotes/origin/" + branchName);
             }
 
@@ -90,9 +75,6 @@ public class BranchAnalyzer {
         }
     }
 
-    /**
-     * Get the current branch.
-     */
     public Optional<GitBranch> getCurrentBranch() {
         try {
             String fullBranch = repository.getFullBranch();
@@ -114,17 +96,13 @@ public class BranchAnalyzer {
         }
     }
 
-    /**
-     * Get the default branch (main or master).
-     */
     public Optional<GitBranch> getDefaultBranch() {
-        // Try configured default branch
+        
         Optional<GitBranch> branch = getBranch(config.getDefaultBranch());
         if (branch.isPresent()) {
             return branch;
         }
 
-        // Try common defaults
         branch = getBranch("main");
         if (branch.isPresent()) {
             return branch;
@@ -134,27 +112,18 @@ public class BranchAnalyzer {
         return branch;
     }
 
-    /**
-     * Get feature branches.
-     */
     public List<GitBranch> getFeatureBranches() {
         return getAllBranches().stream()
             .filter(GitBranch::isFeatureBranch)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get release branches.
-     */
     public List<GitBranch> getReleaseBranches() {
         return getAllBranches().stream()
             .filter(GitBranch::isReleaseBranch)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get branches sorted by last commit date (newest first).
-     */
     public List<GitBranch> getBranchesSortedByDate() {
         return getAllBranches().stream()
             .filter(b -> b.getLastCommitDate() != null)
@@ -162,9 +131,6 @@ public class BranchAnalyzer {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get branches that contain a specific commit.
-     */
     public List<GitBranch> getBranchesContainingCommit(String commitId) {
         List<GitBranch> result = new ArrayList<>();
 
@@ -183,16 +149,10 @@ public class BranchAnalyzer {
         return result;
     }
 
-    /**
-     * Check if a branch exists.
-     */
     public boolean branchExists(String branchName) {
         return getBranch(branchName).isPresent();
     }
 
-    /**
-     * Get the merge base (common ancestor) of two branches.
-     */
     public Optional<String> getMergeBase(String branch1, String branch2) {
         try (RevWalk revWalk = new RevWalk(repository)) {
             ObjectId id1 = resolveRef(branch1);
@@ -218,26 +178,16 @@ public class BranchAnalyzer {
         }
     }
 
-    /**
-     * Check if branch1 is ahead of branch2.
-     */
     public boolean isAhead(String branch1, String branch2) {
         int[] aheadBehind = getAheadBehind(branch1, branch2);
         return aheadBehind[0] > 0;
     }
 
-    /**
-     * Check if branch1 is behind branch2.
-     */
     public boolean isBehind(String branch1, String branch2) {
         int[] aheadBehind = getAheadBehind(branch1, branch2);
         return aheadBehind[1] > 0;
     }
 
-    /**
-     * Get ahead/behind counts for branch1 relative to branch2.
-     * Returns [ahead, behind].
-     */
     public int[] getAheadBehind(String branch1, String branch2) {
         try (RevWalk revWalk = new RevWalk(repository)) {
             ObjectId id1 = resolveRef(branch1);
@@ -262,10 +212,6 @@ public class BranchAnalyzer {
             return new int[]{0, 0};
         }
     }
-
-    // ============================================================
-    // Helper Methods
-    // ============================================================
 
     private List<GitBranch> getBranches(ListBranchCommand.ListMode mode, boolean remote) {
         List<GitBranch> branches = new ArrayList<>();

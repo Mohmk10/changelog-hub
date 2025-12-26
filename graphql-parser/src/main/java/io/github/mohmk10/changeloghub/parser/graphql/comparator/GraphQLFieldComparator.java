@@ -6,21 +6,14 @@ import io.github.mohmk10.changeloghub.parser.graphql.model.GraphQLField;
 
 import java.util.*;
 
-/**
- * Compares GraphQL fields and their arguments.
- */
 public class GraphQLFieldComparator {
 
-    /**
-     * Compares two lists of fields.
-     */
     public List<Change> compareFields(List<GraphQLField> oldFields, List<GraphQLField> newFields, String parentPath) {
         List<Change> changes = new ArrayList<>();
 
         Map<String, GraphQLField> oldFieldMap = toMap(oldFields);
         Map<String, GraphQLField> newFieldMap = toMap(newFields);
 
-        // Check for removed fields (BREAKING)
         for (String fieldName : oldFieldMap.keySet()) {
             if (!newFieldMap.containsKey(fieldName)) {
                 changes.add(createChange(
@@ -35,7 +28,6 @@ public class GraphQLFieldComparator {
             }
         }
 
-        // Check for added fields (INFO)
         for (String fieldName : newFieldMap.keySet()) {
             if (!oldFieldMap.containsKey(fieldName)) {
                 changes.add(createChange(
@@ -50,7 +42,6 @@ public class GraphQLFieldComparator {
             }
         }
 
-        // Check for modified fields
         for (String fieldName : oldFieldMap.keySet()) {
             if (newFieldMap.containsKey(fieldName)) {
                 GraphQLField oldField = oldFieldMap.get(fieldName);
@@ -62,13 +53,9 @@ public class GraphQLFieldComparator {
         return changes;
     }
 
-    /**
-     * Compares two individual fields.
-     */
     public List<Change> compareField(GraphQLField oldField, GraphQLField newField, String path) {
         List<Change> changes = new ArrayList<>();
 
-        // Check type change (BREAKING if incompatible)
         if (!Objects.equals(oldField.getType(), newField.getType())) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -81,7 +68,6 @@ public class GraphQLFieldComparator {
             ));
         }
 
-        // Check nullability change (DANGEROUS if nullable -> non-null)
         if (!oldField.isRequired() && newField.isRequired()) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -94,7 +80,6 @@ public class GraphQLFieldComparator {
             ));
         }
 
-        // Check deprecation change (WARNING)
         if (!oldField.isDeprecated() && newField.isDeprecated()) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -107,22 +92,17 @@ public class GraphQLFieldComparator {
             ));
         }
 
-        // Compare arguments
         changes.addAll(compareArguments(oldField.getArguments(), newField.getArguments(), path));
 
         return changes;
     }
 
-    /**
-     * Compares two lists of arguments.
-     */
     public List<Change> compareArguments(List<GraphQLArgument> oldArgs, List<GraphQLArgument> newArgs, String parentPath) {
         List<Change> changes = new ArrayList<>();
 
         Map<String, GraphQLArgument> oldArgMap = toArgMap(oldArgs);
         Map<String, GraphQLArgument> newArgMap = toArgMap(newArgs);
 
-        // Check for removed arguments (DANGEROUS)
         for (String argName : oldArgMap.keySet()) {
             if (!newArgMap.containsKey(argName)) {
                 changes.add(createChange(
@@ -137,11 +117,10 @@ public class GraphQLFieldComparator {
             }
         }
 
-        // Check for added arguments
         for (String argName : newArgMap.keySet()) {
             GraphQLArgument newArg = newArgMap.get(argName);
             if (!oldArgMap.containsKey(argName)) {
-                // BREAKING if required, INFO if optional
+                
                 Severity severity = newArg.isRequired() && !newArg.hasDefaultValue()
                         ? Severity.BREAKING : Severity.INFO;
                 changes.add(createChange(
@@ -156,7 +135,6 @@ public class GraphQLFieldComparator {
             }
         }
 
-        // Check for modified arguments
         for (String argName : oldArgMap.keySet()) {
             if (newArgMap.containsKey(argName)) {
                 GraphQLArgument oldArg = oldArgMap.get(argName);
@@ -168,13 +146,9 @@ public class GraphQLFieldComparator {
         return changes;
     }
 
-    /**
-     * Compares two individual arguments.
-     */
     public List<Change> compareArgument(GraphQLArgument oldArg, GraphQLArgument newArg, String path) {
         List<Change> changes = new ArrayList<>();
 
-        // Check type change (BREAKING)
         if (!Objects.equals(oldArg.getType(), newArg.getType())) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -187,7 +161,6 @@ public class GraphQLFieldComparator {
             ));
         }
 
-        // Check default value change (DANGEROUS)
         if (!Objects.equals(oldArg.getDefaultValue(), newArg.getDefaultValue())) {
             changes.add(createChange(
                     ChangeType.MODIFIED,

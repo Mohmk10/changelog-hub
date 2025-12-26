@@ -10,9 +10,6 @@ import io.github.mohmk10.changeloghub.parser.spring.model.SpringParameter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Maps Spring method models to core Endpoint models.
- */
 public class SpringEndpointMapper {
 
     private final PathExtractor pathExtractor;
@@ -27,9 +24,6 @@ public class SpringEndpointMapper {
         this.typeExtractor = new TypeExtractor();
     }
 
-    /**
-     * Map all methods from a controller to endpoints.
-     */
     public List<Endpoint> mapEndpoints(SpringController controller) {
         List<Endpoint> endpoints = new ArrayList<>();
 
@@ -40,51 +34,37 @@ public class SpringEndpointMapper {
         return endpoints;
     }
 
-    /**
-     * Map a single Spring method to an endpoint.
-     */
     public Endpoint mapEndpoint(SpringController controller, SpringMethod springMethod) {
         Endpoint.Builder builder = Endpoint.builder();
 
-        // Set HTTP method
         builder.method(mapHttpMethod(springMethod.getHttpMethod()));
 
-        // Combine paths
         String fullPath = pathExtractor.combinePaths(controller.getBasePath(), springMethod.getPath());
         fullPath = pathExtractor.toOpenApiPath(fullPath);
         builder.path(fullPath);
 
-        // Set operation ID
         builder.operationId(springMethod.getMethodName());
 
-        // Set summary
         if (springMethod.getSummary() != null) {
             builder.summary(springMethod.getSummary());
         }
 
-        // Set deprecated (controller or method level)
         builder.deprecated(controller.isDeprecated() || springMethod.isDeprecated());
 
-        // Map parameters
         List<Parameter> parameters = parameterMapper.mapParameters(springMethod.getParameters());
         builder.parameters(parameters);
 
-        // Map request body
         RequestBody requestBody = mapRequestBody(springMethod);
         if (requestBody != null) {
             builder.requestBody(requestBody);
         }
 
-        // Map responses
         List<Response> responses = responseMapper.mapResponses(springMethod);
         builder.responses(responses);
 
         return builder.build();
     }
 
-    /**
-     * Map HTTP method string to HttpMethod enum.
-     */
     private HttpMethod mapHttpMethod(String method) {
         if (method == null) {
             return HttpMethod.GET;
@@ -110,9 +90,6 @@ public class SpringEndpointMapper {
         }
     }
 
-    /**
-     * Map request body from Spring parameters.
-     */
     private RequestBody mapRequestBody(SpringMethod springMethod) {
         SpringParameter bodyParam = parameterMapper.getRequestBody(springMethod.getParameters());
 
@@ -123,14 +100,12 @@ public class SpringEndpointMapper {
         RequestBody requestBody = new RequestBody();
         requestBody.setRequired(bodyParam.isRequired());
 
-        // Set content type
         if (!springMethod.getConsumes().isEmpty()) {
             requestBody.setContentType(springMethod.getConsumes().get(0));
         } else {
             requestBody.setContentType("application/json");
         }
 
-        // Set schema based on Java type
         String apiType = typeExtractor.javaTypeToApiType(bodyParam.getJavaType());
         requestBody.setSchemaRef(apiType);
 

@@ -2,17 +2,11 @@ import { ApiSpec, ComparisonResult, ChangeSeverity } from '../types';
 import { parseSpec } from './parser';
 import { compareSpecs } from './comparator';
 
-/**
- * Options for breaking change detection
- */
 export interface DetectionOptions {
   severityThreshold?: ChangeSeverity;
   includeDeprecations?: boolean;
 }
 
-/**
- * Detects breaking changes between two API specification contents.
- */
 export function detectBreakingChanges(
   oldContent: string,
   newContent: string,
@@ -38,9 +32,6 @@ export function detectBreakingChanges(
   return result;
 }
 
-/**
- * Detects breaking changes from parsed specs
- */
 export function detectBreakingChangesFromSpecs(
   oldSpec: ApiSpec,
   newSpec: ApiSpec,
@@ -62,9 +53,6 @@ export function detectBreakingChangesFromSpecs(
   return result;
 }
 
-/**
- * Filters comparison result by severity threshold
- */
 function filterBySeverity(
   result: ComparisonResult,
   threshold: ChangeSeverity
@@ -90,9 +78,6 @@ function filterBySeverity(
   };
 }
 
-/**
- * Quick check if there are any breaking changes
- */
 export function hasBreakingChanges(
   oldContent: string,
   newContent: string,
@@ -102,9 +87,6 @@ export function hasBreakingChanges(
   return result.breakingChanges.length > 0;
 }
 
-/**
- * Get summary of breaking changes
- */
 export function getBreakingChangesSummary(
   oldContent: string,
   newContent: string,

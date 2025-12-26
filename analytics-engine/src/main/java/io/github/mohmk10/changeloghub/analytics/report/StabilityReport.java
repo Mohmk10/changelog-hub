@@ -7,9 +7,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Report on API stability over time.
- */
 public class StabilityReport {
 
     private String apiName;
@@ -33,7 +30,6 @@ public class StabilityReport {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() { return apiName; }
     public void setApiName(String apiName) { this.apiName = apiName; }
 
@@ -67,9 +63,6 @@ public class StabilityReport {
     public LocalDateTime getGeneratedAt() { return generatedAt; }
     public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
 
-    /**
-     * Get stability trend compared to previous period.
-     */
     public String getStabilityTrend() {
         if (currentStability == null || previousStability == null) {
             return "N/A";
@@ -80,14 +73,10 @@ public class StabilityReport {
         return "Stable";
     }
 
-    /**
-     * Convert report to Markdown format.
-     */
     public String toMarkdown() {
         StringBuilder sb = new StringBuilder();
         sb.append("# Stability Report: ").append(apiName).append("\n\n");
 
-        // Summary
         sb.append("## Summary\n\n");
         if (currentStability != null) {
             StabilityGrade grade = currentStability.getGrade();
@@ -101,7 +90,6 @@ public class StabilityReport {
         sb.append("- **Total Breaking Changes:** ").append(breakingChangesTotal).append("\n");
         sb.append("- **Trend:** ").append(getStabilityTrend()).append("\n\n");
 
-        // Stability Factors
         if (!factors.isEmpty()) {
             sb.append("## Stability Factors\n\n");
             sb.append("| Factor | Score | Weight | Impact |\n");
@@ -116,7 +104,6 @@ public class StabilityReport {
             sb.append("\n");
         }
 
-        // Insights
         if (!insights.isEmpty()) {
             sb.append("## Insights\n\n");
             for (Insight insight : insights) {
@@ -126,7 +113,6 @@ public class StabilityReport {
             sb.append("\n");
         }
 
-        // Recommendations
         if (!recommendations.isEmpty()) {
             sb.append("## Recommendations\n\n");
             for (Recommendation rec : recommendations) {

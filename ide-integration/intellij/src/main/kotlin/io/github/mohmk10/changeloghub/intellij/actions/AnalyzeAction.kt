@@ -22,9 +22,6 @@ import java.awt.Dimension
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-/**
- * Action for analyzing an API specification.
- */
 class AnalyzeAction : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {

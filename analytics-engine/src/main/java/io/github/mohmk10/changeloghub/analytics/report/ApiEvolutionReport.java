@@ -11,9 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Report showing API evolution over time.
- */
 public class ApiEvolutionReport {
 
     private String apiName;
@@ -42,7 +39,6 @@ public class ApiEvolutionReport {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() { return apiName; }
     public void setApiName(String apiName) { this.apiName = apiName; }
 
@@ -79,16 +75,12 @@ public class ApiEvolutionReport {
     public LocalDateTime getGeneratedAt() { return generatedAt; }
     public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
 
-    /**
-     * Convert report to Markdown format.
-     */
     public String toMarkdown() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("# API Evolution Report: ").append(apiName).append("\n\n");
         sb.append("**Period:** ").append(startDate).append(" to ").append(endDate).append("\n\n");
 
-        // Summary
         sb.append("## Summary\n\n");
         if (overallStability != null) {
             sb.append("- **Stability Grade:** ").append(overallStability.getGrade())
@@ -102,7 +94,6 @@ public class ApiEvolutionReport {
         }
         sb.append("- **Versions Analyzed:** ").append(versions.size()).append("\n\n");
 
-        // Versions
         if (!versions.isEmpty()) {
             sb.append("## Version History\n\n");
             sb.append("| Version | Date | Changes | Breaking |\n");
@@ -117,7 +108,6 @@ public class ApiEvolutionReport {
             sb.append("\n");
         }
 
-        // Insights
         if (!insights.isEmpty()) {
             sb.append("## Insights\n\n");
             for (Insight insight : insights) {
@@ -127,7 +117,6 @@ public class ApiEvolutionReport {
             sb.append("\n");
         }
 
-        // Recommendations
         if (!recommendations.isEmpty()) {
             sb.append("## Recommendations\n\n");
             for (Recommendation rec : recommendations) {
@@ -139,9 +128,6 @@ public class ApiEvolutionReport {
         return sb.toString();
     }
 
-    /**
-     * Convert report to JSON format.
-     */
     public String toJson() {
         try {
             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
@@ -150,9 +136,6 @@ public class ApiEvolutionReport {
         }
     }
 
-    /**
-     * Convert report to HTML format.
-     */
     public String toHtml() {
         StringBuilder sb = new StringBuilder();
 
@@ -171,7 +154,6 @@ public class ApiEvolutionReport {
         sb.append("<h1>API Evolution Report: ").append(escapeHtml(apiName)).append("</h1>\n");
         sb.append("<p><strong>Period:</strong> ").append(startDate).append(" to ").append(endDate).append("</p>\n");
 
-        // Summary section
         sb.append("<h2>Summary</h2>\n<ul>\n");
         if (overallStability != null) {
             sb.append("<li><strong>Stability:</strong> Grade ").append(overallStability.getGrade())
@@ -182,7 +164,6 @@ public class ApiEvolutionReport {
         }
         sb.append("</ul>\n");
 
-        // Version table
         if (!versions.isEmpty()) {
             sb.append("<h2>Version History</h2>\n<table>\n");
             sb.append("<tr><th>Version</th><th>Date</th><th>Changes</th><th>Breaking</th></tr>\n");

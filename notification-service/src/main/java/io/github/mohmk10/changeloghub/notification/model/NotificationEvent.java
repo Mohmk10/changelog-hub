@@ -8,9 +8,6 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Represents an event that triggers a notification.
- */
 public class NotificationEvent {
 
     private final String id;

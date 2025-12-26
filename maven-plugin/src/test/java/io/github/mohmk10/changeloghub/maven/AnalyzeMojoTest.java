@@ -37,7 +37,6 @@ class AnalyzeMojoTest {
         mojo.setSpec(apiSpec);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -46,7 +45,6 @@ class AnalyzeMojoTest {
         mojo.setSpec(apiSpec);
         mojo.setSkip(true);
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -117,7 +115,6 @@ class AnalyzeMojoTest {
         mojo.setVerbose(true);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -145,7 +142,7 @@ class AnalyzeMojoTest {
         mojo.execute();
 
         String content = Files.readString(outputFile.toPath());
-        // api-v1.yaml has 3 endpoints
+        
         assertThat(content).contains("\"totalEndpoints\": 3");
     }
 
@@ -161,7 +158,7 @@ class AnalyzeMojoTest {
         mojo.execute();
 
         String content = Files.readString(outputFile.toPath());
-        // api-v2-minor.yaml has deprecated endpoints
+        
         assertThat(content).contains("\"deprecated\": true");
     }
 }

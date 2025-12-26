@@ -63,7 +63,7 @@ class StabilityScorerTest {
         );
 
         StabilityScore score = scorer.calculate(history);
-        // Score should be calculated based on breaking changes
+        
         assertThat(score.getScore()).isBetween(0, 100);
         assertThat(score.getBreakingChangeRatio()).isBetween(0.0, 1.0);
     }
@@ -76,7 +76,7 @@ class StabilityScorerTest {
         );
 
         StabilityScore score = scorer.calculate(history);
-        // Breaking change ratio may vary based on calculation method
+        
         assertThat(score.getBreakingChangeRatio()).isBetween(0.0, 1.0);
     }
 

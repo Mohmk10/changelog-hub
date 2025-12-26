@@ -48,7 +48,7 @@ class PatternDetectorTest {
     @Test
     void detectFrequentBreakingChanges_shouldDetectHighRatio() {
         List<Changelog> history = new ArrayList<>();
-        // All releases have breaking changes
+        
         for (int i = 0; i < 10; i++) {
             history.add(createChangelog(2, LocalDateTime.now().minusDays(i * 10)));
         }
@@ -73,7 +73,7 @@ class PatternDetectorTest {
     @Test
     void detectSeasonalPattern_shouldDetectPeakMonth() {
         List<Changelog> history = new ArrayList<>();
-        // Most releases in January
+        
         for (int year = 2020; year <= 2023; year++) {
             history.add(createChangelog(0, LocalDateTime.of(year, Month.JANUARY, 15, 10, 0)));
             history.add(createChangelog(0, LocalDateTime.of(year, Month.JANUARY, 20, 10, 0)));
@@ -89,12 +89,12 @@ class PatternDetectorTest {
     @Test
     void detectWeeklyPattern_shouldDetectPeakDay() {
         List<Changelog> history = new ArrayList<>();
-        // Most releases on Tuesday
+        
         LocalDateTime tuesday = LocalDateTime.now().with(DayOfWeek.TUESDAY);
         for (int i = 0; i < 10; i++) {
             history.add(createChangelog(0, tuesday.minusWeeks(i)));
         }
-        // Few releases on other days
+        
         history.add(createChangelog(0, tuesday.with(DayOfWeek.FRIDAY)));
         history.add(createChangelog(0, tuesday.with(DayOfWeek.MONDAY)));
 
@@ -107,7 +107,7 @@ class PatternDetectorTest {
     void detectBurstReleases_shouldDetectCloseReleases() {
         List<Changelog> history = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        // Burst of releases within hours
+        
         for (int i = 0; i < 5; i++) {
             history.add(createChangelog(0, now.minusHours(i * 3)));
         }
@@ -121,7 +121,7 @@ class PatternDetectorTest {
     void detectBurstReleases_withSpreadReleases_shouldReturnNull() {
         List<Changelog> history = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        // Releases spread over weeks
+        
         for (int i = 0; i < 5; i++) {
             history.add(createChangelog(0, now.minusDays(i * 7)));
         }

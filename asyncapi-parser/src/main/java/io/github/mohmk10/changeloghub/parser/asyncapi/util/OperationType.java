@@ -1,21 +1,9 @@
 package io.github.mohmk10.changeloghub.parser.asyncapi.util;
 
-/**
- * Enum representing AsyncAPI operation types.
- */
 public enum OperationType {
-    /**
-     * Publish operation - the application sends messages to this channel.
-     * In AsyncAPI 2.x: publish
-     * In AsyncAPI 3.x: send action
-     */
+    
     PUBLISH("publish", "send"),
 
-    /**
-     * Subscribe operation - the application receives messages from this channel.
-     * In AsyncAPI 2.x: subscribe
-     * In AsyncAPI 3.x: receive action
-     */
     SUBSCRIBE("subscribe", "receive");
 
     private final String v2Name;
@@ -34,9 +22,6 @@ public enum OperationType {
         return v3Name;
     }
 
-    /**
-     * Parse operation type from AsyncAPI 2.x name.
-     */
     public static OperationType fromV2Name(String name) {
         if (name == null) {
             return null;
@@ -49,9 +34,6 @@ public enum OperationType {
         return null;
     }
 
-    /**
-     * Parse operation type from AsyncAPI 3.x action name.
-     */
     public static OperationType fromV3Action(String action) {
         if (action == null) {
             return null;
@@ -64,23 +46,14 @@ public enum OperationType {
         return null;
     }
 
-    /**
-     * Get the HTTP method equivalent for mapping to REST-like endpoints.
-     */
     public String getHttpMethod() {
         return this == PUBLISH ? "POST" : "GET";
     }
 
-    /**
-     * Check if this operation type is a producer (sends messages).
-     */
     public boolean isProducer() {
         return this == PUBLISH;
     }
 
-    /**
-     * Check if this operation type is a consumer (receives messages).
-     */
     public boolean isConsumer() {
         return this == SUBSCRIBE;
     }

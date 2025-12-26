@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
 import { ExtensionConfig, OutputFormat, ChangeSeverity } from '../types';
 
-/**
- * Get extension configuration
- */
 export function getConfig(): ExtensionConfig {
   const config = vscode.workspace.getConfiguration('changelogHub');
 
@@ -23,9 +20,6 @@ export function getConfig(): ExtensionConfig {
   };
 }
 
-/**
- * Update a configuration value
- */
 export async function updateConfig<T>(
   key: keyof ExtensionConfig,
   value: T,
@@ -35,30 +29,18 @@ export async function updateConfig<T>(
   await config.update(key, value, global);
 }
 
-/**
- * Get the default Git ref for comparison
- */
 export function getDefaultGitRef(): string {
   return getConfig().baseRef;
 }
 
-/**
- * Get spec file patterns
- */
 export function getSpecPatterns(): string[] {
   return getConfig().specPatterns;
 }
 
-/**
- * Check if inline warnings are enabled
- */
 export function isInlineWarningsEnabled(): boolean {
   return getConfig().showInlineWarnings;
 }
 
-/**
- * Get severity threshold
- */
 export function getSeverityThreshold(): ChangeSeverity {
   return getConfig().severityThreshold;
 }

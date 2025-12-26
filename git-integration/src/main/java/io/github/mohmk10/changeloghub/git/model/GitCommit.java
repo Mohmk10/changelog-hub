@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents a Git commit with metadata.
- */
 public class GitCommit {
 
     private String id;

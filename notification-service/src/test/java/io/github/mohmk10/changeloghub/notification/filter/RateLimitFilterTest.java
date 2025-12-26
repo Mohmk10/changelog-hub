@@ -27,7 +27,6 @@ class RateLimitFilterTest {
             assertThat(filter.shouldSend(createNotification())).isTrue();
         }
 
-        // Fourth should be blocked
         assertThat(filter.shouldSend(createNotification())).isFalse();
     }
 

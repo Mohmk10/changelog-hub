@@ -9,9 +9,6 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * Functional tests using Gradle TestKit.
- */
 class GradleTestKitTest {
 
     @TempDir

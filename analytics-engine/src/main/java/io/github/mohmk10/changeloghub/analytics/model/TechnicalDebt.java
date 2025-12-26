@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents technical debt in an API specification.
- */
 public class TechnicalDebt {
 
     private String apiName;
@@ -32,7 +29,6 @@ public class TechnicalDebt {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }
@@ -151,9 +147,6 @@ public class TechnicalDebt {
         return Objects.hash(apiName, debtScore);
     }
 
-    /**
-     * Represents a single item of technical debt.
-     */
     public static class DebtItem {
         private DebtType type;
         private String path;
@@ -189,7 +182,7 @@ public class TechnicalDebt {
             this.type = type;
             this.path = path;
             this.description = description;
-            this.severity = 5; // default severity
+            this.severity = 5; 
         }
 
         public DebtItem(DebtType type, String path, String description, int severity) {

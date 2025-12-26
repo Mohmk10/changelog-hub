@@ -4,27 +4,17 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.model.AsyncSchema;
 
 import java.util.*;
 
-/**
- * Maps AsyncAPI schema definitions to type strings for use with core model.
- * Since the core model uses String types instead of Schema objects,
- * this mapper creates type signatures and schema references.
- */
 public class AsyncApiSchemaMapper {
 
-    /**
-     * Map an AsyncSchema to a type string.
-     */
     public String mapToType(AsyncSchema asyncSchema) {
         if (asyncSchema == null) {
             return "object";
         }
 
-        // Reference
         if (asyncSchema.getRef() != null) {
             return extractRefName(asyncSchema);
         }
 
-        // Type with format
         if (asyncSchema.getType() != null) {
             String type = asyncSchema.getType();
             if (asyncSchema.getFormat() != null) {
@@ -39,9 +29,6 @@ public class AsyncApiSchemaMapper {
         return "object";
     }
 
-    /**
-     * Map schema to a schema reference string.
-     */
     public String mapToSchemaRef(AsyncSchema asyncSchema) {
         if (asyncSchema == null) {
             return null;
@@ -58,9 +45,6 @@ public class AsyncApiSchemaMapper {
         return null;
     }
 
-    /**
-     * Normalize schema type to a standard type string.
-     */
     public String normalizeType(String asyncType) {
         if (asyncType == null) {
             return "object";
@@ -90,9 +74,6 @@ public class AsyncApiSchemaMapper {
         }
     }
 
-    /**
-     * Check if a schema represents a primitive type.
-     */
     public boolean isPrimitive(AsyncSchema schema) {
         if (schema == null || schema.getType() == null) {
             return false;
@@ -103,16 +84,10 @@ public class AsyncApiSchemaMapper {
                type.equals("float") || type.equals("double") || type.equals("bool");
     }
 
-    /**
-     * Check if a schema represents an array type.
-     */
     public boolean isArray(AsyncSchema schema) {
         return schema != null && "array".equalsIgnoreCase(schema.getType());
     }
 
-    /**
-     * Check if a schema represents an object type.
-     */
     public boolean isObject(AsyncSchema schema) {
         if (schema == null) {
             return false;
@@ -121,16 +96,10 @@ public class AsyncApiSchemaMapper {
                (schema.getType() == null && schema.getProperties() != null && !schema.getProperties().isEmpty());
     }
 
-    /**
-     * Check if a schema is a reference.
-     */
     public boolean isReference(AsyncSchema schema) {
         return schema != null && schema.getRef() != null;
     }
 
-    /**
-     * Extract referenced schema name from $ref.
-     */
     public String extractRefName(AsyncSchema schema) {
         if (schema == null || schema.getRef() == null) {
             return null;
@@ -140,9 +109,6 @@ public class AsyncApiSchemaMapper {
         return lastSlash >= 0 ? ref.substring(lastSlash + 1) : ref;
     }
 
-    /**
-     * Get all property names from a schema.
-     */
     public Set<String> getPropertyNames(AsyncSchema schema) {
         Set<String> names = new LinkedHashSet<>();
         if (schema != null && schema.getProperties() != null) {
@@ -151,9 +117,6 @@ public class AsyncApiSchemaMapper {
         return names;
     }
 
-    /**
-     * Get required property names from a schema.
-     */
     public Set<String> getRequiredPropertyNames(AsyncSchema schema) {
         Set<String> names = new LinkedHashSet<>();
         if (schema != null && schema.getRequiredFields() != null) {
@@ -162,9 +125,6 @@ public class AsyncApiSchemaMapper {
         return names;
     }
 
-    /**
-     * Check if a property is required in the schema.
-     */
     public boolean isPropertyRequired(AsyncSchema schema, String propertyName) {
         if (schema == null || schema.getRequiredFields() == null) {
             return false;
@@ -172,9 +132,6 @@ public class AsyncApiSchemaMapper {
         return schema.getRequiredFields().contains(propertyName);
     }
 
-    /**
-     * Get a property schema by name.
-     */
     public AsyncSchema getProperty(AsyncSchema schema, String propertyName) {
         if (schema == null || schema.getProperties() == null) {
             return null;
@@ -182,9 +139,6 @@ public class AsyncApiSchemaMapper {
         return schema.getProperties().get(propertyName);
     }
 
-    /**
-     * Create a schema signature for comparison.
-     */
     public String createSignature(AsyncSchema schema) {
         if (schema == null) {
             return "null";

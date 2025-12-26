@@ -45,7 +45,7 @@ class InsightGeneratorTest {
         );
 
         List<Insight> insights = generator.generate(null, history);
-        // Should generate some insights based on the history
+        
         assertThat(insights).isNotNull();
     }
 
@@ -58,7 +58,7 @@ class InsightGeneratorTest {
         );
 
         List<Insight> insights = generator.generate(null, history);
-        // Should process history without errors
+        
         assertThat(insights).isNotNull();
     }
 
@@ -70,13 +70,13 @@ class InsightGeneratorTest {
         );
 
         List<Insight> insights = generator.generate(null, history);
-        // Should analyze high breaking change count
+        
         assertThat(insights).isNotNull();
     }
 
     @Test
     void generate_shouldIncludePatternInsights() {
-        // Create history with pattern (burst releases)
+        
         LocalDateTime now = LocalDateTime.now();
         List<Changelog> history = Arrays.asList(
                 createChangelog(1, now.minusHours(2)),
@@ -89,7 +89,7 @@ class InsightGeneratorTest {
         List<Insight> insights = generator.generate(null, history);
         boolean hasPatternInsight = insights.stream()
                 .anyMatch(i -> i.getType() == Insight.InsightType.PATTERN);
-        // May or may not detect pattern depending on thresholds
+        
         assertThat(insights).isNotEmpty();
     }
 

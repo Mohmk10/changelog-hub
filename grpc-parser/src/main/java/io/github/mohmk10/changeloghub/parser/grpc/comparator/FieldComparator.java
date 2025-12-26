@@ -11,14 +11,8 @@ import io.github.mohmk10.changeloghub.parser.grpc.util.ProtoFieldType;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Comparator for detecting breaking changes in Protocol Buffers message fields.
- */
 public class FieldComparator {
 
-    /**
-     * Compare two field lists and detect changes.
-     */
     public List<BreakingChange> compareFields(List<ProtoField> oldFields, List<ProtoField> newFields,
                                                String messagePath) {
         List<BreakingChange> changes = new ArrayList<>();
@@ -28,17 +22,15 @@ public class FieldComparator {
         Map<Integer, ProtoField> oldByNumber = mapByNumber(oldFields);
         Map<Integer, ProtoField> newByNumber = mapByNumber(newFields);
 
-        // Detect removed fields
         for (ProtoField oldField : oldFields) {
             if (!newByName.containsKey(oldField.getName())) {
                 changes.add(createFieldRemovedChange(oldField, messagePath));
             }
         }
 
-        // Detect added fields
         for (ProtoField newField : newFields) {
             if (!oldByName.containsKey(newField.getName())) {
-                // Check if field number was reused
+                
                 if (oldByNumber.containsKey(newField.getNumber())) {
                     ProtoField oldFieldWithSameNumber = oldByNumber.get(newField.getNumber());
                     changes.add(createFieldNumberReusedChange(oldFieldWithSameNumber, newField, messagePath));
@@ -48,7 +40,6 @@ public class FieldComparator {
             }
         }
 
-        // Detect modified fields
         for (ProtoField oldField : oldFields) {
             ProtoField newField = newByName.get(oldField.getName());
             if (newField != null) {
@@ -59,35 +50,27 @@ public class FieldComparator {
         return changes;
     }
 
-    /**
-     * Compare two individual fields for changes.
-     */
     public List<BreakingChange> compareField(ProtoField oldField, ProtoField newField, String messagePath) {
         List<BreakingChange> changes = new ArrayList<>();
         String fieldPath = messagePath + "." + oldField.getName();
 
-        // Check field number change (BREAKING)
         if (oldField.getNumber() != newField.getNumber()) {
             changes.add(createFieldNumberChangedChange(oldField, newField, fieldPath));
         }
 
-        // Check type change
         if (!oldField.getTypeName().equals(newField.getTypeName())) {
             boolean wireCompatible = ProtoFieldType.isWireCompatible(oldField.getType(), newField.getType());
             changes.add(createTypeChangedChange(oldField, newField, fieldPath, wireCompatible));
         }
 
-        // Check rule change (optional/required/repeated)
         if (oldField.getRule() != newField.getRule()) {
             changes.add(createRuleChangedChange(oldField, newField, fieldPath));
         }
 
-        // Check deprecation
         if (!oldField.isDeprecated() && newField.isDeprecated()) {
             changes.add(createDeprecationChange(newField, fieldPath));
         }
 
-        // Check default value change
         if (!Objects.equals(oldField.getDefaultValue().orElse(null),
                             newField.getDefaultValue().orElse(null))) {
             changes.add(createDefaultValueChangedChange(oldField, newField, fieldPath));
@@ -96,13 +79,9 @@ public class FieldComparator {
         return changes;
     }
 
-    /**
-     * Create change for field removed.
-     */
     private BreakingChange createFieldRemovedChange(ProtoField field, String messagePath) {
         String path = messagePath + "." + field.getName();
 
-        // Determine severity based on field rule
         Severity severity = field.isRequired() ? Severity.BREAKING : Severity.DANGEROUS;
 
         return BreakingChange.breakingChangeBuilder()
@@ -121,13 +100,9 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for field added.
-     */
     private BreakingChange createFieldAddedChange(ProtoField field, String messagePath) {
         String path = messagePath + "." + field.getName();
 
-        // Adding a required field is breaking in proto2
         Severity severity = field.isRequired() ? Severity.BREAKING : Severity.INFO;
 
         return BreakingChange.breakingChangeBuilder()
@@ -147,9 +122,6 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for field number changed.
-     */
     private BreakingChange createFieldNumberChangedChange(ProtoField oldField, ProtoField newField, String path) {
         return BreakingChange.breakingChangeBuilder()
                 .id(UUID.randomUUID().toString())
@@ -168,9 +140,6 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for field number reused.
-     */
     private BreakingChange createFieldNumberReusedChange(ProtoField oldField, ProtoField newField, String messagePath) {
         String path = messagePath + ".field_number_" + newField.getNumber();
 
@@ -193,9 +162,6 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for type change.
-     */
     private BreakingChange createTypeChangedChange(ProtoField oldField, ProtoField newField,
                                                     String path, boolean wireCompatible) {
         Severity severity = wireCompatible ? Severity.DANGEROUS : Severity.BREAKING;
@@ -224,14 +190,10 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for rule change (optional/required/repeated).
-     */
     private BreakingChange createRuleChangedChange(ProtoField oldField, ProtoField newField, String path) {
         ProtoFieldRule oldRule = oldField.getRule();
         ProtoFieldRule newRule = newField.getRule();
 
-        // Determine severity based on the change
         Severity severity;
         String migrationSuggestion;
 
@@ -269,9 +231,6 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for deprecation.
-     */
     private BreakingChange createDeprecationChange(ProtoField field, String path) {
         return BreakingChange.breakingChangeBuilder()
                 .id(UUID.randomUUID().toString())
@@ -289,9 +248,6 @@ public class FieldComparator {
                 .build();
     }
 
-    /**
-     * Create change for default value change.
-     */
     private BreakingChange createDefaultValueChangedChange(ProtoField oldField, ProtoField newField, String path) {
         return BreakingChange.breakingChangeBuilder()
                 .id(UUID.randomUUID().toString())

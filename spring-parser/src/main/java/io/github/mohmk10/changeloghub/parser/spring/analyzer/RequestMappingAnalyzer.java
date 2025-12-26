@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Analyzer for Spring request mapping annotations on methods.
- */
 public class RequestMappingAnalyzer {
 
     private final AnnotationExtractor annotationExtractor;
@@ -20,9 +17,6 @@ public class RequestMappingAnalyzer {
         this.annotationExtractor = new AnnotationExtractor();
     }
 
-    /**
-     * Check if a method is an endpoint (has request mapping annotation).
-     */
     public boolean isEndpointMethod(MethodDeclaration method) {
         return annotationExtractor.hasAnnotation(method, SpringAnnotations.REQUEST_MAPPING) ||
                annotationExtractor.hasAnnotation(method, SpringAnnotations.GET_MAPPING) ||
@@ -32,9 +26,6 @@ public class RequestMappingAnalyzer {
                annotationExtractor.hasAnnotation(method, SpringAnnotations.PATCH_MAPPING);
     }
 
-    /**
-     * Get the HTTP method from the mapping annotation.
-     */
     public String getHttpMethod(MethodDeclaration method) {
         if (annotationExtractor.hasAnnotation(method, SpringAnnotations.GET_MAPPING)) {
             return SpringAnnotations.HTTP_GET;
@@ -52,7 +43,6 @@ public class RequestMappingAnalyzer {
             return SpringAnnotations.HTTP_PATCH;
         }
 
-        // For @RequestMapping, check the method attribute
         Optional<AnnotationExpr> requestMapping = annotationExtractor.getAnnotation(method, SpringAnnotations.REQUEST_MAPPING);
         if (requestMapping.isPresent()) {
             Optional<String> httpMethod = annotationExtractor.getHttpMethodAttribute(requestMapping.get());
@@ -61,30 +51,24 @@ public class RequestMappingAnalyzer {
             }
         }
 
-        // Default to GET if no method specified
         return SpringAnnotations.HTTP_GET;
     }
 
-    /**
-     * Get the path from the mapping annotation.
-     */
     public String getPath(MethodDeclaration method) {
         Optional<AnnotationExpr> mapping = getMappingAnnotation(method);
 
         if (mapping.isPresent()) {
-            // Try 'value' attribute first
+            
             Optional<String> value = annotationExtractor.getValueAttribute(mapping.get());
             if (value.isPresent()) {
                 return value.get();
             }
 
-            // Try 'path' attribute
             Optional<String> path = annotationExtractor.getStringAttribute(mapping.get(), SpringAnnotations.PATH);
             if (path.isPresent()) {
                 return path.get();
             }
 
-            // Check for array value
             List<String> values = annotationExtractor.getStringArrayAttribute(mapping.get(), SpringAnnotations.VALUE);
             if (!values.isEmpty()) {
                 return values.get(0);
@@ -94,23 +78,14 @@ public class RequestMappingAnalyzer {
         return "";
     }
 
-    /**
-     * Get the operation ID (method name).
-     */
     public String getOperationId(MethodDeclaration method) {
         return method.getNameAsString();
     }
 
-    /**
-     * Check if the method is deprecated.
-     */
     public boolean isDeprecated(MethodDeclaration method) {
         return annotationExtractor.hasAnnotation(method, SpringAnnotations.DEPRECATED);
     }
 
-    /**
-     * Get the produces media types from the method annotation.
-     */
     public List<String> getProduces(MethodDeclaration method) {
         Optional<AnnotationExpr> mapping = getMappingAnnotation(method);
 
@@ -121,9 +96,6 @@ public class RequestMappingAnalyzer {
         return new ArrayList<>();
     }
 
-    /**
-     * Get the consumes media types from the method annotation.
-     */
     public List<String> getConsumes(MethodDeclaration method) {
         Optional<AnnotationExpr> mapping = getMappingAnnotation(method);
 
@@ -134,14 +106,11 @@ public class RequestMappingAnalyzer {
         return new ArrayList<>();
     }
 
-    /**
-     * Get the response status from @ResponseStatus annotation.
-     */
     public Optional<String> getResponseStatus(MethodDeclaration method) {
         Optional<AnnotationExpr> responseStatus = annotationExtractor.getAnnotation(method, SpringAnnotations.RESPONSE_STATUS);
 
         if (responseStatus.isPresent()) {
-            // Try 'value' or 'code' attribute
+            
             Optional<String> value = annotationExtractor.getValueAttribute(responseStatus.get());
             if (value.isPresent()) {
                 return Optional.of(extractStatusCode(value.get()));
@@ -157,7 +126,7 @@ public class RequestMappingAnalyzer {
     }
 
     private Optional<AnnotationExpr> getMappingAnnotation(MethodDeclaration method) {
-        // Check specific mapping annotations first
+        
         for (String annotationName : List.of(
                 SpringAnnotations.GET_MAPPING,
                 SpringAnnotations.POST_MAPPING,
@@ -176,7 +145,7 @@ public class RequestMappingAnalyzer {
     }
 
     private String extractStatusCode(String statusValue) {
-        // Handle HttpStatus enum values like CREATED, NO_CONTENT
+        
         switch (statusValue.toUpperCase()) {
             case "OK":
                 return "200";
@@ -199,7 +168,7 @@ public class RequestMappingAnalyzer {
             case "INTERNAL_SERVER_ERROR":
                 return "500";
             default:
-                // If it's already a number, return as is
+                
                 if (statusValue.matches("\\d+")) {
                     return statusValue;
                 }

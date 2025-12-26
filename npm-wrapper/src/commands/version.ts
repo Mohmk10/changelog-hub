@@ -3,9 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import chalk from 'chalk';
 
-/**
- * Creates the version command
- */
 export function createVersionCommand(): Command {
   const command = new Command('version');
 
@@ -25,9 +22,6 @@ export function createVersionCommand(): Command {
   return command;
 }
 
-/**
- * Version information structure
- */
 interface VersionInfo {
   name: string;
   version: string;
@@ -37,9 +31,6 @@ interface VersionInfo {
   arch: string;
 }
 
-/**
- * Get version information from package.json
- */
 function getVersionInfo(): VersionInfo {
   let packageJson = {
     name: '@mohmk10/changelog-hub',
@@ -48,7 +39,7 @@ function getVersionInfo(): VersionInfo {
   };
 
   try {
-    // Try to read package.json from various locations
+    
     const possiblePaths = [
       path.join(__dirname, '../../package.json'),
       path.join(__dirname, '../../../package.json'),
@@ -63,7 +54,7 @@ function getVersionInfo(): VersionInfo {
       }
     }
   } catch {
-    // Use defaults if package.json cannot be read
+    
   }
 
   return {
@@ -76,9 +67,6 @@ function getVersionInfo(): VersionInfo {
   };
 }
 
-/**
- * Display version information in a formatted way
- */
 function displayVersionInfo(info: VersionInfo): void {
   console.log('');
   console.log(chalk.bold.blue('Changelog Hub CLI'));
@@ -94,9 +82,6 @@ function displayVersionInfo(info: VersionInfo): void {
   console.log('');
 }
 
-/**
- * Get just the version string
- */
 export function getVersion(): string {
   const info = getVersionInfo();
   return info.version;

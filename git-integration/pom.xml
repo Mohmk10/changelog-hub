@@ -19,7 +19,7 @@
     </properties>
 
     <dependencies>
-        <!-- Internal dependencies -->
+        
         <dependency>
             <groupId>io.github.mohmk10</groupId>
             <artifactId>core</artifactId>
@@ -51,20 +51,20 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- JGit for Git operations -->
+        
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>${jgit.version}</version>
         </dependency>
 
-        <!-- Logging -->
+        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!-- Test dependencies -->
+        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

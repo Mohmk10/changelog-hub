@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.grpc.model;
 
 import java.util.*;
 
-/**
- * Represents a Protocol Buffers service definition.
- */
 public class ProtoService {
 
     private final String name;
@@ -65,9 +62,6 @@ public class ProtoService {
         return options.get(key);
     }
 
-    /**
-     * Get the gRPC paths for all methods in this service.
-     */
     public List<String> getGrpcPaths(String packageName) {
         List<String> paths = new ArrayList<>();
         for (ProtoRpcMethod method : methods) {

@@ -5,9 +5,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 
-/**
- * Persistent settings for the Changelog Hub plugin.
- */
 @Service(Service.Level.PROJECT)
 @State(
     name = "ChangelogHubSettings",
@@ -17,9 +14,6 @@ class ChangelogHubSettings : PersistentStateComponent<ChangelogHubSettings.State
 
     private var myState = State()
 
-    /**
-     * Settings state data class.
-     */
     data class State(
         var defaultFormat: String = "markdown",
         var defaultGitRef: String = "main",

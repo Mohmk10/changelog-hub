@@ -12,30 +12,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Validate an API specification file.
- *
- * Usage: mvn changelog:validate -Dchangelog.spec=api.yaml
- */
 @Mojo(name = "validate", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidateMojo extends AbstractChangelogMojo {
 
-    /**
-     * The API specification file to validate.
-     */
     @Parameter(property = "changelog.spec", required = true)
     private File spec;
 
-    /**
-     * Enable strict validation mode.
-     * In strict mode, warnings are treated as errors.
-     */
     @Parameter(property = "changelog.strict", defaultValue = "false")
     private boolean strict;
 
-    /**
-     * Fail the build if validation errors are found.
-     */
     @Parameter(property = "changelog.failOnError", defaultValue = "true")
     private boolean failOnError;
 
@@ -48,7 +33,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
 
         getLog().info("Validating API specification...");
 
-        // Validate spec is not null
         if (spec == null) {
             throw new MojoExecutionException("API specification is required");
         }
@@ -56,16 +40,12 @@ public class ValidateMojo extends AbstractChangelogMojo {
         logVerbose("Spec: " + spec.getAbsolutePath());
         logVerbose("Strict mode: " + strict);
 
-        // Validate input file
         validateFileExists(spec, "API specification");
 
-        // Parse and validate specification
         ValidationResult result = validateSpec(spec);
 
-        // Log results
         logValidationResult(result);
 
-        // Handle failures
         if (failOnError && result.hasErrors()) {
             throw new MojoFailureException("Validation failed with " + result.getErrorCount() + " error(s). " +
                 "Set changelog.failOnError=false to ignore.");
@@ -84,7 +64,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
     private ValidationResult validateSpec(File file) throws MojoExecutionException {
         ValidationResult result = new ValidationResult();
 
-        // Try to parse the file
         ApiSpec apiSpec;
         try {
             String content = readFile(file);
@@ -95,7 +74,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
             return result;
         }
 
-        // Validate basic API info
         if (apiSpec.getName() == null || apiSpec.getName().isBlank()) {
             result.addError("API name is missing or empty");
         } else {
@@ -106,13 +84,12 @@ public class ValidateMojo extends AbstractChangelogMojo {
             result.addError("API version is missing or empty");
         } else {
             result.addInfo("API version: " + apiSpec.getVersion());
-            // Validate semantic versioning
+            
             if (!isValidSemVer(apiSpec.getVersion())) {
                 result.addWarning("Version '" + apiSpec.getVersion() + "' does not follow semantic versioning (MAJOR.MINOR.PATCH)");
             }
         }
 
-        // Validate endpoints
         if (apiSpec.getEndpoints() == null || apiSpec.getEndpoints().isEmpty()) {
             result.addWarning("No endpoints defined in the specification");
         } else {
@@ -123,7 +100,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
             }
         }
 
-        // Check for deprecated endpoints
         long deprecatedCount = apiSpec.getEndpoints().stream()
             .filter(Endpoint::isDeprecated)
             .count();
@@ -138,24 +114,20 @@ public class ValidateMojo extends AbstractChangelogMojo {
         String methodName = endpoint.getMethod() != null ? endpoint.getMethod().name() : "UNKNOWN";
         String prefix = "[" + methodName + " " + endpoint.getPath() + "] ";
 
-        // Validate path
         if (endpoint.getPath() == null || endpoint.getPath().isBlank()) {
             result.addError(prefix + "Path is missing or empty");
         } else if (!endpoint.getPath().startsWith("/")) {
             result.addWarning(prefix + "Path should start with '/'");
         }
 
-        // Validate method
         if (endpoint.getMethod() == null) {
             result.addError(prefix + "HTTP method is missing");
         }
 
-        // Validate operation ID (if strict mode)
         if (strict && (endpoint.getOperationId() == null || endpoint.getOperationId().isBlank())) {
             result.addWarning(prefix + "Missing operationId (recommended for code generation)");
         }
 
-        // Validate summary (if strict mode)
         if (strict && (endpoint.getSummary() == null || endpoint.getSummary().isBlank())) {
             result.addWarning(prefix + "Missing summary (recommended for documentation)");
         }
@@ -165,7 +137,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
         return version.matches("^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$");
     }
 
-    
     private void logValidationResult(ValidationResult result) {
         getLog().info("-------------------------------------------");
         getLog().info("Validation Results");
@@ -189,9 +160,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
         getLog().info("-------------------------------------------");
     }
 
-    /**
-     * Internal class to hold validation results.
-     */
     private static class ValidationResult {
         private final List<String> errors = new ArrayList<>();
         private final List<String> warnings = new ArrayList<>();
@@ -242,7 +210,6 @@ public class ValidateMojo extends AbstractChangelogMojo {
         }
     }
 
-    // Setters for testing
     public void setSpec(File spec) {
         this.spec = spec;
     }

@@ -3,9 +3,6 @@ import { Change } from '../types';
 
 type ChangeTreeItem = SeverityItem | ChangeItem | NoChangesItem;
 
-/**
- * Provides tree data for the Changelog view
- */
 export class ChangelogProvider implements vscode.TreeDataProvider<ChangeTreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<ChangeTreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -38,7 +35,6 @@ export class ChangelogProvider implements vscode.TreeDataProvider<ChangeTreeItem
         return Promise.resolve([new NoChangesItem()]);
       }
 
-      // Group by severity
       const severities = new Map<string, Change[]>();
       const order = ['BREAKING', 'DANGEROUS', 'WARNING', 'INFO'];
 

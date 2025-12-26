@@ -7,29 +7,20 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * V2 of UserController with breaking changes:
- * - Removed: GET /{id}/legacy endpoint
- * - Changed: GET / now requires 'status' parameter (was optional)
- * - Changed: GET /{id} parameter type from Long to String
- * - Added: GET /{id}/profile endpoint
- */
 @RestController
 @RequestMapping("/api/users")
 public class UserControllerV2 {
 
-    // BREAKING: Added required parameter 'status'
     @GetMapping
     public List<User> getUsers(
             @RequestParam(required = false, defaultValue = "10") Integer limit,
             @RequestParam(required = false) String search,
-            @RequestParam(required = true) String status) {  // NEW REQUIRED PARAM
+            @RequestParam(required = true) String status) {  
         return null;
     }
 
-    // BREAKING: Changed parameter type from Long to String
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {  // Long -> String
+    public ResponseEntity<User> getUserById(@PathVariable String id) {  
         return null;
     }
 
@@ -49,9 +40,6 @@ public class UserControllerV2 {
     public void deleteUser(@PathVariable String id) {
     }
 
-    // REMOVED: GET /{id}/legacy endpoint (breaking change)
-
-    // NEW: Added profile endpoint
     @GetMapping("/{id}/profile")
     public UserProfile getUserProfile(@PathVariable String id) {
         return null;
@@ -59,7 +47,7 @@ public class UserControllerV2 {
 }
 
 class User {
-    private String id;  // Changed from Long to String
+    private String id;  
     private String name;
     private String email;
 }

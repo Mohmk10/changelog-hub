@@ -5,17 +5,8 @@ import io.github.mohmk10.changeloghub.core.model.ApiSpec;
 import io.github.mohmk10.changeloghub.core.model.Endpoint;
 import io.github.mohmk10.changeloghub.core.model.Parameter;
 
-/**
- * Analyzes the complexity of API specifications.
- */
 public class ComplexityAnalyzer {
 
-    /**
-     * Analyze the overall complexity of an API specification.
-     *
-     * @param spec the API specification
-     * @return complexity score (0-100)
-     */
     public int analyzeComplexity(ApiSpec spec) {
         if (spec == null || spec.getEndpoints() == null || spec.getEndpoints().isEmpty()) {
             return 0;
@@ -26,7 +17,6 @@ public class ComplexityAnalyzer {
         int responseComplexity = calculateResponseComplexity(spec);
         int schemaComplexity = calculateSchemaComplexity(spec);
 
-        // Weighted average
         double totalComplexity = (endpointComplexity * 0.3) +
                 (parameterComplexity * 0.25) +
                 (responseComplexity * 0.2) +
@@ -35,12 +25,6 @@ public class ComplexityAnalyzer {
         return Math.min(100, (int) Math.round(totalComplexity));
     }
 
-    /**
-     * Calculate endpoint count complexity.
-     *
-     * @param spec the API specification
-     * @return complexity score for endpoints
-     */
     public int calculateEndpointComplexity(ApiSpec spec) {
         if (spec == null || spec.getEndpoints() == null) {
             return 0;
@@ -48,10 +32,6 @@ public class ComplexityAnalyzer {
 
         int count = spec.getEndpoints().size();
 
-        // Simple scaling: more endpoints = higher complexity
-        // 0-10 endpoints: 0-30
-        // 10-50 endpoints: 30-60
-        // 50+ endpoints: 60-100
         if (count <= 10) {
             return count * 3;
         } else if (count <= 50) {
@@ -61,12 +41,6 @@ public class ComplexityAnalyzer {
         }
     }
 
-    /**
-     * Calculate parameter complexity.
-     *
-     * @param spec the API specification
-     * @return complexity score for parameters
-     */
     public int calculateParameterComplexity(ApiSpec spec) {
         if (spec == null || spec.getEndpoints() == null) {
             return 0;
@@ -93,7 +67,6 @@ public class ComplexityAnalyzer {
         int endpointCount = spec.getEndpoints().size();
         double avgParams = endpointCount > 0 ? (double) totalParams / endpointCount : 0;
 
-        // Score based on average params and max params
         int avgScore = (int) Math.min(50, avgParams * 10);
         int maxScore = Math.min(30, maxParamsPerEndpoint * 3);
         int requiredScore = totalParams > 0 ?
@@ -102,12 +75,6 @@ public class ComplexityAnalyzer {
         return Math.min(100, avgScore + maxScore + requiredScore);
     }
 
-    /**
-     * Calculate response complexity.
-     *
-     * @param spec the API specification
-     * @return complexity score for responses
-     */
     public int calculateResponseComplexity(ApiSpec spec) {
         if (spec == null || spec.getEndpoints() == null) {
             return 0;
@@ -125,10 +92,6 @@ public class ComplexityAnalyzer {
         int endpointCount = spec.getEndpoints().size();
         double avgResponses = endpointCount > 0 ? (double) totalResponses / endpointCount : 0;
 
-        // Score based on average response codes
-        // 1-2 responses: low complexity
-        // 3-5 responses: medium complexity
-        // 5+ responses: high complexity
         if (avgResponses <= 2) {
             return (int) (avgResponses * 15);
         } else if (avgResponses <= 5) {
@@ -138,47 +101,33 @@ public class ComplexityAnalyzer {
         }
     }
 
-    /**
-     * Calculate schema complexity.
-     *
-     * @param spec the API specification
-     * @return complexity score for schemas
-     */
     public int calculateSchemaComplexity(ApiSpec spec) {
         if (spec == null) {
             return 0;
         }
 
-        // Estimate schema complexity from endpoints
         int estimatedSchemas = 0;
         int deepNesting = 0;
 
         if (spec.getEndpoints() != null) {
             for (Endpoint endpoint : spec.getEndpoints()) {
-                // Estimate schemas from responses
+                
                 if (endpoint.getResponses() != null) {
                     estimatedSchemas += endpoint.getResponses().size();
                 }
-                // Estimate from request body
+                
                 if (endpoint.getRequestBody() != null) {
                     estimatedSchemas++;
                 }
             }
         }
 
-        // Score based on estimated schemas
         int schemaScore = Math.min(50, estimatedSchemas * 2);
         int nestingScore = Math.min(50, deepNesting * 10);
 
         return Math.min(100, schemaScore + nestingScore);
     }
 
-    /**
-     * Get complexity level description.
-     *
-     * @param score the complexity score
-     * @return description of the complexity level
-     */
     public String getComplexityLevel(int score) {
         if (score <= 20) return "Simple";
         if (score <= 40) return "Low";
@@ -187,22 +136,10 @@ public class ComplexityAnalyzer {
         return "Very High";
     }
 
-    /**
-     * Check if the API is considered complex.
-     *
-     * @param score the complexity score
-     * @return true if complexity is high
-     */
     public boolean isComplex(int score) {
         return score > 60;
     }
 
-    /**
-     * Analyze technical debt in an API specification.
-     *
-     * @param spec the API specification
-     * @return technical debt analysis
-     */
     public io.github.mohmk10.changeloghub.analytics.model.TechnicalDebt analyzeTechnicalDebt(ApiSpec spec) {
         if (spec == null) {
             return io.github.mohmk10.changeloghub.analytics.model.TechnicalDebt.builder().build();
@@ -220,7 +157,7 @@ public class ComplexityAnalyzer {
                 if (endpoint.getDescription() == null || endpoint.getDescription().isEmpty()) {
                     missingDocCount++;
                 }
-                // Check naming convention (should be lowercase with hyphens)
+                
                 String path = endpoint.getPath();
                 if (path != null && !path.matches("^[a-z0-9/{}-]*$")) {
                     inconsistentNaming++;

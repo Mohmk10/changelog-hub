@@ -14,9 +14,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for ChannelAnalyzer.
- */
 class ChannelAnalyzerTest {
 
     private ChannelAnalyzer analyzer;
@@ -140,7 +137,7 @@ class ChannelAnalyzerTest {
     @Test
     @DisplayName("Should check if channel is deprecated")
     void testIsDeprecated() throws Exception {
-        // Create a deprecated channel node
+        
         String yaml = "deprecated: true\ndescription: Test channel";
         JsonNode channelNode = yamlMapper.readTree(yaml);
 

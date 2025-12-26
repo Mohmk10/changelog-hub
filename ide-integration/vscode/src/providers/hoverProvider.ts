@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 import { parseSpec } from '../core/parser';
 import { ApiSpec, Endpoint, Schema } from '../types';
 
-/**
- * Provides hover information for API specifications
- */
 export class HoverProvider implements vscode.HoverProvider {
   provideHover(
     document: vscode.TextDocument,
@@ -15,7 +12,6 @@ export class HoverProvider implements vscode.HoverProvider {
       const content = document.getText();
       const spec = parseSpec(content, document.fileName);
 
-      // Try to find endpoint path
       const pathRange = document.getWordRangeAtPosition(
         position,
         /\/[a-zA-Z0-9\/_\-{}]+/
@@ -28,7 +24,6 @@ export class HoverProvider implements vscode.HoverProvider {
         }
       }
 
-      // Try to find schema reference
       const wordRange = document.getWordRangeAtPosition(position);
       if (wordRange) {
         const word = document.getText(wordRange);
@@ -38,7 +33,6 @@ export class HoverProvider implements vscode.HoverProvider {
         }
       }
 
-      // Try to find HTTP method
       const methodRange = document.getWordRangeAtPosition(
         position,
         /\b(get|post|put|delete|patch|options|head)\b/i
@@ -47,7 +41,6 @@ export class HoverProvider implements vscode.HoverProvider {
         const method = document.getText(methodRange).toUpperCase();
         const line = document.lineAt(position.line).text;
 
-        // Find associated path
         const pathMatch = line.match(/\/[a-zA-Z0-9\/_\-{}]+/);
         if (pathMatch) {
           const endpoint = spec.endpoints.find(

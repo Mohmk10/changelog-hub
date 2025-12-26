@@ -9,14 +9,8 @@ import io.github.mohmk10.changeloghub.parser.grpc.util.ProtoFieldType;
 
 import java.util.*;
 
-/**
- * Mapper for converting Protocol Buffers types to schema representations.
- */
 public class GrpcTypeMapper {
 
-    /**
-     * Map a ProtoMessage to a schema map representation.
-     */
     public Map<String, Object> mapMessage(ProtoMessage message) {
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("name", message.getName());
@@ -42,16 +36,12 @@ public class GrpcTypeMapper {
         return schema;
     }
 
-    /**
-     * Map a ProtoField to a schema map representation.
-     */
     public Map<String, Object> mapFieldToSchema(ProtoField field) {
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("name", field.getName());
         schema.put("number", field.getNumber());
         schema.put("deprecated", field.isDeprecated());
 
-        // Handle map type
         if (field.isMap()) {
             schema.put("type", "object");
             schema.put("description", "map<" + field.getMapKeyType().orElse("?") +
@@ -62,7 +52,6 @@ public class GrpcTypeMapper {
             return schema;
         }
 
-        // Handle repeated type
         if (field.isRepeated()) {
             schema.put("type", "array");
             schema.put("items", Map.of("type", field.getType().getApiType()));
@@ -70,35 +59,27 @@ public class GrpcTypeMapper {
             return schema;
         }
 
-        // Handle scalar and message types
         ProtoFieldType type = field.getType();
         schema.put("type", type.getApiType());
 
-        // Add format for specific types
         String format = getFormatForType(type);
         if (format != null) {
             schema.put("format", format);
         }
 
-        // Add reference for message types
         if (type == ProtoFieldType.MESSAGE) {
             schema.put("$ref", "#/definitions/" + field.getTypeName());
         }
 
-        // Add enum reference for enum types
         if (type == ProtoFieldType.ENUM) {
             schema.put("$ref", "#/definitions/" + field.getTypeName());
         }
 
-        // Add default value
         field.getDefaultValue().ifPresent(v -> schema.put("default", v));
 
         return schema;
     }
 
-    /**
-     * Map a ProtoEnum to a schema map representation.
-     */
     public Map<String, Object> mapEnum(ProtoEnum protoEnum) {
         Map<String, Object> schema = new LinkedHashMap<>();
         schema.put("name", protoEnum.getName());
@@ -120,9 +101,6 @@ public class GrpcTypeMapper {
         return schema;
     }
 
-    /**
-     * Get JSON Schema format for specific proto types.
-     */
     private String getFormatForType(ProtoFieldType type) {
         return switch (type) {
             case INT64, UINT64, SINT64, FIXED64, SFIXED64 -> "int64";
@@ -134,21 +112,16 @@ public class GrpcTypeMapper {
         };
     }
 
-    /**
-     * Map all messages to a map of schemas.
-     */
     public Map<String, Map<String, Object>> mapMessages(List<ProtoMessage> messages) {
         Map<String, Map<String, Object>> schemas = new LinkedHashMap<>();
 
         for (ProtoMessage message : messages) {
             schemas.put(message.getFullName(), mapMessage(message));
 
-            // Also map nested messages
             for (ProtoMessage nested : message.getNestedMessages()) {
                 schemas.put(nested.getFullName(), mapMessage(nested));
             }
 
-            // Map nested enums
             for (ProtoEnum nestedEnum : message.getNestedEnums()) {
                 schemas.put(nestedEnum.getFullName(), mapEnum(nestedEnum));
             }
@@ -157,9 +130,6 @@ public class GrpcTypeMapper {
         return schemas;
     }
 
-    /**
-     * Map all enums to a map of schemas.
-     */
     public Map<String, Map<String, Object>> mapEnums(List<ProtoEnum> enums) {
         Map<String, Map<String, Object>> schemas = new LinkedHashMap<>();
 
@@ -170,9 +140,6 @@ public class GrpcTypeMapper {
         return schemas;
     }
 
-    /**
-     * Build a complete schema map from messages and enums.
-     */
     public Map<String, Map<String, Object>> buildSchemaMap(List<ProtoMessage> messages, List<ProtoEnum> enums) {
         Map<String, Map<String, Object>> schemas = new LinkedHashMap<>();
         schemas.putAll(mapMessages(messages));

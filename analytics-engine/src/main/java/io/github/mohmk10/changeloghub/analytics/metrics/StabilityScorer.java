@@ -11,17 +11,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Calculates stability scores for APIs based on their changelog history.
- */
 public class StabilityScorer {
 
-    /**
-     * Calculate stability score from changelog history.
-     *
-     * @param changelogs list of changelogs to analyze
-     * @return calculated stability score
-     */
     public StabilityScore calculate(List<Changelog> changelogs) {
         if (changelogs == null || changelogs.isEmpty()) {
             return createEmptyScore();
@@ -35,13 +26,11 @@ public class StabilityScorer {
             breakingChanges += changelog.getBreakingChanges().size();
         }
 
-        // Calculate individual factor scores
         double breakingRatioScore = calculateBreakingRatioScore(totalChanges, breakingChanges);
         double timeBetweenScore = calculateTimeBetweenBreakingScore(changelogs);
         double deprecationScore = calculateDeprecationManagementScore(changelogs);
         double semverScore = calculateSemverComplianceScore(changelogs);
 
-        // Calculate weighted final score
         double finalScore = (breakingRatioScore * AnalyticsConstants.WEIGHT_BREAKING_CHANGE_RATIO) +
                 (timeBetweenScore * AnalyticsConstants.WEIGHT_TIME_BETWEEN_BREAKING) +
                 (deprecationScore * AnalyticsConstants.WEIGHT_DEPRECATION_MANAGEMENT) +
@@ -83,13 +72,6 @@ public class StabilityScorer {
                 .build();
     }
 
-    /**
-     * Calculate stability score for a specific API.
-     *
-     * @param apiName the API name
-     * @param changelogs list of changelogs
-     * @return stability score with API name set
-     */
     public StabilityScore calculate(String apiName, List<Changelog> changelogs) {
         StabilityScore score = calculate(changelogs);
         score.setApiName(apiName);
@@ -103,8 +85,6 @@ public class StabilityScorer {
 
         double ratio = (double) breakingChanges / totalChanges;
 
-        // Score inversely proportional to breaking change ratio
-        // 0% breaking = 100 score, 50%+ breaking = 0 score
         if (ratio >= 0.5) {
             return 0.0;
         }
@@ -122,13 +102,11 @@ public class StabilityScorer {
         }
 
         if (breakingDates.size() < 2) {
-            return 100.0; // Not enough data, assume good
+            return 100.0; 
         }
 
-        // Sort dates
         breakingDates.sort(LocalDateTime::compareTo);
 
-        // Calculate average days between breaking changes
         long totalDays = 0;
         for (int i = 1; i < breakingDates.size(); i++) {
             Duration duration = Duration.between(breakingDates.get(i - 1), breakingDates.get(i));
@@ -137,8 +115,6 @@ public class StabilityScorer {
 
         double avgDays = (double) totalDays / (breakingDates.size() - 1);
 
-        // Score based on average days between breaking changes
-        // 90+ days = 100, 0 days = 0
         if (avgDays >= 90) {
             return 100.0;
         }
@@ -154,13 +130,11 @@ public class StabilityScorer {
             changelog.getChanges().forEach(change -> {
                 if (change.getDescription() != null &&
                         change.getDescription().toLowerCase().contains("deprecat")) {
-                    // Count as deprecation
+                    
                 }
             });
         }
 
-        // For now, assume good deprecation management if no breaking changes
-        // without deprecation warnings
         int breakingWithoutWarning = 0;
         for (Changelog changelog : changelogs) {
             if (!changelog.getBreakingChanges().isEmpty()) {
@@ -243,12 +217,6 @@ public class StabilityScorer {
                 .build();
     }
 
-    /**
-     * Get the grade for a given score.
-     *
-     * @param score the numeric score
-     * @return the stability grade
-     */
     public StabilityGrade getGrade(int score) {
         return StabilityGrade.fromScore(score);
     }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class NonController {
 
     public void doSomething() {
-        // This is not a controller
+        
     }
 
     public String processData(String input) {

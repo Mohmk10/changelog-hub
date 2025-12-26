@@ -12,23 +12,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
 
-/**
- * Gradle task for analyzing a single API specification.
- *
- * Usage:
- * ```
- * ./gradlew changelogAnalyze --spec=api/openapi.yaml
- * ```
- *
- * Or configure via extension:
- * ```
- * changelogHub {
- *     spec = "api/openapi.yaml"
- *     format = "markdown"
- *     outputDir = "build/changelog"
- * }
- * ```
- */
 abstract class AnalyzeTask : DefaultTask() {
 
     @Internal
@@ -51,25 +34,23 @@ abstract class AnalyzeTask : DefaultTask() {
 
     @TaskAction
     fun analyze() {
-        // Check if skipped
+        
         if (extension.skip) {
             logger.lifecycle("API analysis skipped (skip=true)")
             return
         }
 
-        // Resolve parameters
         val specFile = resolveSpec()
         val format = formatOption ?: extension.format
         val outputDir = File(project.projectDir, outputDirOption ?: extension.outputDir)
 
-        // Validate file exists
         validateFile(specFile)
 
         logger.lifecycle("Analyzing API specification...")
         logger.lifecycle("  File: ${specFile.absolutePath}")
 
         try {
-            // Parse specification
+            
             val spec = ParserFactory.parse(specFile, extension.specType)
 
             if (extension.verbose) {
@@ -77,21 +58,17 @@ abstract class AnalyzeTask : DefaultTask() {
                 logger.lifecycle("Detected type: ${ParserFactory.detectSpecType(specFile)}")
             }
 
-            // Generate analysis report
             val report = ReportWriter.generateAnalysisReport(spec, format)
 
-            // Output to console
             logger.lifecycle("")
             logger.lifecycle(report)
 
-            // Write to file if not console format
             if (format != "console") {
                 outputDir.mkdirs()
                 val reportFile = ReportWriter.writeAnalysis(outputDir, spec, format)
                 logger.lifecycle("Analysis written to: ${reportFile.absolutePath}")
             }
 
-            // Summary
             logger.lifecycle("")
             logger.lifecycle("Analysis complete:")
             logger.lifecycle("  API: ${spec.name ?: "Unknown"}")

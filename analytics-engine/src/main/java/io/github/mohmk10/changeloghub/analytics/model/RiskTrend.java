@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents the trend of risk over time for an API.
- */
 public class RiskTrend {
 
     private String apiName;
@@ -37,7 +34,6 @@ public class RiskTrend {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }
@@ -187,9 +183,6 @@ public class RiskTrend {
                 '}';
     }
 
-    /**
-     * A single data point in the risk trend.
-     */
     public static class RiskDataPoint {
         private LocalDateTime timestamp;
         private int riskScore;
@@ -238,9 +231,6 @@ public class RiskTrend {
         }
     }
 
-    /**
-     * Risk data for a specific period.
-     */
     public static class PeriodRisk {
         private String periodLabel;
         private java.time.LocalDate startDate;

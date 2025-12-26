@@ -19,9 +19,6 @@ import org.apache.hc.core5.util.Timeout;
 
 import java.util.Map;
 
-/**
- * Generic webhook notification channel.
- */
 public class WebhookNotifier extends AbstractNotificationChannel {
 
     private final ObjectMapper objectMapper;
@@ -77,7 +74,6 @@ public class WebhookNotifier extends AbstractNotificationChannel {
                         .build();
                 }
 
-                // Check if retryable
                 int statusCode = result.getHttpStatusCode();
                 if (statusCode == 429 || statusCode >= 500) {
                     retryCount++;
@@ -119,18 +115,15 @@ public class WebhookNotifier extends AbstractNotificationChannel {
         try {
             HttpPost httpPost = new HttpPost(webhookUrl);
 
-            // Set content type
             httpPost.setHeader(NotificationConstants.HEADER_CONTENT_TYPE,
                 NotificationConstants.CONTENT_TYPE_JSON);
             httpPost.setHeader(NotificationConstants.HEADER_USER_AGENT,
                 NotificationConstants.USER_AGENT_VALUE);
 
-            // Add custom headers
             for (Map.Entry<String, String> header : config.getHeaders().entrySet()) {
                 httpPost.setHeader(header.getKey(), header.getValue());
             }
 
-            // Add authentication if configured
             if (config.hasAuth()) {
                 String authHeader = config.getAuthType() + " " + config.getAuthValue();
                 httpPost.setHeader(NotificationConstants.HEADER_AUTHORIZATION, authHeader);
@@ -201,18 +194,16 @@ public class WebhookNotifier extends AbstractNotificationChannel {
             httpPost.setHeader(NotificationConstants.HEADER_CONTENT_TYPE,
                 NotificationConstants.CONTENT_TYPE_JSON);
 
-            // Add auth headers for test
             if (config.hasAuth()) {
                 String authHeader = config.getAuthType() + " " + config.getAuthValue();
                 httpPost.setHeader(NotificationConstants.HEADER_AUTHORIZATION, authHeader);
             }
 
-            // Empty payload for test
             httpPost.setEntity(new StringEntity("{}", ContentType.APPLICATION_JSON));
 
             return httpClient.execute(httpPost, response -> {
                 int code = response.getCode();
-                // Accept 2xx, 4xx client errors (means server is reachable)
+                
                 return code >= 200 && code < 500;
             });
 
@@ -222,17 +213,11 @@ public class WebhookNotifier extends AbstractNotificationChannel {
         }
     }
 
-    /**
-     * Create a configured WebhookNotifier.
-     */
     public static WebhookNotifier create(String webhookUrl) {
         ChannelConfig config = ChannelConfig.webhook(webhookUrl).build();
         return new WebhookNotifier(config);
     }
 
-    /**
-     * Create with authentication.
-     */
     public static WebhookNotifier createWithBearerAuth(String webhookUrl, String token) {
         ChannelConfig config = ChannelConfig.webhook(webhookUrl)
             .bearerAuth(token)
@@ -240,9 +225,6 @@ public class WebhookNotifier extends AbstractNotificationChannel {
         return new WebhookNotifier(config);
     }
 
-    /**
-     * Create with basic auth.
-     */
     public static WebhookNotifier createWithBasicAuth(String webhookUrl, String username, String password) {
         ChannelConfig config = ChannelConfig.webhook(webhookUrl)
             .basicAuth(username, password)
@@ -250,7 +232,6 @@ public class WebhookNotifier extends AbstractNotificationChannel {
         return new WebhookNotifier(config);
     }
 
-    // Allow setting a custom HTTP client for testing
     void setHttpClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
