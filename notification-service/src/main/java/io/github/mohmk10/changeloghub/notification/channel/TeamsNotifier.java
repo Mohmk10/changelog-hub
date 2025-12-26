@@ -17,9 +17,6 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
 
-/**
- * Microsoft Teams notification channel using webhooks.
- */
 public class TeamsNotifier extends AbstractNotificationChannel {
 
     private final ObjectMapper objectMapper;
@@ -72,7 +69,6 @@ public class TeamsNotifier extends AbstractNotificationChannel {
                     ? EntityUtils.toString(response.getEntity())
                     : "";
 
-                // Teams returns 200 for success and "1" in body
                 if (statusCode == 200) {
                     logger.info("Teams notification sent successfully");
                     return NotificationResult.success(notification.getId(), getType());
@@ -114,11 +110,11 @@ public class TeamsNotifier extends AbstractNotificationChannel {
         }
 
         try {
-            // Send a minimal test message
+            
             String testPayload = """
                 {
                     "@type": "MessageCard",
-                    "@context": "http://schema.org/extensions",
+                    "@context": "http:
                     "summary": "ChangelogHub Connection Test",
                     "text": "This is a connection test from ChangelogHub"
                 }

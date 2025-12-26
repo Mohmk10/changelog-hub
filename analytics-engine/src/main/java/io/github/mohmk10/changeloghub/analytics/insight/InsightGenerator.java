@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Generates insights from API metrics and history.
- */
 public class InsightGenerator {
 
     private final StabilityScorer stabilityScorer;
@@ -25,13 +22,6 @@ public class InsightGenerator {
         this.velocityCalculator = new VelocityCalculator();
     }
 
-    /**
-     * Generate insights from API spec and changelog history.
-     *
-     * @param spec the API specification
-     * @param history changelog history
-     * @return list of insights
-     */
     public List<Insight> generate(ApiSpec spec, List<Changelog> history) {
         List<Insight> insights = new ArrayList<>();
 
@@ -46,7 +36,6 @@ public class InsightGenerator {
             insights.addAll(generateSpecInsights(spec));
         }
 
-        // Sort by priority and limit
         insights.sort(Comparator.comparingInt(Insight::getPriority).reversed());
         if (insights.size() > AnalyticsConstants.MAX_INSIGHTS_PER_REPORT) {
             insights = new ArrayList<>(insights.subList(0, AnalyticsConstants.MAX_INSIGHTS_PER_REPORT));
@@ -71,7 +60,7 @@ public class InsightGenerator {
                     .confidence(1.0)
                     .build());
         } else {
-            // Check recent trend
+            
             int recentBreaking = 0;
             int olderBreaking = 0;
             int mid = history.size() / 2;

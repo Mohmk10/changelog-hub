@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Configuration for a notification channel.
- */
 public class ChannelConfig {
 
     private final ChannelType channelType;
@@ -22,7 +19,7 @@ public class ChannelConfig {
     private final String authValue;
     private final int timeoutMs;
     private final int retryCount;
-    private final String channel; // For Slack channel name
+    private final String channel; 
 
     private ChannelConfig(Builder builder) {
         this.channelType = builder.channelType;
@@ -174,9 +171,6 @@ public class ChannelConfig {
                '}';
     }
 
-    /**
-     * SMTP configuration for email notifications.
-     */
     public static class SmtpConfig {
         private final String host;
         private final int port;

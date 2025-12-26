@@ -159,7 +159,6 @@ class RecommendationEngineTest {
 
         List<Recommendation> recommendations = engine.generateRecommendations(metrics, stability);
 
-        // Verify sorted by efficiency (descending)
         for (int i = 0; i < recommendations.size() - 1; i++) {
             assertThat(recommendations.get(i).getEfficiencyScore())
                     .isGreaterThanOrEqualTo(recommendations.get(i + 1).getEfficiencyScore());

@@ -6,9 +6,6 @@ import { parseSpec, detectSpecType } from '../core/parser';
 import { readFile, fileExists } from '../utils/file';
 import { logger } from '../utils/logger';
 
-/**
- * Validation result for a spec file
- */
 interface ValidationResult {
   file: string;
   valid: boolean;
@@ -17,9 +14,6 @@ interface ValidationResult {
   warnings: string[];
 }
 
-/**
- * Creates the validate command
- */
 export function createValidateCommand(): Command {
   const command = new Command('validate');
 
@@ -47,14 +41,12 @@ export function createValidateCommand(): Command {
 
       spinner.stop();
 
-      // Output results
       if (options.format === 'json') {
         console.log(JSON.stringify(results, null, 2));
       } else {
         outputConsoleResults(results, options.verbose);
       }
 
-      // Exit with error if any validation failed
       if (hasErrors) {
         process.exit(1);
       }
@@ -63,9 +55,6 @@ export function createValidateCommand(): Command {
   return command;
 }
 
-/**
- * Validate a single spec file
- */
 function validateSpec(specPath: string, strict: boolean = false): ValidationResult {
   const result: ValidationResult = {
     file: specPath,
@@ -75,7 +64,6 @@ function validateSpec(specPath: string, strict: boolean = false): ValidationResu
     warnings: [],
   };
 
-  // Check file exists
   if (!fileExists(specPath)) {
     result.valid = false;
     result.errors.push(`File not found: ${specPath}`);
@@ -83,10 +71,9 @@ function validateSpec(specPath: string, strict: boolean = false): ValidationResu
   }
 
   try {
-    // Read file content
+    
     const content = readFile(specPath);
 
-    // Detect spec type
     result.type = detectSpecType(content, specPath);
 
     if (result.type === 'unknown') {
@@ -95,10 +82,8 @@ function validateSpec(specPath: string, strict: boolean = false): ValidationResu
       return result;
     }
 
-    // Parse specification
     const spec = parseSpec(content, specPath);
 
-    // Basic validation checks
     if (!spec.name || spec.name === 'Untitled API') {
       result.warnings.push('API name not specified');
     }
@@ -111,33 +96,28 @@ function validateSpec(specPath: string, strict: boolean = false): ValidationResu
       result.warnings.push('No endpoints defined');
     }
 
-    // Strict mode checks
     if (strict) {
-      // Check for missing descriptions
+      
       for (const endpoint of spec.endpoints) {
         if (!endpoint.description && !endpoint.summary) {
           result.warnings.push(`Endpoint ${endpoint.method} ${endpoint.path} has no description`);
         }
 
-        // Check for missing response definitions
         if (endpoint.responses.length === 0) {
           result.warnings.push(`Endpoint ${endpoint.method} ${endpoint.path} has no response definitions`);
         }
 
-        // Check for deprecated endpoints
         if (endpoint.deprecated) {
           result.warnings.push(`Endpoint ${endpoint.method} ${endpoint.path} is deprecated`);
         }
       }
 
-      // Check for schemas without properties
       for (const schema of spec.schemas) {
         if (schema.properties.length === 0 && schema.type === 'object') {
           result.warnings.push(`Schema ${schema.name} has no properties defined`);
         }
       }
 
-      // In strict mode, warnings become errors
       if (result.warnings.length > 0) {
         result.valid = false;
         result.errors = [...result.errors, ...result.warnings];
@@ -153,9 +133,6 @@ function validateSpec(specPath: string, strict: boolean = false): ValidationResu
   return result;
 }
 
-/**
- * Output validation results to console
- */
 function outputConsoleResults(results: ValidationResult[], verbose: boolean = false): void {
   console.log('');
   console.log(chalk.bold('API Specification Validation Results'));
@@ -178,14 +155,12 @@ function outputConsoleResults(results: ValidationResult[], verbose: boolean = fa
       totalInvalid++;
     }
 
-    // Show errors
     if (result.errors.length > 0) {
       for (const error of result.errors) {
         console.log(chalk.red(`    ✗ ${error}`));
       }
     }
 
-    // Show warnings (only in verbose mode for valid specs)
     if (verbose && result.warnings.length > 0) {
       for (const warning of result.warnings) {
         console.log(chalk.yellow(`    ⚠ ${warning}`));
@@ -195,7 +170,6 @@ function outputConsoleResults(results: ValidationResult[], verbose: boolean = fa
     console.log('');
   }
 
-  // Summary
   console.log(chalk.gray('─'.repeat(60)));
   console.log('');
   console.log(chalk.bold('Summary'));

@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents the compliance status of an API against standards and best practices.
- */
 public class ComplianceStatus {
 
     private String apiName;
@@ -67,7 +64,6 @@ public class ComplianceStatus {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() {
         return apiName;
     }
@@ -198,9 +194,6 @@ public class ComplianceStatus {
         return Objects.hash(apiName, complianceScore);
     }
 
-    /**
-     * Represents a compliance violation.
-     */
     public static class ComplianceViolation {
         private ViolationType type;
         private String path;

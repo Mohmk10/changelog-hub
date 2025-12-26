@@ -18,9 +18,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for ReportWriter.
- */
 class ReportWriterTest {
 
     @TempDir

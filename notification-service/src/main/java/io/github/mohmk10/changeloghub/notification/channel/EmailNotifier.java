@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Email notification channel using Jakarta Mail.
- */
 public class EmailNotifier extends AbstractNotificationChannel {
 
     private Session mailSession;
@@ -95,7 +92,6 @@ public class EmailNotifier extends AbstractNotificationChannel {
 
             MimeMessage message = new MimeMessage(mailSession);
 
-            // From
             String fromAddress = smtpConfig.getFromAddress() != null
                 ? smtpConfig.getFromAddress()
                 : NotificationConstants.EMAIL_DEFAULT_FROM;
@@ -105,37 +101,30 @@ public class EmailNotifier extends AbstractNotificationChannel {
 
             message.setFrom(new InternetAddress(fromAddress, fromName));
 
-            // To
             for (String recipient : recipients) {
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
             }
 
-            // CC
             for (String cc : ccRecipients) {
                 message.addRecipient(Message.RecipientType.CC, new InternetAddress(cc));
             }
 
-            // BCC
             for (String bcc : bccRecipients) {
                 message.addRecipient(Message.RecipientType.BCC, new InternetAddress(bcc));
             }
 
-            // Subject
             String subject = notification.getTitle() != null
                 ? notification.getTitle()
                 : "ChangelogHub Notification";
             message.setSubject(subject);
 
-            // Body (HTML)
             MimeMultipart multipart = new MimeMultipart("alternative");
 
-            // Plain text version
             MimeBodyPart textPart = new MimeBodyPart();
             textPart.setText(notification.getMessage() != null
                 ? notification.getMessage()
                 : "See HTML version for details");
 
-            // HTML version
             MimeBodyPart htmlPart = new MimeBodyPart();
             htmlPart.setContent(formattedMessage, NotificationConstants.EMAIL_MIME_TYPE_HTML);
 
@@ -144,7 +133,6 @@ public class EmailNotifier extends AbstractNotificationChannel {
 
             message.setContent(multipart);
 
-            // Send
             Transport.send(message);
 
             logger.info("Email notification sent to {} recipients", recipients.size());
@@ -223,15 +211,11 @@ public class EmailNotifier extends AbstractNotificationChannel {
         return new ArrayList<>(recipients);
     }
 
-    /**
-     * Create a configured EmailNotifier.
-     */
     public static EmailNotifier create(ChannelConfig.SmtpConfig smtpConfig) {
         ChannelConfig config = ChannelConfig.email(smtpConfig).build();
         return new EmailNotifier(config);
     }
 
-    // For testing
     void setMailSession(Session session) {
         this.mailSession = session;
     }

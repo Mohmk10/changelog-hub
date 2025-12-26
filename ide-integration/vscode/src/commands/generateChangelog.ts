@@ -13,7 +13,7 @@ export async function generateChangelogCommand(
   changelogProvider?: ChangelogProvider
 ): Promise<void> {
   try {
-    // Get workspace folder
+    
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
       vscode.window.showErrorMessage('Changelog Hub: No workspace folder open');
@@ -22,7 +22,6 @@ export async function generateChangelogCommand(
 
     const workspaceFolder = workspaceFolders[0];
 
-    // Find API spec files
     const specPatterns = getSpecPatterns();
     const specFiles: vscode.Uri[] = [];
 
@@ -38,7 +37,6 @@ export async function generateChangelogCommand(
       return;
     }
 
-    // Let user select which spec to generate changelog for
     const specItems = specFiles.map((file) => ({
       label: path.basename(file.fsPath),
       description: vscode.workspace.asRelativePath(file),
@@ -53,7 +51,6 @@ export async function generateChangelogCommand(
       return;
     }
 
-    // Get Git tags or refs to compare
     const refOptions = await getGitRefs(workspaceFolder.uri.fsPath);
 
     if (refOptions.length < 2) {
@@ -63,7 +60,6 @@ export async function generateChangelogCommand(
       return;
     }
 
-    // Select from ref
     const fromRef = await vscode.window.showQuickPick(refOptions, {
       placeHolder: 'Select FROM version (older)',
     });
@@ -72,7 +68,6 @@ export async function generateChangelogCommand(
       return;
     }
 
-    // Filter out selected ref and show remaining
     const toOptions = refOptions.filter((r) => r.label !== fromRef.label);
     const toRef = await vscode.window.showQuickPick(toOptions, {
       placeHolder: 'Select TO version (newer)',
@@ -93,7 +88,6 @@ export async function generateChangelogCommand(
 
         progress.report({ increment: 20, message: `Getting ${fromRef.label}...` });
 
-        // Get old content
         let oldContent: string;
         try {
           oldContent = execSync(`git show ${fromRef.label}:${relativePath}`, {
@@ -106,7 +100,6 @@ export async function generateChangelogCommand(
 
         progress.report({ increment: 20, message: `Getting ${toRef.label}...` });
 
-        // Get new content
         let newContent: string;
         try {
           newContent = execSync(`git show ${toRef.label}:${relativePath}`, {
@@ -119,29 +112,24 @@ export async function generateChangelogCommand(
 
         progress.report({ increment: 20, message: 'Comparing versions...' });
 
-        // Parse and compare
         const oldSpec = parseSpec(oldContent, selected.uri.fsPath);
         const newSpec = parseSpec(newContent, selected.uri.fsPath);
         const result = compareSpecs(oldSpec, newSpec);
 
-        // Override versions with Git refs
         result.fromVersion = fromRef.label;
         result.toVersion = toRef.label;
 
         progress.report({ increment: 20, message: 'Generating changelog...' });
 
-        // Update changelog view
         if (changelogProvider) {
           changelogProvider.setChanges(result.changes);
         }
 
-        // Generate report
         const config = getConfig();
         const report = generateReport(result, config.defaultFormat);
 
         progress.report({ increment: 20 });
 
-        // Ask to save or preview
         const action = await vscode.window.showQuickPick(
           [
             { label: 'Preview', description: 'Open in editor' },
@@ -163,7 +151,6 @@ export async function generateChangelogCommand(
           await saveChangelog(workspaceFolder.uri, report, true);
         }
 
-        // Show summary
         showSummary(result, fromRef.label, toRef.label);
       }
     );
@@ -181,7 +168,7 @@ async function getGitRefs(
   const refs: Array<{ label: string; description: string }> = [];
 
   try {
-    // Get tags
+    
     const tags = execSync('git tag --sort=-v:refname', { cwd, encoding: 'utf-8' })
       .split('\n')
       .filter((t) => t.trim());
@@ -190,7 +177,6 @@ async function getGitRefs(
       refs.push({ label: tag, description: 'Tag' });
     }
 
-    // Get branches
     const branches = execSync('git branch -a --format="%(refname:short)"', {
       cwd,
       encoding: 'utf-8',
@@ -202,11 +188,10 @@ async function getGitRefs(
       refs.push({ label: branch, description: 'Branch' });
     }
 
-    // Add HEAD refs
     refs.push({ label: 'HEAD', description: 'Current commit' });
     refs.push({ label: 'HEAD~1', description: 'Previous commit' });
   } catch {
-    // Git not available or not a repo
+    
   }
 
   return refs;
@@ -238,7 +223,7 @@ async function saveChangelog(
       const existing = (await vscode.workspace.fs.readFile(changelogUri)).toString();
       content = report + '\n\n---\n\n' + existing;
     } catch {
-      // File doesn't exist, just use new content
+      
     }
   }
 

@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * Configuration for Git integration module.
- */
 public class GitConfig {
 
     private Path repositoryPath;
@@ -29,7 +26,7 @@ public class GitConfig {
     public GitConfig() {
         this.defaultBranch = "main";
         this.maxCommitDepth = 100;
-        this.maxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
+        this.maxFileSizeBytes = 10 * 1024 * 1024; 
         this.followRenames = true;
         this.includeRemoteBranches = false;
         this.specFilePatterns = new HashSet<>(Arrays.asList(
@@ -44,10 +41,6 @@ public class GitConfig {
             "api", "specs", "openapi", "graphql", "proto", "asyncapi"
         ));
     }
-
-    // ============================================================
-    // Getters and Setters
-    // ============================================================
 
     public Path getRepositoryPath() {
         return repositoryPath;
@@ -149,10 +142,6 @@ public class GitConfig {
         this.proxy = proxy;
     }
 
-    // ============================================================
-    // Utility Methods
-    // ============================================================
-
     public boolean hasCredentials() {
         return credentials != null && credentials.isValid();
     }
@@ -183,13 +172,6 @@ public class GitConfig {
         });
     }
 
-    // ============================================================
-    // Nested Classes
-    // ============================================================
-
-    /**
-     * Credentials configuration for Git authentication.
-     */
     public static class CredentialsConfig {
         private String username;
         private String password;
@@ -256,9 +238,6 @@ public class GitConfig {
         }
     }
 
-    /**
-     * Proxy configuration for Git operations.
-     */
     public static class ProxyConfig {
         private String host;
         private int port;
@@ -305,10 +284,6 @@ public class GitConfig {
             return username != null && password != null;
         }
     }
-
-    // ============================================================
-    // Builder
-    // ============================================================
 
     public static Builder builder() {
         return new Builder();

@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.cli.exception;
 
-/**
- * Exception thrown for CLI-related errors.
- */
 public class CliException extends RuntimeException {
 
     private final int exitCode;

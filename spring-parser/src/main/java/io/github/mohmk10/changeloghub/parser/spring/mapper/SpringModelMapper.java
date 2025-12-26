@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Maps Spring controller models to core ApiSpec model.
- */
 public class SpringModelMapper {
 
     private final SpringEndpointMapper endpointMapper;
@@ -22,9 +19,6 @@ public class SpringModelMapper {
         this.endpointMapper = new SpringEndpointMapper();
     }
 
-    /**
-     * Map a list of Spring controllers to an ApiSpec.
-     */
     public ApiSpec mapToApiSpec(List<SpringController> controllers, String apiName, String apiVersion) {
         ApiSpec.Builder builder = ApiSpec.builder();
 
@@ -33,7 +27,6 @@ public class SpringModelMapper {
         builder.type(ApiType.REST);
         builder.parsedAt(LocalDateTime.now());
 
-        // Map all endpoints from all controllers
         List<Endpoint> allEndpoints = new ArrayList<>();
         for (SpringController controller : controllers) {
             List<Endpoint> endpoints = endpointMapper.mapEndpoints(controller);
@@ -41,7 +34,6 @@ public class SpringModelMapper {
         }
         builder.endpoints(allEndpoints);
 
-        // Add metadata
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", "spring-parser");
         metadata.put("controllerCount", controllers.size());
@@ -51,16 +43,10 @@ public class SpringModelMapper {
         return builder.build();
     }
 
-    /**
-     * Map a single Spring controller to an ApiSpec.
-     */
     public ApiSpec mapToApiSpec(SpringController controller) {
         return mapToApiSpec(List.of(controller), controller.getClassName(), "1.0.0");
     }
 
-    /**
-     * Map a single Spring controller to endpoints.
-     */
     public List<Endpoint> mapToEndpoints(SpringController controller) {
         return endpointMapper.mapEndpoints(controller);
     }

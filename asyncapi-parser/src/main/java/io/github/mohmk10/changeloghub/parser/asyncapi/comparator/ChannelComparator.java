@@ -10,15 +10,6 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.model.AsyncOperation;
 
 import java.util.*;
 
-/**
- * Compares AsyncAPI channels to detect changes.
- *
- * Breaking change rules:
- * - BREAKING: Channel removed, operation removed, required parameter added
- * - DANGEROUS: Channel parameters modified, optional parameter removed
- * - WARNING: Channel deprecated, description changed
- * - INFO: New channel, new operation, new optional parameter
- */
 public class ChannelComparator {
 
     private final MessageComparator messageComparator;
@@ -34,9 +25,6 @@ public class ChannelComparator {
         this.schemaComparator = schemaComparator;
     }
 
-    /**
-     * Compare two channels and return detected changes.
-     */
     public List<Change> compare(String channelName, AsyncChannel oldChannel, AsyncChannel newChannel) {
         List<Change> changes = new ArrayList<>();
 
@@ -46,78 +34,62 @@ public class ChannelComparator {
 
         String context = "channel:" + channelName;
 
-        // Channel added
         if (oldChannel == null) {
             changes.add(createChange(context, ChangeCategory.CHANNEL, ChangeType.ADDED, Severity.INFO,
                     "Channel '" + channelName + "' added"));
             return changes;
         }
 
-        // Channel removed
         if (newChannel == null) {
             changes.add(createChange(context, ChangeCategory.CHANNEL, ChangeType.REMOVED, Severity.BREAKING,
                     "Channel '" + channelName + "' removed"));
             return changes;
         }
 
-        // Address changed (AsyncAPI 3.x)
         if (!Objects.equals(oldChannel.getAddress(), newChannel.getAddress())) {
             changes.add(createChange(context, ChangeCategory.CHANNEL, ChangeType.MODIFIED, Severity.BREAKING,
                     "Channel address changed from '" + oldChannel.getAddress() +
                     "' to '" + newChannel.getAddress() + "'"));
         }
 
-        // Deprecated status changed
         if (!oldChannel.isDeprecated() && newChannel.isDeprecated()) {
             changes.add(createChange(context, ChangeCategory.CHANNEL, ChangeType.DEPRECATED, Severity.WARNING,
                     "Channel '" + channelName + "' deprecated"));
         }
 
-        // Description changed
         if (!Objects.equals(oldChannel.getDescription(), newChannel.getDescription())) {
             changes.add(createChange(context, ChangeCategory.CHANNEL, ChangeType.MODIFIED, Severity.INFO,
                     "Channel description changed"));
         }
 
-        // Compare publish operation
         changes.addAll(compareOperation(context, "publish",
                 oldChannel.getPublishOperation(), newChannel.getPublishOperation()));
 
-        // Compare subscribe operation
         changes.addAll(compareOperation(context, "subscribe",
                 oldChannel.getSubscribeOperation(), newChannel.getSubscribeOperation()));
 
-        // Compare channel parameters
         changes.addAll(compareParameters(context, oldChannel.getParameters(), newChannel.getParameters()));
 
-        // Compare channel messages (AsyncAPI 3.x)
         changes.addAll(compareMessages(context, oldChannel.getMessages(), newChannel.getMessages()));
 
-        // Compare bindings
         changes.addAll(compareBindings(context, oldChannel.getBindings(), newChannel.getBindings()));
 
-        // Compare servers
         changes.addAll(compareServers(context, oldChannel.getServers(), newChannel.getServers()));
 
         return changes;
     }
 
-    /**
-     * Compare operations.
-     */
     public List<Change> compareOperation(String context, String opType,
                                           AsyncOperation oldOp, AsyncOperation newOp) {
         List<Change> changes = new ArrayList<>();
         String opContext = context + "." + opType;
 
-        // Operation added
         if (oldOp == null && newOp != null) {
             changes.add(createChange(opContext, ChangeCategory.OPERATION, ChangeType.ADDED, Severity.INFO,
                     "'" + opType + "' operation added"));
             return changes;
         }
 
-        // Operation removed
         if (oldOp != null && newOp == null) {
             changes.add(createChange(opContext, ChangeCategory.OPERATION, ChangeType.REMOVED, Severity.BREAKING,
                     "'" + opType + "' operation removed"));
@@ -128,38 +100,30 @@ public class ChannelComparator {
             return changes;
         }
 
-        // Operation ID changed
         if (!Objects.equals(oldOp.getOperationId(), newOp.getOperationId())) {
             changes.add(createChange(opContext, ChangeCategory.OPERATION, ChangeType.MODIFIED, Severity.WARNING,
                     "Operation ID changed from '" + oldOp.getOperationId() +
                     "' to '" + newOp.getOperationId() + "'"));
         }
 
-        // Deprecated status changed
         if (!oldOp.isDeprecated() && newOp.isDeprecated()) {
             changes.add(createChange(opContext, ChangeCategory.OPERATION, ChangeType.DEPRECATED, Severity.WARNING,
                     "Operation deprecated"));
         }
 
-        // Compare single message
         if (oldOp.getMessage() != null || newOp.getMessage() != null) {
             changes.addAll(compareOperationMessage(opContext, oldOp.getMessage(), newOp.getMessage()));
         }
 
-        // Compare multiple messages
         if (oldOp.getMessages() != null || newOp.getMessages() != null) {
             changes.addAll(compareOperationMessages(opContext, oldOp.getMessages(), newOp.getMessages()));
         }
 
-        // Compare bindings
         changes.addAll(compareBindings(opContext, oldOp.getBindings(), newOp.getBindings()));
 
         return changes;
     }
 
-    /**
-     * Compare operation message.
-     */
     private List<Change> compareOperationMessage(String context,
                                                    AsyncMessage oldMessage, AsyncMessage newMessage) {
         List<Change> changes = new ArrayList<>();
@@ -180,9 +144,6 @@ public class ChannelComparator {
         return changes;
     }
 
-    /**
-     * Compare operation messages list.
-     */
     private List<Change> compareOperationMessages(String context,
                                                     List<AsyncMessage> oldMessages, List<AsyncMessage> newMessages) {
         List<Change> changes = new ArrayList<>();
@@ -190,7 +151,6 @@ public class ChannelComparator {
         List<AsyncMessage> old = oldMessages != null ? oldMessages : Collections.emptyList();
         List<AsyncMessage> neu = newMessages != null ? newMessages : Collections.emptyList();
 
-        // Build maps by message name/ref for comparison
         Map<String, AsyncMessage> oldMap = buildMessageMap(old);
         Map<String, AsyncMessage> newMap = buildMessageMap(neu);
 
@@ -199,9 +159,6 @@ public class ChannelComparator {
         return changes;
     }
 
-    /**
-     * Build a map of messages by name.
-     */
     private Map<String, AsyncMessage> buildMessageMap(List<AsyncMessage> messages) {
         Map<String, AsyncMessage> map = new LinkedHashMap<>();
         int index = 0;
@@ -213,9 +170,6 @@ public class ChannelComparator {
         return map;
     }
 
-    /**
-     * Compare channel parameters.
-     */
     public List<Change> compareParameters(String context,
                                            Map<String, AsyncChannel.ChannelParameter> oldParams,
                                            Map<String, AsyncChannel.ChannelParameter> newParams) {
@@ -226,7 +180,6 @@ public class ChannelComparator {
         Map<String, AsyncChannel.ChannelParameter> neu = newParams != null ?
                 newParams : Collections.emptyMap();
 
-        // Check for removed parameters
         for (String paramName : old.keySet()) {
             if (!neu.containsKey(paramName)) {
                 changes.add(createChange(context, ChangeCategory.PARAMETER, ChangeType.REMOVED, Severity.BREAKING,
@@ -234,7 +187,6 @@ public class ChannelComparator {
             }
         }
 
-        // Check for added parameters
         for (String paramName : neu.keySet()) {
             if (!old.containsKey(paramName)) {
                 changes.add(createChange(context, ChangeCategory.PARAMETER, ChangeType.ADDED, Severity.BREAKING,
@@ -242,13 +194,11 @@ public class ChannelComparator {
             }
         }
 
-        // Check for changed parameters
         for (String paramName : old.keySet()) {
             if (neu.containsKey(paramName)) {
                 AsyncChannel.ChannelParameter oldParam = old.get(paramName);
                 AsyncChannel.ChannelParameter newParam = neu.get(paramName);
 
-                // Compare schemas
                 if (oldParam.getSchema() != null || newParam.getSchema() != null) {
                     changes.addAll(schemaComparator.compare(
                             context + ".parameters." + paramName,
@@ -260,9 +210,6 @@ public class ChannelComparator {
         return changes;
     }
 
-    /**
-     * Compare channel messages (AsyncAPI 3.x).
-     */
     public List<Change> compareMessages(String context,
                                          Map<String, AsyncMessage> oldMessages,
                                          Map<String, AsyncMessage> newMessages) {
@@ -273,9 +220,6 @@ public class ChannelComparator {
         return messageComparator.compareAll(oldMessages, newMessages);
     }
 
-    /**
-     * Compare bindings.
-     */
     public List<Change> compareBindings(String context,
                                          Map<String, Object> oldBindings,
                                          Map<String, Object> newBindings) {
@@ -284,7 +228,6 @@ public class ChannelComparator {
         Map<String, Object> old = oldBindings != null ? oldBindings : Collections.emptyMap();
         Map<String, Object> neu = newBindings != null ? newBindings : Collections.emptyMap();
 
-        // Check for removed bindings
         for (String bindingName : old.keySet()) {
             if (!neu.containsKey(bindingName)) {
                 changes.add(createChange(context, ChangeCategory.BINDING, ChangeType.REMOVED, Severity.DANGEROUS,
@@ -292,7 +235,6 @@ public class ChannelComparator {
             }
         }
 
-        // Check for added bindings
         for (String bindingName : neu.keySet()) {
             if (!old.containsKey(bindingName)) {
                 changes.add(createChange(context, ChangeCategory.BINDING, ChangeType.ADDED, Severity.INFO,
@@ -300,7 +242,6 @@ public class ChannelComparator {
             }
         }
 
-        // Check for changed bindings
         for (String bindingName : old.keySet()) {
             if (neu.containsKey(bindingName)) {
                 if (!Objects.equals(old.get(bindingName), neu.get(bindingName))) {
@@ -313,16 +254,12 @@ public class ChannelComparator {
         return changes;
     }
 
-    /**
-     * Compare channel servers.
-     */
     public List<Change> compareServers(String context, List<String> oldServers, List<String> newServers) {
         List<Change> changes = new ArrayList<>();
 
         Set<String> old = oldServers != null ? new HashSet<>(oldServers) : Collections.emptySet();
         Set<String> neu = newServers != null ? new HashSet<>(newServers) : Collections.emptySet();
 
-        // Check for removed servers
         for (String server : old) {
             if (!neu.contains(server)) {
                 changes.add(createChange(context, ChangeCategory.SERVER, ChangeType.REMOVED, Severity.WARNING,
@@ -330,7 +267,6 @@ public class ChannelComparator {
             }
         }
 
-        // Check for added servers
         for (String server : neu) {
             if (!old.contains(server)) {
                 changes.add(createChange(context, ChangeCategory.SERVER, ChangeType.ADDED, Severity.INFO,
@@ -341,9 +277,6 @@ public class ChannelComparator {
         return changes;
     }
 
-    /**
-     * Compare multiple channels.
-     */
     public List<Change> compareAll(Map<String, AsyncChannel> oldChannels,
                                     Map<String, AsyncChannel> newChannels) {
         List<Change> changes = new ArrayList<>();
@@ -362,9 +295,6 @@ public class ChannelComparator {
         return changes;
     }
 
-    /**
-     * Create a change object.
-     */
     private Change createChange(String path, ChangeCategory category, ChangeType type,
                                   Severity severity, String description) {
         return Change.builder()
@@ -376,9 +306,6 @@ public class ChannelComparator {
                 .build();
     }
 
-    /**
-     * Create channel signature for comparison.
-     */
     public String createSignature(AsyncChannel channel) {
         if (channel == null) {
             return "null";

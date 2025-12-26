@@ -5,20 +5,17 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.util.AsyncApiConstants;
 import java.util.*;
 import java.util.regex.Matcher;
 
-/**
- * Model representing an AsyncAPI channel (topic, queue, etc.).
- */
 public class AsyncChannel {
 
     private String name;
-    private String address; // For AsyncAPI 3.x
+    private String address; 
     private String description;
     private AsyncOperation publishOperation;
     private AsyncOperation subscribeOperation;
     private Map<String, ChannelParameter> parameters;
     private Map<String, Object> bindings;
-    private List<String> servers; // Server names this channel is available on
-    private Map<String, AsyncMessage> messages; // For AsyncAPI 3.x
+    private List<String> servers; 
+    private Map<String, AsyncMessage> messages; 
     private List<String> tags;
     private boolean deprecated;
     private Map<String, Object> extensions;
@@ -36,7 +33,6 @@ public class AsyncChannel {
         return new Builder();
     }
 
-    // Getters and setters
     public String getName() {
         return name;
     }
@@ -133,7 +129,6 @@ public class AsyncChannel {
         this.extensions = extensions != null ? new LinkedHashMap<>(extensions) : new LinkedHashMap<>();
     }
 
-    // Utility methods
     public String getChannelPath() {
         return address != null ? address : name;
     }
@@ -165,9 +160,6 @@ public class AsyncChannel {
         return !bindings.isEmpty();
     }
 
-    /**
-     * Extract parameter names from the channel name/address.
-     */
     public List<String> extractParameterNames() {
         List<String> paramNames = new ArrayList<>();
         String path = getChannelPath();
@@ -182,9 +174,6 @@ public class AsyncChannel {
         return paramNames;
     }
 
-    /**
-     * Get all messages from operations.
-     */
     public List<AsyncMessage> getAllMessages() {
         List<AsyncMessage> allMessages = new ArrayList<>(messages.values());
 
@@ -198,9 +187,6 @@ public class AsyncChannel {
         return allMessages;
     }
 
-    /**
-     * Model for channel parameters.
-     */
     public static class ChannelParameter {
         private String name;
         private String description;

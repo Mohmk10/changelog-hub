@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.notification.util;
 
-/**
- * Types of notification channels supported.
- */
 public enum ChannelType {
     SLACK("Slack", "slack"),
     DISCORD("Discord", "discord"),
@@ -26,9 +23,6 @@ public enum ChannelType {
         return configKey;
     }
 
-    /**
-     * Get channel type from config key.
-     */
     public static ChannelType fromConfigKey(String key) {
         if (key == null) {
             return null;
@@ -41,16 +35,10 @@ public enum ChannelType {
         return null;
     }
 
-    /**
-     * Check if this channel supports webhooks.
-     */
     public boolean isWebhookBased() {
         return this == SLACK || this == DISCORD || this == TEAMS || this == WEBHOOK;
     }
 
-    /**
-     * Check if this channel supports rich formatting.
-     */
     public boolean supportsRichFormatting() {
         return this != WEBHOOK;
     }

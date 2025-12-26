@@ -7,14 +7,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Analyzer for parsing Protocol Buffers service definitions.
- */
 public class ServiceAnalyzer {
 
     private final RpcMethodAnalyzer rpcMethodAnalyzer;
 
-    // Pattern to match service blocks with nested content handling
     private static final Pattern SERVICE_START_PATTERN = Pattern.compile(
             "service\\s+(\\w+)\\s*\\{"
     );
@@ -31,9 +27,6 @@ public class ServiceAnalyzer {
         this.rpcMethodAnalyzer = rpcMethodAnalyzer;
     }
 
-    /**
-     * Parse all services from proto content.
-     */
     public List<ProtoService> analyzeServices(String content, String packageName) {
         List<ProtoService> services = new ArrayList<>();
 
@@ -41,10 +34,8 @@ public class ServiceAnalyzer {
             return services;
         }
 
-        // Strip comments before parsing
         String cleanContent = stripComments(content);
 
-        // Find all service blocks
         List<ServiceBlock> serviceBlocks = findServiceBlocks(cleanContent);
 
         for (ServiceBlock block : serviceBlocks) {
@@ -55,46 +46,35 @@ public class ServiceAnalyzer {
         return services;
     }
 
-    /**
-     * Parse a single service definition.
-     */
     public ProtoService parseService(String name, String body, String packageName) {
         ProtoService.Builder builder = ProtoService.builder()
                 .name(name);
 
-        // Set full name
         if (packageName != null && !packageName.isEmpty()) {
             builder.fullName(packageName + "." + name);
         }
 
-        // Parse RPC methods
         List<ProtoRpcMethod> methods = rpcMethodAnalyzer.analyzeRpcMethods(body);
         builder.methods(methods);
 
-        // Check for deprecated option
         if (DEPRECATED_OPTION_PATTERN.matcher(body).find()) {
             builder.deprecated(true);
         }
 
-        // Parse service-level options
         Map<String, String> options = parseServiceOptions(body);
         builder.options(options);
 
         return builder.build();
     }
 
-    /**
-     * Find service blocks handling nested braces.
-     */
     private List<ServiceBlock> findServiceBlocks(String content) {
         List<ServiceBlock> blocks = new ArrayList<>();
 
         Matcher startMatcher = SERVICE_START_PATTERN.matcher(content);
         while (startMatcher.find()) {
             String serviceName = startMatcher.group(1);
-            int startIndex = startMatcher.end() - 1; // Position of opening brace
+            int startIndex = startMatcher.end() - 1; 
 
-            // Find the matching closing brace
             int braceCount = 1;
             int endIndex = startIndex + 1;
 
@@ -109,7 +89,7 @@ public class ServiceAnalyzer {
             }
 
             if (braceCount == 0) {
-                // Extract the body (between braces)
+                
                 String body = content.substring(startIndex + 1, endIndex - 1);
                 blocks.add(new ServiceBlock(serviceName, body));
             }
@@ -118,9 +98,6 @@ public class ServiceAnalyzer {
         return blocks;
     }
 
-    /**
-     * Parse service-level options.
-     */
     private Map<String, String> parseServiceOptions(String serviceBody) {
         Map<String, String> options = new HashMap<>();
 
@@ -133,7 +110,6 @@ public class ServiceAnalyzer {
             String key = matcher.group(1);
             String value = matcher.group(2).trim();
 
-            // Remove quotes from string values
             if (value.startsWith("\"") && value.endsWith("\"")) {
                 value = value.substring(1, value.length() - 1);
             }
@@ -144,9 +120,6 @@ public class ServiceAnalyzer {
         return options;
     }
 
-    /**
-     * Get all message types referenced by services (inputs and outputs).
-     */
     public Set<String> getReferencedMessageTypes(List<ProtoService> services) {
         Set<String> types = new LinkedHashSet<>();
 
@@ -160,22 +133,15 @@ public class ServiceAnalyzer {
         return types;
     }
 
-    /**
-     * Strip comments from proto content.
-     */
     private String stripComments(String content) {
-        // Remove multi-line comments /* ... */
+        
         String result = content.replaceAll("/\\*[\\s\\S]*?\\*/", "");
 
-        // Remove single-line comments // ...
         result = result.replaceAll("//[^\n]*", "");
 
         return result;
     }
 
-    /**
-     * Internal class to hold service block data.
-     */
     private static class ServiceBlock {
         final String name;
         final String body;

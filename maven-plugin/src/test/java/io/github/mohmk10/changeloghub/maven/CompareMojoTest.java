@@ -44,7 +44,6 @@ class CompareMojoTest {
         mojo.setFailOnBreaking(false);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw
         mojo.execute();
     }
 
@@ -55,7 +54,6 @@ class CompareMojoTest {
         mojo.setFailOnBreaking(false);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw when failOnBreaking is false
         mojo.execute();
     }
 
@@ -66,7 +64,6 @@ class CompareMojoTest {
         mojo.setFailOnBreaking(true);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should throw MojoFailureException
         assertThatThrownBy(() -> mojo.execute())
             .isInstanceOf(MojoFailureException.class)
             .hasMessageContaining("Breaking changes detected");
@@ -79,7 +76,6 @@ class CompareMojoTest {
         mojo.setFailOnBreaking(true);
         mojo.setSkip(true);
 
-        // Should not throw when skip is true
         mojo.execute();
     }
 
@@ -179,7 +175,6 @@ class CompareMojoTest {
         mojo.setVerbose(true);
         mojo.setOutputDirectory(tempDir.toFile());
 
-        // Should not throw
         mojo.execute();
     }
 

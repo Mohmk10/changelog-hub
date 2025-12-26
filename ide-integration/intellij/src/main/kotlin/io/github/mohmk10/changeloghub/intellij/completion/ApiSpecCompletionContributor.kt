@@ -6,13 +6,9 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import io.github.mohmk10.changeloghub.intellij.util.Icons
 
-/**
- * Completion contributor for API specification files.
- */
 class ApiSpecCompletionContributor : CompletionContributor() {
 
     init {
-        // HTTP methods completion
         extend(
             CompletionType.BASIC,
             PlatformPatterns.psiElement(),
@@ -27,7 +23,6 @@ class ApiSpecCompletionContributor : CompletionContributor() {
 
                     val prefix = result.prefixMatcher.prefix.lowercase()
 
-                    // HTTP methods
                     val httpMethods = listOf("get", "post", "put", "delete", "patch", "options", "head")
                     httpMethods.filter { it.startsWith(prefix) }.forEach { method ->
                         result.addElement(
@@ -38,7 +33,6 @@ class ApiSpecCompletionContributor : CompletionContributor() {
                         )
                     }
 
-                    // Common OpenAPI keys
                     val openApiKeys = listOf(
                         "openapi" to "OpenAPI version",
                         "info" to "API information",

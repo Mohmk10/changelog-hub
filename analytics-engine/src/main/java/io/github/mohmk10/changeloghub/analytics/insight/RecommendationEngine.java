@@ -8,18 +8,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Generates recommendations based on API metrics and analysis.
- */
 public class RecommendationEngine {
 
-    /**
-     * Generate recommendations based on metrics and stability.
-     *
-     * @param metrics API metrics
-     * @param stability stability score
-     * @return list of recommendations
-     */
     public List<Recommendation> generateRecommendations(ApiMetrics metrics, StabilityScore stability) {
         List<Recommendation> recommendations = new ArrayList<>();
 
@@ -31,7 +21,6 @@ public class RecommendationEngine {
             recommendations.addAll(generateMetricsRecommendations(metrics));
         }
 
-        // Sort by efficiency (impact/effort) and limit
         recommendations.sort(Comparator.comparingDouble(Recommendation::getEfficiencyScore).reversed());
         if (recommendations.size() > AnalyticsConstants.MAX_RECOMMENDATIONS_PER_REPORT) {
             recommendations = new ArrayList<>(
@@ -41,12 +30,6 @@ public class RecommendationEngine {
         return recommendations;
     }
 
-    /**
-     * Generate recommendations for poor stability.
-     *
-     * @param stability stability score
-     * @return list of recommendations
-     */
     public List<Recommendation> recommendForPoorStability(StabilityScore stability) {
         List<Recommendation> recommendations = new ArrayList<>();
 
@@ -91,12 +74,6 @@ public class RecommendationEngine {
         return recommendations;
     }
 
-    /**
-     * Generate recommendations for high technical debt.
-     *
-     * @param debt technical debt analysis
-     * @return list of recommendations
-     */
     public List<Recommendation> recommendForHighDebt(TechnicalDebt debt) {
         List<Recommendation> recommendations = new ArrayList<>();
 

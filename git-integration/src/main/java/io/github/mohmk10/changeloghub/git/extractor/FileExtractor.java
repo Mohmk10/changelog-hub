@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Extracts file content from Git repository at specific references.
- */
 public class FileExtractor {
 
     private static final Logger logger = LoggerFactory.getLogger(FileExtractor.class);
@@ -39,13 +36,6 @@ public class FileExtractor {
         this.config = config;
     }
 
-    /**
-     * Extract file content at a specific Git reference.
-     *
-     * @param filePath the file path relative to repository root
-     * @param ref the Git reference (branch, tag, or commit SHA)
-     * @return the file content, or empty if not found
-     */
     public Optional<GitFileContent> extractFile(String filePath, String ref) {
         try {
             ObjectId refId = resolveRef(ref);
@@ -81,7 +71,6 @@ public class FileExtractor {
                     ObjectLoader loader = repository.open(objectId);
                     byte[] bytes = loader.getBytes();
 
-                    // Check file size limit
                     if (bytes.length > config.getMaxFileSizeBytes()) {
                         logger.warn("File too large: {} ({} bytes)", filePath, bytes.length);
                         return Optional.of(GitFileContent.builder()
@@ -89,7 +78,7 @@ public class FileExtractor {
                             .ref(ref)
                             .commitId(commit.getName())
                             .exists(true)
-                            .bytes(new byte[0]) // Don't load content
+                            .bytes(new byte[0]) 
                             .build());
                     }
 
@@ -108,9 +97,6 @@ public class FileExtractor {
         }
     }
 
-    /**
-     * Extract multiple files at a specific reference.
-     */
     public List<GitFileContent> extractFiles(List<String> filePaths, String ref) {
         List<GitFileContent> results = new ArrayList<>();
         for (String filePath : filePaths) {
@@ -119,9 +105,6 @@ public class FileExtractor {
         return results;
     }
 
-    /**
-     * List all files in a directory at a specific reference.
-     */
     public List<String> listFiles(String directoryPath, String ref) {
         List<String> files = new ArrayList<>();
 
@@ -159,33 +142,21 @@ public class FileExtractor {
         return files;
     }
 
-    /**
-     * List all files at repository root.
-     */
     public List<String> listAllFiles(String ref) {
         return listFiles(null, ref);
     }
 
-    /**
-     * Check if a file exists at a specific reference.
-     */
     public boolean fileExists(String filePath, String ref) {
         Optional<GitFileContent> content = extractFile(filePath, ref);
         return content.isPresent() && content.get().exists();
     }
 
-    /**
-     * Get file content as string (UTF-8).
-     */
     public Optional<String> getFileContentAsString(String filePath, String ref) {
         return extractFile(filePath, ref)
             .filter(GitFileContent::exists)
             .map(GitFileContent::getContent);
     }
 
-    /**
-     * Find files matching a pattern at a specific reference.
-     */
     public List<String> findFiles(String pattern, String ref) {
         List<String> allFiles = listAllFiles(ref);
         List<String> matched = new ArrayList<>();
@@ -199,20 +170,14 @@ public class FileExtractor {
         return matched;
     }
 
-    /**
-     * Find files by extension at a specific reference.
-     */
     public List<String> findFilesByExtension(String extension, String ref) {
         return findFiles("*." + extension, ref);
     }
 
-    /**
-     * Resolve a reference to an ObjectId.
-     */
     private ObjectId resolveRef(String ref) throws IOException {
         ObjectId objectId = repository.resolve(ref);
         if (objectId == null) {
-            // Try common prefixes
+            
             objectId = repository.resolve("refs/heads/" + ref);
             if (objectId == null) {
                 objectId = repository.resolve("refs/tags/" + ref);
@@ -224,9 +189,6 @@ public class FileExtractor {
         return objectId;
     }
 
-    /**
-     * Simple pattern matching (supports * wildcard).
-     */
     private boolean matchesPattern(String path, String pattern) {
         if (pattern == null || pattern.isEmpty()) {
             return true;

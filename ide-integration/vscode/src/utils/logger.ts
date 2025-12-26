@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 
 let outputChannel: vscode.OutputChannel;
 
-/**
- * Initialize the output channel
- */
 function getOutputChannel(): vscode.OutputChannel {
   if (!outputChannel) {
     outputChannel = vscode.window.createOutputChannel('Changelog Hub');
@@ -12,9 +9,6 @@ function getOutputChannel(): vscode.OutputChannel {
   return outputChannel;
 }
 
-/**
- * Logger utility for the extension
- */
 export class Logger {
   private static formatMessage(level: string, message: string): string {
     const timestamp = new Date().toISOString();

@@ -564,7 +564,7 @@ class DefaultGrpcParserTest {
             assertEquals(3, stats.get("messages"));
             assertEquals(1, stats.get("enums"));
             assertEquals(2, stats.get("rpcMethods"));
-            assertEquals(5, stats.get("fields")); // 3 + 1 + 1
+            assertEquals(5, stats.get("fields")); 
         }
     }
 }

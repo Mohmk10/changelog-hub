@@ -8,9 +8,6 @@ import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 
-/**
- * Settings UI for the Changelog Hub plugin.
- */
 class ChangelogHubConfigurable(private val project: Project) : Configurable {
 
     private val settings = project.getService(ChangelogHubSettings::class.java)

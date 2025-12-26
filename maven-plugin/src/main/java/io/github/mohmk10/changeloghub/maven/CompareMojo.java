@@ -12,36 +12,18 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 
-/**
- * Compare two API specifications and detect breaking changes.
- *
- * Usage: mvn changelog:compare -Dchangelog.oldSpec=old.yaml -Dchangelog.newSpec=new.yaml
- */
 @Mojo(name = "compare", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class CompareMojo extends AbstractChangelogMojo {
 
-    /**
-     * The old (baseline) API specification file.
-     */
     @Parameter(property = "changelog.oldSpec", required = true)
     private File oldSpec;
 
-    /**
-     * The new API specification file to compare against the baseline.
-     */
     @Parameter(property = "changelog.newSpec", required = true)
     private File newSpec;
 
-    /**
-     * Fail the build if breaking changes are detected.
-     */
     @Parameter(property = "changelog.failOnBreaking", defaultValue = "false")
     private boolean failOnBreaking;
 
-    /**
-     * Output file for the changelog report.
-     * If not specified, output goes to the outputDirectory.
-     */
     @Parameter(property = "changelog.outputFile")
     private File outputFile;
 
@@ -56,31 +38,24 @@ public class CompareMojo extends AbstractChangelogMojo {
         logVerbose("Old spec: " + oldSpec.getAbsolutePath());
         logVerbose("New spec: " + newSpec.getAbsolutePath());
 
-        // Validate input files
         validateFileExists(oldSpec, "Old API specification");
         validateFileExists(newSpec, "New API specification");
 
-        // Parse specifications
         ApiSpec oldApiSpec = parseSpec(oldSpec, "old");
         ApiSpec newApiSpec = parseSpec(newSpec, "new");
 
         logVerbose("Old API: " + oldApiSpec.getName() + " v" + oldApiSpec.getVersion());
         logVerbose("New API: " + newApiSpec.getName() + " v" + newApiSpec.getVersion());
 
-        // Generate changelog
         Changelog changelog = getChangelogGenerator().generate(oldApiSpec, newApiSpec);
 
-        // Generate report
         Reporter reporter = getReporter();
         String report = reporter.report(changelog);
 
-        // Write output
         writeOutput(report, changelog);
 
-        // Log summary
         logSummary(changelog);
 
-        // Fail if breaking changes and failOnBreaking is true
         if (failOnBreaking && !changelog.getBreakingChanges().isEmpty()) {
             throw new MojoFailureException("Breaking changes detected! Found " +
                 changelog.getBreakingChanges().size() + " breaking change(s). " +
@@ -108,7 +83,7 @@ public class CompareMojo extends AbstractChangelogMojo {
             writeFile(output, report);
             getLog().info("Changelog written to: " + output.getAbsolutePath());
         } else {
-            // Console output
+            
             getLog().info("");
             getLog().info(report);
         }
@@ -148,7 +123,6 @@ public class CompareMojo extends AbstractChangelogMojo {
         getLog().info("-------------------------------------------");
     }
 
-    // Setters for testing
     public void setOldSpec(File oldSpec) {
         this.oldSpec = oldSpec;
     }

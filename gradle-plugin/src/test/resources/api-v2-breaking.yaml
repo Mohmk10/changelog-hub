@@ -11,7 +11,7 @@ servers:
   - url: https://api.petstore.example.com/v2
 
 paths:
-  # BREAKING: Path changed from /pets to /animals
+
   /animals:
     get:
       operationId: listAnimals
@@ -37,7 +37,7 @@ paths:
             type: integer
             format: int32
             default: 0
-        # BREAKING: New required parameter added
+
         - name: species
           in: query
           description: Filter by species
@@ -90,7 +90,7 @@ paths:
       tags:
         - animals
       parameters:
-        # BREAKING: Parameter type changed from integer to string (UUID)
+
         - name: animalId
           in: path
           description: The ID of the animal to retrieve
@@ -110,7 +110,6 @@ paths:
         "500":
           description: Internal server error
 
-    # BREAKING: PUT method removed, replaced with PATCH
     patch:
       operationId: patchAnimal
       summary: Partially update an animal
@@ -167,9 +166,6 @@ paths:
         "500":
           description: Internal server error
 
-  # BREAKING: /stores endpoint removed
-
-  # New endpoint added
   /categories:
     get:
       operationId: listCategories
@@ -189,7 +185,7 @@ paths:
 
 components:
   schemas:
-    # BREAKING: Schema renamed from Pet to Animal with property changes
+
     Animal:
       type: object
       required:

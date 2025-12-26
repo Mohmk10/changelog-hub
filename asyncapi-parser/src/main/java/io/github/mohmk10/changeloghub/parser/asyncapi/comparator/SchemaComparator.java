@@ -8,20 +8,8 @@ import io.github.mohmk10.changeloghub.parser.asyncapi.model.AsyncSchema;
 
 import java.util.*;
 
-/**
- * Compares AsyncAPI schemas to detect changes.
- *
- * Breaking change rules:
- * - BREAKING: Required field removed, type changed incompatibly
- * - DANGEROUS: Optional field removed, schema reference changed
- * - WARNING: Field deprecated
- * - INFO: New fields, new enum values
- */
 public class SchemaComparator {
 
-    /**
-     * Compare two schemas and return detected changes.
-     */
     public List<Change> compare(String schemaName, AsyncSchema oldSchema, AsyncSchema newSchema) {
         List<Change> changes = new ArrayList<>();
 
@@ -31,21 +19,18 @@ public class SchemaComparator {
 
         String context = "schema:" + schemaName;
 
-        // Schema added
         if (oldSchema == null) {
             changes.add(createChange(context, ChangeCategory.SCHEMA, ChangeType.ADDED, Severity.INFO,
                     "Schema '" + schemaName + "' added"));
             return changes;
         }
 
-        // Schema removed
         if (newSchema == null) {
             changes.add(createChange(context, ChangeCategory.SCHEMA, ChangeType.REMOVED, Severity.BREAKING,
                     "Schema '" + schemaName + "' removed"));
             return changes;
         }
 
-        // Type changed
         if (!Objects.equals(oldSchema.getType(), newSchema.getType())) {
             if (isCompatibleTypeChange(oldSchema.getType(), newSchema.getType())) {
                 changes.add(createChange(context, ChangeCategory.SCHEMA, ChangeType.MODIFIED, Severity.WARNING,
@@ -56,31 +41,25 @@ public class SchemaComparator {
             }
         }
 
-        // Format changed
         if (!Objects.equals(oldSchema.getFormat(), newSchema.getFormat())) {
             changes.add(createChange(context, ChangeCategory.SCHEMA, ChangeType.MODIFIED, Severity.WARNING,
                     "Schema format changed from '" + oldSchema.getFormat() + "' to '" + newSchema.getFormat() + "'"));
         }
 
-        // Reference changed
         if (!Objects.equals(oldSchema.getRef(), newSchema.getRef())) {
             changes.add(createChange(context, ChangeCategory.SCHEMA, ChangeType.MODIFIED, Severity.DANGEROUS,
                     "Schema reference changed from '" + oldSchema.getRef() + "' to '" + newSchema.getRef() + "'"));
         }
 
-        // Deprecated status changed
         if (!oldSchema.isDeprecated() && newSchema.isDeprecated()) {
             changes.add(createChange(context, ChangeCategory.SCHEMA, ChangeType.DEPRECATED, Severity.WARNING,
                     "Schema '" + schemaName + "' deprecated"));
         }
 
-        // Compare properties
         changes.addAll(compareProperties(context, oldSchema, newSchema));
 
-        // Compare enum values
         changes.addAll(compareEnumValues(context, oldSchema, newSchema));
 
-        // Compare items (for arrays)
         if (oldSchema.getItems() != null || newSchema.getItems() != null) {
             changes.addAll(compare(schemaName + ".items", oldSchema.getItems(), newSchema.getItems()));
         }
@@ -88,9 +67,6 @@ public class SchemaComparator {
         return changes;
     }
 
-    /**
-     * Compare schema properties.
-     */
     public List<Change> compareProperties(String context,
                                            AsyncSchema oldSchema, AsyncSchema newSchema) {
         List<Change> changes = new ArrayList<>();
@@ -105,7 +81,6 @@ public class SchemaComparator {
         Set<String> newRequired = newSchema.getRequiredFields() != null ?
                 new HashSet<>(newSchema.getRequiredFields()) : Collections.emptySet();
 
-        // Find removed properties
         for (String propName : oldProps.keySet()) {
             if (!newProps.containsKey(propName)) {
                 if (oldRequired.contains(propName)) {
@@ -118,7 +93,6 @@ public class SchemaComparator {
             }
         }
 
-        // Find added properties
         for (String propName : newProps.keySet()) {
             if (!oldProps.containsKey(propName)) {
                 if (newRequired.contains(propName)) {
@@ -131,10 +105,9 @@ public class SchemaComparator {
             }
         }
 
-        // Compare existing properties
         for (String propName : oldProps.keySet()) {
             if (newProps.containsKey(propName)) {
-                // Check required status changed
+                
                 boolean wasRequired = oldRequired.contains(propName);
                 boolean isRequired = newRequired.contains(propName);
 
@@ -146,7 +119,6 @@ public class SchemaComparator {
                             "Property '" + propName + "' changed from required to optional"));
                 }
 
-                // Recursively compare property schemas
                 changes.addAll(compare(context + "." + propName,
                         oldProps.get(propName), newProps.get(propName)));
             }
@@ -155,9 +127,6 @@ public class SchemaComparator {
         return changes;
     }
 
-    /**
-     * Compare enum values.
-     */
     public List<Change> compareEnumValues(String context,
                                            AsyncSchema oldSchema, AsyncSchema newSchema) {
         List<Change> changes = new ArrayList<>();
@@ -170,7 +139,6 @@ public class SchemaComparator {
         Set<String> oldSet = new HashSet<>(oldEnums);
         Set<String> newSet = new HashSet<>(newEnums);
 
-        // Find removed enum values
         for (String value : oldSet) {
             if (!newSet.contains(value)) {
                 changes.add(createChange(context, ChangeCategory.ENUM_VALUE, ChangeType.REMOVED, Severity.BREAKING,
@@ -178,7 +146,6 @@ public class SchemaComparator {
             }
         }
 
-        // Find added enum values
         for (String value : newSet) {
             if (!oldSet.contains(value)) {
                 changes.add(createChange(context, ChangeCategory.ENUM_VALUE, ChangeType.ADDED, Severity.INFO,
@@ -189,15 +156,11 @@ public class SchemaComparator {
         return changes;
     }
 
-    /**
-     * Check if type change is compatible.
-     */
     private boolean isCompatibleTypeChange(String oldType, String newType) {
         if (oldType == null || newType == null) {
             return false;
         }
 
-        // Integer to number is compatible (widening)
         if ("integer".equals(oldType) && "number".equals(newType)) {
             return true;
         }
@@ -205,9 +168,6 @@ public class SchemaComparator {
         return false;
     }
 
-    /**
-     * Create a change object.
-     */
     private Change createChange(String path, ChangeCategory category, ChangeType type,
                                   Severity severity, String description) {
         return Change.builder()
@@ -219,9 +179,6 @@ public class SchemaComparator {
                 .build();
     }
 
-    /**
-     * Compare multiple schemas.
-     */
     public List<Change> compareAll(Map<String, AsyncSchema> oldSchemas,
                                     Map<String, AsyncSchema> newSchemas) {
         List<Change> changes = new ArrayList<>();
@@ -240,9 +197,6 @@ public class SchemaComparator {
         return changes;
     }
 
-    /**
-     * Create schema signature for comparison.
-     */
     public String createSignature(AsyncSchema schema) {
         if (schema == null) {
             return "null";

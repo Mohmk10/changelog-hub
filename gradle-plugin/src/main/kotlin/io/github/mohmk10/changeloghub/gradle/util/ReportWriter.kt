@@ -10,14 +10,8 @@ import io.github.mohmk10.changeloghub.core.reporter.impl.MarkdownReporter
 import org.gradle.api.GradleException
 import java.io.File
 
-/**
- * Utility for writing changelog reports to files.
- */
 object ReportWriter {
 
-    /**
-     * Supported report formats.
-     */
     enum class Format(val extension: String) {
         CONSOLE("txt"),
         MARKDOWN("md"),
@@ -25,9 +19,6 @@ object ReportWriter {
         HTML("html")
     }
 
-    /**
-     * Get the appropriate reporter for the given format.
-     */
     fun getReporter(format: String): Reporter {
         return when (format.lowercase()) {
             "console", "text", "txt" -> ConsoleReporter()
@@ -41,9 +32,6 @@ object ReportWriter {
         }
     }
 
-    /**
-     * Get the file extension for a given format.
-     */
     fun getExtension(format: String): String {
         return when (format.lowercase()) {
             "console", "text", "txt" -> "txt"
@@ -54,15 +42,6 @@ object ReportWriter {
         }
     }
 
-    /**
-     * Write a changelog report to a file.
-     *
-     * @param outputDir Output directory
-     * @param changelog The changelog to report
-     * @param format Report format (console, markdown, json, html)
-     * @param filename Optional filename (without extension)
-     * @return The file that was written
-     */
     fun write(
         outputDir: File,
         changelog: Changelog,
@@ -81,17 +60,11 @@ object ReportWriter {
         return file
     }
 
-    /**
-     * Generate a report string for console output.
-     */
     fun generateReport(changelog: Changelog, format: String): String {
         val reporter = getReporter(format)
         return reporter.report(changelog)
     }
 
-    /**
-     * Write API analysis report to a file.
-     */
     fun writeAnalysis(
         outputDir: File,
         spec: ApiSpec,
@@ -108,9 +81,6 @@ object ReportWriter {
         return file
     }
 
-    /**
-     * Generate an analysis report for an API specification.
-     */
     fun generateAnalysisReport(spec: ApiSpec, format: String): String {
         return when (format.lowercase()) {
             "json" -> generateJsonAnalysis(spec)

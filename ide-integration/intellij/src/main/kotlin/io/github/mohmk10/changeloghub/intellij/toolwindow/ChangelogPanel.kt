@@ -14,9 +14,6 @@ import javax.swing.DefaultListModel
 import javax.swing.JList
 import javax.swing.JPanel
 
-/**
- * Panel displaying all changes in the tool window.
- */
 class ChangelogPanel(private val project: Project) {
 
     val component: JPanel = JPanel(BorderLayout())
@@ -33,7 +30,6 @@ class ChangelogPanel(private val project: Project) {
         component.add(header, BorderLayout.NORTH)
         component.add(JBScrollPane(list), BorderLayout.CENTER)
 
-        // Initial message
         listModel.addElement(ChangelogItem(
             path = "Run 'Compare API Specs' to see changes",
             type = "",
@@ -54,7 +50,6 @@ class ChangelogPanel(private val project: Project) {
                 isPlaceholder = true
             ))
         } else {
-            // Group by severity
             val grouped = changes.groupBy { it.severity }
 
             grouped["BREAKING"]?.forEach { change ->

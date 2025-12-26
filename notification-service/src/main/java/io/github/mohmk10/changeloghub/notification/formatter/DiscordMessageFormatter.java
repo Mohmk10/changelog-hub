@@ -8,9 +8,6 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Formats messages for Discord using embeds.
- */
 public class DiscordMessageFormatter implements MessageFormatter {
 
     private static final DateTimeFormatter ISO_FORMAT = DateTimeFormatter.ISO_INSTANT;
@@ -24,28 +21,23 @@ public class DiscordMessageFormatter implements MessageFormatter {
         StringBuilder json = new StringBuilder();
         json.append("{\"embeds\": [{");
 
-        // Title
         json.append("\"title\": \"")
             .append(escapeJson(notification.getTitle() != null ? notification.getTitle() : "Notification"))
             .append("\",");
 
-        // Description
         if (notification.getMessage() != null) {
             json.append("\"description\": \"")
                 .append(escapeJson(notification.getMessage()))
                 .append("\",");
         }
 
-        // Color based on severity
         int color = getColorCode(notification.getSeverity());
         json.append("\"color\": ").append(color).append(",");
 
-        // Timestamp
         json.append("\"timestamp\": \"")
             .append(ISO_FORMAT.format(notification.getCreatedAt()))
             .append("\",");
 
-        // Footer
         json.append("\"footer\": {\"text\": \"ChangelogHub\"}");
 
         json.append("}]}");
@@ -58,14 +50,12 @@ public class DiscordMessageFormatter implements MessageFormatter {
         StringBuilder json = new StringBuilder();
         json.append("{\"embeds\": [{");
 
-        // Title
         String title = "API Changes Detected";
         if (changelog.getApiName() != null) {
             title += ": " + changelog.getApiName();
         }
         json.append("\"title\": \"").append(escapeJson(title)).append("\",");
 
-        // Description with version
         StringBuilder description = new StringBuilder();
         if (changelog.getFromVersion() != null && changelog.getToVersion() != null) {
             description.append("**Version:** `")
@@ -75,7 +65,6 @@ public class DiscordMessageFormatter implements MessageFormatter {
                 .append("`\\n\\n");
         }
 
-        // Summary
         int breakingCount = changelog.getBreakingChanges().size();
         int totalCount = changelog.getChanges().size();
 
@@ -86,13 +75,11 @@ public class DiscordMessageFormatter implements MessageFormatter {
 
         json.append("\"description\": \"").append(escapeJson(description.toString())).append("\",");
 
-        // Color
         int color = breakingCount > 0
             ? NotificationConstants.DISCORD_COLOR_BREAKING
             : NotificationConstants.DISCORD_COLOR_INFO;
         json.append("\"color\": ").append(color).append(",");
 
-        // Fields for breaking changes
         json.append("\"fields\": [");
 
         List<BreakingChange> breakingChanges = changelog.getBreakingChanges();
@@ -114,7 +101,6 @@ public class DiscordMessageFormatter implements MessageFormatter {
             json.append("}");
         }
 
-        // Add summary of other changes
         long dangerousCount = changelog.getChanges().stream()
             .filter(c -> c.getSeverity() == Severity.DANGEROUS)
             .count();
@@ -145,10 +131,8 @@ public class DiscordMessageFormatter implements MessageFormatter {
 
         json.append("],");
 
-        // Timestamp
         json.append("\"timestamp\": \"").append(ISO_FORMAT.format(Instant.now())).append("\",");
 
-        // Footer
         json.append("\"footer\": {\"text\": \"ChangelogHub\"}");
 
         json.append("}]}");

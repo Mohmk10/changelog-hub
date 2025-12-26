@@ -4,9 +4,6 @@ import io.github.mohmk10.changeloghub.intellij.model.ApiType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-/**
- * Tests for parser functionality and API type detection.
- */
 class ParserServiceTest {
 
     @Test

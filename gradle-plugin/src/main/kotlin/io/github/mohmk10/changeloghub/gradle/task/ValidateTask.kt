@@ -11,22 +11,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
 
-/**
- * Gradle task for validating an API specification file.
- *
- * Usage:
- * ```
- * ./gradlew changelogValidate --spec=api/openapi.yaml
- * ```
- *
- * Or configure via extension:
- * ```
- * changelogHub {
- *     spec = "api/openapi.yaml"
- *     strict = true
- * }
- * ```
- */
 abstract class ValidateTask : DefaultTask() {
 
     @Internal
@@ -44,17 +28,15 @@ abstract class ValidateTask : DefaultTask() {
 
     @TaskAction
     fun validate() {
-        // Check if skipped
+        
         if (extension.skip) {
             logger.lifecycle("API validation skipped (skip=true)")
             return
         }
 
-        // Resolve parameters
         val specFile = resolveSpec()
         val strict = strictOption ?: extension.strict
 
-        // Validate file exists
         validateFileExists(specFile)
 
         logger.lifecycle("Validating API specification...")
@@ -62,7 +44,7 @@ abstract class ValidateTask : DefaultTask() {
         logger.lifecycle("  Strict mode: $strict")
 
         try {
-            // Detect spec type
+            
             val specType = ParserFactory.detectSpecType(specFile)
 
             if (specType == ParserFactory.SpecType.UNKNOWN) {
@@ -74,14 +56,11 @@ abstract class ValidateTask : DefaultTask() {
 
             logger.lifecycle("  Detected type: $specType")
 
-            // Parse specification (validation happens during parsing)
             val spec = ParserFactory.parse(specFile, extension.specType)
 
-            // Additional strict validations
             val issues = mutableListOf<String>()
             val warnings = mutableListOf<String>()
 
-            // Check for missing metadata
             if (spec.name.isNullOrBlank()) {
                 if (strict) {
                     issues.add("Missing API name/title")
@@ -98,7 +77,6 @@ abstract class ValidateTask : DefaultTask() {
                 }
             }
 
-            // Check for empty spec
             if (spec.endpoints.isEmpty()) {
                 if (strict) {
                     issues.add("No endpoints defined in specification")
@@ -107,19 +85,16 @@ abstract class ValidateTask : DefaultTask() {
                 }
             }
 
-            // Check for deprecated endpoints
             val deprecatedCount = spec.endpoints.count { it.isDeprecated }
             if (deprecatedCount > 0) {
                 warnings.add("$deprecatedCount deprecated endpoint(s) found")
             }
 
-            // Check for endpoints without descriptions
             val noDescriptionCount = spec.endpoints.count { it.description.isNullOrBlank() }
             if (noDescriptionCount > 0 && strict) {
                 warnings.add("$noDescriptionCount endpoint(s) without description")
             }
 
-            // Output results
             logger.lifecycle("")
             logger.lifecycle("Validation Results:")
             logger.lifecycle("=".repeat(50))
@@ -146,7 +121,6 @@ abstract class ValidateTask : DefaultTask() {
             logger.lifecycle("  Warnings: ${warnings.size}")
             logger.lifecycle("  Errors: ${issues.size}")
 
-            // Fail if there are issues in strict mode
             if (issues.isNotEmpty()) {
                 throw GradleException(
                     "Validation failed with ${issues.size} error(s). " +

@@ -18,9 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Compares Git references and provides detailed comparison results.
- */
 public class GitRefComparator {
 
     private static final Logger logger = LoggerFactory.getLogger(GitRefComparator.class);
@@ -45,32 +42,19 @@ public class GitRefComparator {
         this.diffAnalyzer = new DiffAnalyzer(repository, config);
     }
 
-    /**
-     * Compare two Git references.
-     *
-     * @param oldRef the old reference
-     * @param newRef the new reference
-     * @return comparison result
-     */
     public RefComparison compare(String oldRef, String newRef) {
         logger.info("Comparing {} to {}", oldRef, newRef);
 
-        // Get commits between refs
         List<GitCommit> commits = commitAnalyzer.getCommitsBetween(oldRef, newRef);
 
-        // Get diff
         GitDiff diff = diffAnalyzer.getDiff(oldRef, newRef);
 
-        // Analyze commits
         CommitAnalyzer.CommitStats commitStats = commitAnalyzer.getStats(commits);
 
-        // Get diff stats
         DiffAnalyzer.DiffStats diffStats = diffAnalyzer.getStats(oldRef, newRef);
 
-        // Check for breaking changes in commits
         List<GitCommit> breakingCommits = commitAnalyzer.getBreakingChangeCommits(commits);
 
-        // Determine ref types
         GitRefType oldType = GitRefType.fromRef(oldRef);
         GitRefType newType = GitRefType.fromRef(newRef);
 
@@ -87,44 +71,32 @@ public class GitRefComparator {
         );
     }
 
-    /**
-     * Compare between tags.
-     */
     public RefComparison compareTags(String oldTag, String newTag) {
         String oldRef = oldTag.startsWith("refs/tags/") ? oldTag : "refs/tags/" + oldTag;
         String newRef = newTag.startsWith("refs/tags/") ? newTag : "refs/tags/" + newTag;
         return compare(oldRef, newRef);
     }
 
-    /**
-     * Compare between branches.
-     */
     public RefComparison compareBranches(String oldBranch, String newBranch) {
         String oldRef = oldBranch.startsWith("refs/") ? oldBranch : "refs/heads/" + oldBranch;
         String newRef = newBranch.startsWith("refs/") ? newBranch : "refs/heads/" + newBranch;
         return compare(oldRef, newRef);
     }
 
-    /**
-     * Compare a branch against the default branch.
-     */
     public RefComparison compareAgainstDefault(String branch) {
         return branchAnalyzer.getDefaultBranch()
             .map(defaultBranch -> compare(defaultBranch.getName(), branch))
             .orElse(null);
     }
 
-    /**
-     * Compare consecutive tags (e.g., v1.0.0 to v1.1.0).
-     */
     public List<RefComparison> compareConsecutiveTags() {
         List<GitTag> tags = tagAnalyzer.getTagsSortedByVersion();
         List<RefComparison> comparisons = new ArrayList<>();
 
         for (int i = 0; i < tags.size() - 1; i++) {
             RefComparison comparison = compareTags(
-                tags.get(i + 1).getName(),  // older
-                tags.get(i).getName()       // newer
+                tags.get(i + 1).getName(),  
+                tags.get(i).getName()       
             );
             comparisons.add(comparison);
         }
@@ -132,42 +104,31 @@ public class GitRefComparator {
         return comparisons;
     }
 
-    /**
-     * Get the release notes between two refs.
-     */
     public ReleaseNotes generateReleaseNotes(String oldRef, String newRef) {
         RefComparison comparison = compare(oldRef, newRef);
         return generateReleaseNotes(comparison);
     }
 
-    /**
-     * Generate release notes from a comparison.
-     */
     public ReleaseNotes generateReleaseNotes(RefComparison comparison) {
         List<GitCommit> commits = comparison.getCommits();
 
-        // Group commits by type
         Map<String, List<GitCommit>> grouped = commitAnalyzer.groupByType(commits);
 
-        // Extract features
         List<String> features = grouped.getOrDefault("feat", Collections.emptyList())
             .stream()
             .map(this::formatCommitForReleaseNotes)
             .collect(Collectors.toList());
 
-        // Extract fixes
         List<String> fixes = grouped.getOrDefault("fix", Collections.emptyList())
             .stream()
             .map(this::formatCommitForReleaseNotes)
             .collect(Collectors.toList());
 
-        // Extract breaking changes
         List<String> breakingChanges = comparison.getBreakingCommits()
             .stream()
             .map(this::formatCommitForReleaseNotes)
             .collect(Collectors.toList());
 
-        // Other changes
         List<String> other = new ArrayList<>();
         for (Map.Entry<String, List<GitCommit>> entry : grouped.entrySet()) {
             if (!"feat".equals(entry.getKey()) && !"fix".equals(entry.getKey())) {
@@ -191,10 +152,6 @@ public class GitRefComparator {
         );
     }
 
-    // ============================================================
-    // Helper Methods
-    // ============================================================
-
     private String formatCommitForReleaseNotes(GitCommit commit) {
         ConventionalCommitParser.ConventionalCommit cc =
             ConventionalCommitParser.parse(commit.getMessage());
@@ -207,13 +164,6 @@ public class GitRefComparator {
         return commit.getMessageFirstLine() + " (" + commit.getShortId() + ")";
     }
 
-    // ============================================================
-    // Nested Types
-    // ============================================================
-
-    /**
-     * Result of comparing two Git references.
-     */
     public static class RefComparison {
         private final String oldRef;
         private final String newRef;
@@ -298,9 +248,6 @@ public class GitRefComparator {
         }
     }
 
-    /**
-     * Generated release notes.
-     */
     public static class ReleaseNotes {
         private final String fromRef;
         private final String toRef;
@@ -361,9 +308,6 @@ public class GitRefComparator {
             return !breakingChanges.isEmpty();
         }
 
-        /**
-         * Format as Markdown.
-         */
         public String toMarkdown() {
             StringBuilder sb = new StringBuilder();
             sb.append("# Release Notes\n\n");

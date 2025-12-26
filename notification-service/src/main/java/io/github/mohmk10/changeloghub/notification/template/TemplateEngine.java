@@ -13,9 +13,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Simple template engine for notification messages.
- */
 public class TemplateEngine {
 
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{([^}]+)}");
@@ -26,42 +23,28 @@ public class TemplateEngine {
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 
-    /**
-     * Process a template with the given variables.
-     */
     public String process(String template, Map<String, Object> variables) {
         if (template == null) return "";
 
         String result = template;
 
-        // Process conditionals first
         result = processConditionals(result, variables);
 
-        // Then replace variables
         result = replaceVariables(result, variables);
 
         return result;
     }
 
-    /**
-     * Process a template for a notification.
-     */
     public String process(String template, Notification notification) {
         Map<String, Object> variables = buildVariables(notification);
         return process(template, variables);
     }
 
-    /**
-     * Process a template for a changelog.
-     */
     public String process(String template, Changelog changelog) {
         Map<String, Object> variables = buildVariables(changelog);
         return process(template, variables);
     }
 
-    /**
-     * Build variables map from a notification.
-     */
     public Map<String, Object> buildVariables(Notification notification) {
         Map<String, Object> vars = new HashMap<>();
 
@@ -93,9 +76,6 @@ public class TemplateEngine {
         return vars;
     }
 
-    /**
-     * Build variables map from a changelog.
-     */
     public Map<String, Object> buildVariables(Changelog changelog) {
         Map<String, Object> vars = new HashMap<>();
         vars.put("timestamp", DATE_FORMAT.format(Instant.now()));
@@ -111,7 +91,6 @@ public class TemplateEngine {
         vars.put("totalChanges", changelog.getChanges().size());
         vars.put("hasBreakingChanges", !changelog.getBreakingChanges().isEmpty());
 
-        // Build changes list summary
         StringBuilder changesList = new StringBuilder();
         int limit = Math.min(changelog.getBreakingChanges().size(), 5);
         for (int i = 0; i < limit; i++) {

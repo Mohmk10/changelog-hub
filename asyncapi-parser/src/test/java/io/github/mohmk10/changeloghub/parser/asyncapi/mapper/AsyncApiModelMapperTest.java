@@ -16,9 +16,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for AsyncApiModelMapper.
- */
 class AsyncApiModelMapperTest {
 
     private AsyncApiModelMapper mapper;
@@ -56,10 +53,6 @@ class AsyncApiModelMapperTest {
         assertNotNull(endpoints);
         assertFalse(endpoints.isEmpty());
 
-        // Each channel with publish/subscribe should generate endpoints
-        // user/created: publish + subscribe = 2 endpoints
-        // user/updated: publish = 1 endpoint
-        // user/{userId}/notifications: subscribe = 1 endpoint
         assertTrue(endpoints.size() >= 4);
     }
 
@@ -112,7 +105,6 @@ class AsyncApiModelMapperTest {
         assertNotNull(apiSpec.getMetadata());
         assertTrue(apiSpec.getMetadata().containsKey("asyncapi_version"));
 
-        // Contact info should be in metadata
         if (apiSpec.getMetadata().containsKey("contact")) {
             @SuppressWarnings("unchecked")
             Map<String, String> contact = (Map<String, String>) apiSpec.getMetadata().get("contact");
@@ -200,11 +192,9 @@ class AsyncApiModelMapperTest {
 
         assertTrue(mapper.isValidSpec(asyncSpec));
 
-        // Invalid spec (no title)
         AsyncApiSpec invalidSpec = AsyncApiSpec.builder().build();
         assertFalse(mapper.isValidSpec(invalidSpec));
 
-        // Null spec
         assertFalse(mapper.isValidSpec(null));
     }
 
@@ -231,7 +221,6 @@ class AsyncApiModelMapperTest {
         assertNotNull(endpoints);
         assertFalse(endpoints.isEmpty());
 
-        // Should have external docs in metadata
         if (asyncSpec.getExternalDocs() != null) {
             assertTrue(apiSpec.getMetadata().containsKey("externalDocsUrl"));
         }

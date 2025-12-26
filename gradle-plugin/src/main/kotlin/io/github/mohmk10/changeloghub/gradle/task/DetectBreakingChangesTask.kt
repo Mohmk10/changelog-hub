@@ -13,26 +13,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
 
-/**
- * Gradle task for detecting breaking changes between API specifications.
- * Optimized for CI/CD pipelines - fails build by default when breaking changes are found.
- *
- * Usage:
- * ```
- * ./gradlew changelogDetect --old-spec=api/v1.yaml --new-spec=api/v2.yaml
- * ```
- *
- * Or configure via extension:
- * ```
- * changelogHub {
- *     oldSpec = "api/v1.yaml"
- *     newSpec = "api/v2.yaml"
- * }
- * ```
- *
- * This task is similar to CompareTask but with failOnBreaking=true by default,
- * making it suitable for CI/CD integration where breaking changes should fail the build.
- */
 abstract class DetectBreakingChangesTask : DefaultTask() {
 
     @Internal
@@ -64,22 +44,19 @@ abstract class DetectBreakingChangesTask : DefaultTask() {
 
     @TaskAction
     fun detect() {
-        // Check if skipped
+        
         if (extension.skip) {
             logger.lifecycle("Breaking change detection skipped (skip=true)")
             return
         }
 
-        // Resolve parameters (CLI options override extension)
         val oldSpecFile = resolveOldSpec()
         val newSpecFile = resolveNewSpec()
         val format = formatOption ?: extension.format
         val outputDir = File(project.projectDir, outputDirOption ?: extension.outputDir)
 
-        // Fail on breaking unless explicitly allowed
         val failOnBreaking = !allowBreaking
 
-        // Validate files exist
         validateFile(oldSpecFile, "Old specification")
         validateFile(newSpecFile, "New specification")
 
@@ -89,7 +66,7 @@ abstract class DetectBreakingChangesTask : DefaultTask() {
         logger.lifecycle("  Fail on breaking: $failOnBreaking")
 
         try {
-            // Parse specifications
+            
             val oldSpec = ParserFactory.parse(oldSpecFile, extension.specType)
             val newSpec = ParserFactory.parse(newSpecFile, extension.specType)
 
@@ -98,13 +75,10 @@ abstract class DetectBreakingChangesTask : DefaultTask() {
                 logger.lifecycle("Parsed new spec: ${newSpec.name} v${newSpec.version}")
             }
 
-            // Create comparator
             val comparator = DefaultApiComparator()
 
-            // Compare specifications
             val changelog = comparator.compare(oldSpec, newSpec)
 
-            // Output summary to console
             logger.lifecycle("")
             logger.lifecycle("=".repeat(60))
             logger.lifecycle("BREAKING CHANGE DETECTION REPORT")
@@ -124,7 +98,6 @@ abstract class DetectBreakingChangesTask : DefaultTask() {
                 logger.lifecycle("")
             }
 
-            // Summary
             logger.lifecycle("-".repeat(40))
             logger.lifecycle("Summary:")
             logger.lifecycle("  Total changes: ${changelog.changes.size}")
@@ -132,14 +105,12 @@ abstract class DetectBreakingChangesTask : DefaultTask() {
             logger.lifecycle("  Non-breaking changes: ${changelog.changes.size - changelog.breakingChanges.size}")
             logger.lifecycle("-".repeat(40))
 
-            // Write detailed report to file
             if (format != "console") {
                 outputDir.mkdirs()
                 val reportFile = ReportWriter.write(outputDir, changelog, format, "breaking-changes")
                 logger.lifecycle("Detailed report written to: ${reportFile.absolutePath}")
             }
 
-            // Also generate full report if verbose
             if (extension.verbose && changelog.changes.isNotEmpty()) {
                 logger.lifecycle("")
                 logger.lifecycle("Full changelog:")
@@ -147,7 +118,6 @@ abstract class DetectBreakingChangesTask : DefaultTask() {
                 logger.lifecycle(report)
             }
 
-            // Fail if breaking changes detected and failOnBreaking is true
             if (failOnBreaking && changelog.breakingChanges.isNotEmpty()) {
                 throw GradleException(
                     "\n" +

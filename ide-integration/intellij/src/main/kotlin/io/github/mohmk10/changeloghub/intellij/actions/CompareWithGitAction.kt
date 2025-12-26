@@ -21,9 +21,6 @@ import io.github.mohmk10.changeloghub.intellij.util.FileUtils
 import io.github.mohmk10.changeloghub.intellij.util.Logger
 import io.github.mohmk10.changeloghub.intellij.util.showResultDialog
 
-/**
- * Action for comparing current API spec with a Git ref.
- */
 class CompareWithGitAction : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -35,7 +32,6 @@ class CompareWithGitAction : AnAction() {
             return
         }
 
-        // Get Git ref from user
         val settings = project.getService(ChangelogHubSettings::class.java)
         val gitRef = Messages.showInputDialog(
             project,
@@ -46,7 +42,6 @@ class CompareWithGitAction : AnAction() {
             null
         ) ?: return
 
-        // Compare in background
         compareWithGitInBackground(project, file, gitRef)
     }
 

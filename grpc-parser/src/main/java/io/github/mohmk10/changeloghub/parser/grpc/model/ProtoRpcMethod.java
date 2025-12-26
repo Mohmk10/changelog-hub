@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Represents a Protocol Buffers RPC method definition.
- */
 public class ProtoRpcMethod {
 
     private final String name;
@@ -61,9 +58,6 @@ public class ProtoRpcMethod {
         return options.get(key);
     }
 
-    /**
-     * Get the streaming type of this RPC method.
-     */
     public StreamType getStreamType() {
         if (clientStreaming && serverStreaming) {
             return StreamType.BIDIRECTIONAL;
@@ -76,16 +70,10 @@ public class ProtoRpcMethod {
         }
     }
 
-    /**
-     * Check if this is a streaming RPC (any direction).
-     */
     public boolean isStreaming() {
         return clientStreaming || serverStreaming;
     }
 
-    /**
-     * Get the method signature in proto format.
-     */
     public String getSignature() {
         StringBuilder sb = new StringBuilder("rpc ");
         sb.append(name).append("(");
@@ -102,9 +90,6 @@ public class ProtoRpcMethod {
         return sb.toString();
     }
 
-    /**
-     * Get the gRPC path for this method given service and package.
-     */
     public String getGrpcPath(String packageName, String serviceName) {
         if (packageName == null || packageName.isEmpty()) {
             return "/" + serviceName + "/" + name;

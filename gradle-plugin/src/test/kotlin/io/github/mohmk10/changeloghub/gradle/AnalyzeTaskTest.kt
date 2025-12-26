@@ -14,9 +14,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for AnalyzeTask.
- */
 class AnalyzeTaskTest {
 
     @TempDir
@@ -45,7 +42,6 @@ class AnalyzeTaskTest {
     fun `task skips when skip is true`() {
         task.extension.skip = true
 
-        // Should not throw even without spec file
         task.analyze()
     }
 
@@ -84,9 +80,7 @@ class AnalyzeTaskTest {
     @Test
     fun `task uses newSpec as fallback for spec`() {
         task.extension.newSpec = "api/new.yaml"
-        // spec is not set, should fall back to newSpec
 
-        // Can't directly test private resolveSpec, but we verify the extension setup
         assertEquals("api/new.yaml", task.extension.newSpec)
         assertNull(task.extension.spec)
     }

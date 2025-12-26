@@ -3,9 +3,6 @@ import { BreakingChange } from '../types';
 
 type TreeItem = BreakingChangeItem | CategoryItem | NoChangesItem;
 
-/**
- * Provides tree data for the Breaking Changes view
- */
 export class BreakingChangesProvider implements vscode.TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -38,7 +35,6 @@ export class BreakingChangesProvider implements vscode.TreeDataProvider<TreeItem
         return Promise.resolve([new NoChangesItem()]);
       }
 
-      // Group by category
       const categories = new Map<string, BreakingChange[]>();
       for (const change of this.breakingChanges) {
         const category = change.category;

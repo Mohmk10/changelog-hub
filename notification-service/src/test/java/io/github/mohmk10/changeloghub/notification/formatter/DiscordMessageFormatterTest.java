@@ -134,7 +134,6 @@ class DiscordMessageFormatterTest {
 
         String result = formatter.format(changelog);
 
-        // Should be truncated to max field value length
         assertThat(result.length()).isLessThan(longDescription.length() + 500);
     }
 }

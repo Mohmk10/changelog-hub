@@ -1,8 +1,5 @@
 import { ComparisonResult } from '../types';
 
-/**
- * Generates a report from comparison results in the specified format.
- */
 export function generateReport(result: ComparisonResult, format: string): string {
   switch (format) {
     case 'json':

@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.asyncapi.util;
 
-/**
- * Enum representing AsyncAPI specification versions.
- */
 public enum AsyncApiVersion {
     V2_0("2.0.0", 2, 0),
     V2_1("2.1.0", 2, 1),
@@ -44,9 +41,6 @@ public enum AsyncApiVersion {
         return major == 3;
     }
 
-    /**
-     * Parse a version string to AsyncApiVersion.
-     */
     public static AsyncApiVersion fromString(String versionStr) {
         if (versionStr == null || versionStr.isBlank()) {
             return UNKNOWN;
@@ -54,14 +48,12 @@ public enum AsyncApiVersion {
 
         String normalized = versionStr.trim();
 
-        // Exact match first
         for (AsyncApiVersion v : values()) {
             if (v.version.equals(normalized)) {
                 return v;
             }
         }
 
-        // Try matching major.minor pattern
         if (normalized.startsWith("2.0")) return V2_0;
         if (normalized.startsWith("2.1")) return V2_1;
         if (normalized.startsWith("2.2")) return V2_2;
@@ -71,16 +63,12 @@ public enum AsyncApiVersion {
         if (normalized.startsWith("2.6")) return V2_6;
         if (normalized.startsWith("3.0")) return V3_0;
 
-        // Fallback to major version
-        if (normalized.startsWith("2.")) return V2_6; // Default to latest 2.x
+        if (normalized.startsWith("2.")) return V2_6; 
         if (normalized.startsWith("3.")) return V3_0;
 
         return UNKNOWN;
     }
 
-    /**
-     * Check if this version is supported.
-     */
     public boolean isSupported() {
         return this != UNKNOWN && (isV2() || isV3());
     }

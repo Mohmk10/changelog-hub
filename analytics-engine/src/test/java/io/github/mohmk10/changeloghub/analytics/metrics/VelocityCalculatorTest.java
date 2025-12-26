@@ -41,7 +41,7 @@ class VelocityCalculatorTest {
 
     @Test
     void calculate_shouldCalculateChangesPerWeek() {
-        // 7 changes over 7 days = 1 change per day = 7 per week
+        
         List<Changelog> history = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         for (int i = 0; i < 7; i++) {
@@ -49,13 +49,13 @@ class VelocityCalculatorTest {
         }
 
         ChangeVelocity velocity = calculator.calculate(history);
-        // With 7 changes over 6 days, expect positive velocity
+        
         assertThat(velocity.getChangesPerWeek()).isGreaterThan(0);
     }
 
     @Test
     void calculate_shouldCalculateChangesPerMonth() {
-        // 30 changes over 30 days = 1 change per day = 30 per month
+        
         List<Changelog> history = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         for (int i = 0; i < 30; i++) {
@@ -63,13 +63,13 @@ class VelocityCalculatorTest {
         }
 
         ChangeVelocity velocity = calculator.calculate(history);
-        // With 30 changes over 29 days, expect positive velocity
+        
         assertThat(velocity.getChangesPerMonth()).isGreaterThan(0);
     }
 
     @Test
     void calculate_withAccelerating_shouldDetectAcceleration() {
-        // More frequent releases recently
+        
         List<Changelog> history = Arrays.asList(
                 createChangelog(LocalDateTime.now().minusDays(60)),
                 createChangelog(LocalDateTime.now().minusDays(50)),
@@ -81,14 +81,14 @@ class VelocityCalculatorTest {
         );
 
         ChangeVelocity velocity = calculator.calculate(history);
-        // Velocity should be calculated with positive changes
+        
         assertThat(velocity.getTotalChanges()).isGreaterThan(0);
         assertThat(velocity.getChangesPerDay()).isGreaterThan(0);
     }
 
     @Test
     void calculate_withDecelerating_shouldDetectDeceleration() {
-        // Less frequent releases recently
+        
         List<Changelog> history = Arrays.asList(
                 createChangelog(LocalDateTime.now().minusDays(60)),
                 createChangelog(LocalDateTime.now().minusDays(58)),
@@ -98,7 +98,7 @@ class VelocityCalculatorTest {
         );
 
         ChangeVelocity velocity = calculator.calculate(history);
-        // With less data, might detect deceleration or stable
+        
         assertThat(velocity.getAccelerationRate()).isLessThanOrEqualTo(0);
     }
 
@@ -117,7 +117,6 @@ class VelocityCalculatorTest {
         changelog.setGeneratedAt(generatedAt);
         changelog.setToVersion("1.0.0");
 
-        // Add one change to each changelog
         List<Change> changes = new ArrayList<>();
         Change change = new Change();
         change.setPath("/api/test");

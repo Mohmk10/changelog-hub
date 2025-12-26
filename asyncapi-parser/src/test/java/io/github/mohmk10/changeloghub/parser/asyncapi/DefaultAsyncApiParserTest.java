@@ -11,9 +11,6 @@ import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for DefaultAsyncApiParser.
- */
 class DefaultAsyncApiParserTest {
 
     private DefaultAsyncApiParser parser;
@@ -37,25 +34,21 @@ class DefaultAsyncApiParserTest {
         assertEquals(AsyncApiVersion.V2_6, spec.getAsyncApiVersion());
         assertNotNull(spec.getDescription());
 
-        // Servers
         assertNotNull(spec.getServers());
         assertEquals(2, spec.getServers().size());
         assertTrue(spec.getServers().containsKey("production"));
         assertTrue(spec.getServers().containsKey("staging"));
 
-        // Channels
         assertNotNull(spec.getChannels());
         assertEquals(3, spec.getChannels().size());
         assertTrue(spec.getChannels().containsKey("user/created"));
         assertTrue(spec.getChannels().containsKey("user/updated"));
         assertTrue(spec.getChannels().containsKey("user/{userId}/notifications"));
 
-        // Contact
         assertNotNull(spec.getContact());
         assertEquals("API Support", spec.getContact().getName());
         assertEquals("support@example.com", spec.getContact().getEmail());
 
-        // License
         assertNotNull(spec.getLicense());
         assertEquals("Apache 2.0", spec.getLicense().getName());
     }
@@ -72,27 +65,22 @@ class DefaultAsyncApiParserTest {
         assertEquals("Order Events API", spec.getTitle());
         assertEquals("1.0.0", spec.getApiVersion());
 
-        // Servers with different protocol
         assertNotNull(spec.getServers());
         AsyncServer prodServer = spec.getServers().get("production");
         assertNotNull(prodServer);
         assertEquals("amqp://rabbitmq.prod.example.com:5672", prodServer.getUrl());
 
-        // Channels
         assertEquals(6, spec.getChannels().size());
         assertTrue(spec.getChannels().containsKey("orders/placed"));
         assertTrue(spec.getChannels().containsKey("orders/{orderId}/status"));
 
-        // Components
         assertNotNull(spec.getComponents());
         assertNotNull(spec.getComponents().getMessages());
         assertEquals(5, spec.getComponents().getMessages().size());
 
-        // Tags
         assertNotNull(spec.getTags());
         assertEquals(3, spec.getTags().size());
 
-        // External docs
         assertNotNull(spec.getExternalDocs());
         assertEquals("https://docs.example.com/orders/events", spec.getExternalDocs().getUrl());
     }
@@ -125,12 +113,10 @@ class DefaultAsyncApiParserTest {
         AsyncChannel createdChannel = spec.getChannels().get("user/created");
         assertNotNull(createdChannel);
 
-        // Publish operation
         assertNotNull(createdChannel.getPublishOperation());
         assertEquals("publishUserCreated", createdChannel.getPublishOperation().getOperationId());
         assertEquals("Publish user created event", createdChannel.getPublishOperation().getSummary());
 
-        // Subscribe operation
         assertNotNull(createdChannel.getSubscribeOperation());
         assertEquals("subscribeUserCreated", createdChannel.getSubscribeOperation().getOperationId());
     }
@@ -263,7 +249,6 @@ class DefaultAsyncApiParserTest {
         assertNotNull(statusChannel);
         assertNotNull(statusChannel.getSubscribeOperation());
 
-        // The operation should have multiple messages from oneOf
         AsyncOperation subOp = statusChannel.getSubscribeOperation();
         assertNotNull(subOp);
     }

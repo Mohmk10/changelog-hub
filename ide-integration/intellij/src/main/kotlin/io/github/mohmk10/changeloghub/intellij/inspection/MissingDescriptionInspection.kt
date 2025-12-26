@@ -8,9 +8,6 @@ import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YamlPsiElementVisitor
 
-/**
- * Inspection for detecting missing descriptions in API specifications.
- */
 class MissingDescriptionInspection : LocalInspectionTool() {
 
     override fun getDisplayName(): String = "Missing description"
@@ -40,7 +37,6 @@ class MissingDescriptionInspection : LocalInspectionTool() {
 
                 val key = keyValue.keyText.lowercase()
 
-                // Check if this is an HTTP method (operation)
                 if (key in httpMethods) {
                     val value = keyValue.value
                     if (value is YAMLMapping) {
@@ -57,7 +53,6 @@ class MissingDescriptionInspection : LocalInspectionTool() {
                     }
                 }
 
-                // Check parameters
                 if (key == "parameters") {
                     val value = keyValue.value
                     if (value is org.jetbrains.yaml.psi.YAMLSequence) {

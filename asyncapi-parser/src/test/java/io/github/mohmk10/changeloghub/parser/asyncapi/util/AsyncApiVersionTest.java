@@ -7,9 +7,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for AsyncApiVersion.
- */
 class AsyncApiVersionTest {
 
     @Test

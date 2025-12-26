@@ -14,9 +14,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for CompareTask.
- */
 class CompareTaskTest {
 
     @TempDir
@@ -47,7 +44,6 @@ class CompareTaskTest {
     fun `task skips when skip is true`() {
         task.extension.skip = true
 
-        // Should not throw even without spec files
         task.compare()
     }
 
@@ -97,7 +93,6 @@ class CompareTaskTest {
         task.formatOption = "markdown"
         task.failOnBreakingOption = true
 
-        // The CLI values should take precedence (verified by resolving parameters)
         assertEquals("cli/old.yaml", task.oldSpecPath)
         assertEquals("cli/new.yaml", task.newSpecPath)
         assertEquals("markdown", task.formatOption)

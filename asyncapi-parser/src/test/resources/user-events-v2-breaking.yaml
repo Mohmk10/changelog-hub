@@ -17,10 +17,9 @@ servers:
     protocol: kafka
     protocolVersion: '3.0'
     description: Production Kafka broker
-  # BREAKING: staging server removed
 
 channels:
-  # BREAKING: Channel renamed from user/created to users/created
+
   users/created:
     description: Channel for user creation events
     publish:
@@ -42,7 +41,6 @@ channels:
       message:
         $ref: '#/components/messages/UserUpdated'
 
-  # BREAKING: Channel parameter added
   users/{userId}/events/{eventType}:
     description: User-specific event channel
     parameters:
@@ -65,8 +63,6 @@ channels:
       message:
         $ref: '#/components/messages/Notification'
 
-  # BREAKING: user/updated channel removed
-
 components:
   messages:
     UserCreated:
@@ -83,7 +79,7 @@ components:
       name: UserUpdated
       title: User Updated Event
       summary: Event emitted when a user is updated
-      # BREAKING: contentType changed
+
       contentType: application/avro
       payload:
         $ref: '#/components/schemas/UserUpdatedPayload'
@@ -102,7 +98,7 @@ components:
         - userId
         - email
         - createdAt
-        # BREAKING: New required field
+
         - firstName
       properties:
         userId:
@@ -113,7 +109,7 @@ components:
           type: string
           format: email
           description: User email address
-        # BREAKING: username removed
+
         firstName:
           type: string
           description: User first name (required now)
@@ -130,14 +126,14 @@ components:
       required:
         - userId
         - updatedAt
-        # BREAKING: New required field
+
         - version
       properties:
         userId:
-          # BREAKING: Type changed from string to integer
+
           type: integer
           format: int64
-        # BREAKING: updatedFields removed
+
         version:
           type: integer
           description: Event version for optimistic locking
@@ -160,7 +156,7 @@ components:
           enum:
             - info
             - warning
-            # BREAKING: 'error' enum value removed
+
             - critical
         message:
           type: string
@@ -177,7 +173,7 @@ components:
       required:
         - eventId
         - timestamp
-        # BREAKING: New required field
+
         - source
       properties:
         eventId:

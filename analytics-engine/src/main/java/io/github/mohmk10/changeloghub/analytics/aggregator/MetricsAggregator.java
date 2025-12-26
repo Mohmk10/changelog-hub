@@ -8,17 +8,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Aggregates API metrics over various time periods.
- */
 public class MetricsAggregator {
 
-    /**
-     * Aggregate metrics from multiple changelogs.
-     *
-     * @param changelogs list of changelogs
-     * @return aggregated metrics
-     */
     public ApiMetrics aggregate(List<Changelog> changelogs) {
         if (changelogs == null || changelogs.isEmpty()) {
             return ApiMetrics.builder().build();
@@ -50,13 +41,6 @@ public class MetricsAggregator {
                 .build();
     }
 
-    /**
-     * Aggregate metrics by time period.
-     *
-     * @param changelogs list of changelogs
-     * @param periodDays days per period
-     * @return map of period start date to aggregated metrics
-     */
     public Map<LocalDate, ApiMetrics> aggregateByPeriod(List<Changelog> changelogs, int periodDays) {
         if (changelogs == null || changelogs.isEmpty()) {
             return Collections.emptyMap();
@@ -75,32 +59,14 @@ public class MetricsAggregator {
         return result;
     }
 
-    /**
-     * Aggregate metrics by week.
-     *
-     * @param changelogs list of changelogs
-     * @return map of week start date to aggregated metrics
-     */
     public Map<LocalDate, ApiMetrics> aggregateByWeek(List<Changelog> changelogs) {
         return aggregateByPeriod(changelogs, 7);
     }
 
-    /**
-     * Aggregate metrics by month.
-     *
-     * @param changelogs list of changelogs
-     * @return map of month start date to aggregated metrics
-     */
     public Map<LocalDate, ApiMetrics> aggregateByMonth(List<Changelog> changelogs) {
         return aggregateByPeriod(changelogs, 30);
     }
 
-    /**
-     * Calculate averages from aggregated metrics.
-     *
-     * @param metricsMap map of period to metrics
-     * @return average metrics across all periods
-     */
     public ApiMetrics calculateAverages(Map<LocalDate, ApiMetrics> metricsMap) {
         if (metricsMap == null || metricsMap.isEmpty()) {
             return ApiMetrics.builder().build();

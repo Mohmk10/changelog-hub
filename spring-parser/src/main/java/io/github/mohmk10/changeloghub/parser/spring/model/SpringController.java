@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.parser.spring.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Intermediate model representing a Spring controller.
- */
 public class SpringController {
 
     private String className;

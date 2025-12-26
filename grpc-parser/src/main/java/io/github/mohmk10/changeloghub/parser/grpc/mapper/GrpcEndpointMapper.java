@@ -11,9 +11,6 @@ import io.github.mohmk10.changeloghub.parser.grpc.util.StreamType;
 
 import java.util.*;
 
-/**
- * Mapper for converting Protocol Buffers RPC methods to core Endpoint objects.
- */
 public class GrpcEndpointMapper {
 
     private final GrpcParameterMapper parameterMapper;
@@ -26,20 +23,14 @@ public class GrpcEndpointMapper {
         this.parameterMapper = parameterMapper;
     }
 
-    /**
-     * Map an RPC method to an Endpoint.
-     */
     public Endpoint mapRpcMethod(ProtoRpcMethod method, ProtoService service,
                                   String packageName, Map<String, ProtoMessage> messages) {
         String path = method.getGrpcPath(packageName, service.getName());
 
-        // Map parameters
         List<Parameter> parameters = parameterMapper.mapRpcInput(method, messages);
 
-        // Create response
         Response response = createResponse(method, messages);
 
-        // Build description
         StringBuilder description = new StringBuilder();
         description.append("gRPC method: ").append(method.getSignature());
         if (method.isStreaming()) {
@@ -49,12 +40,11 @@ public class GrpcEndpointMapper {
             description.append("\n[DEPRECATED]");
         }
 
-        // Build operation ID
         String operationId = service.getName() + "." + method.getName();
 
         return Endpoint.builder()
                 .path(path)
-                .method(HttpMethod.POST) // gRPC always uses POST
+                .method(HttpMethod.POST) 
                 .operationId(operationId)
                 .summary(method.getName())
                 .description(description.toString())
@@ -65,9 +55,6 @@ public class GrpcEndpointMapper {
                 .build();
     }
 
-    /**
-     * Map all RPC methods from a service to endpoints.
-     */
     public List<Endpoint> mapService(ProtoService service, String packageName,
                                       Map<String, ProtoMessage> messages) {
         List<Endpoint> endpoints = new ArrayList<>();
@@ -79,9 +66,6 @@ public class GrpcEndpointMapper {
         return endpoints;
     }
 
-    /**
-     * Map all services to endpoints.
-     */
     public List<Endpoint> mapServices(List<ProtoService> services, String packageName,
                                        Map<String, ProtoMessage> messages) {
         List<Endpoint> endpoints = new ArrayList<>();
@@ -93,9 +77,6 @@ public class GrpcEndpointMapper {
         return endpoints;
     }
 
-    /**
-     * Create a Response object for an RPC method.
-     */
     private Response createResponse(ProtoRpcMethod method, Map<String, ProtoMessage> messages) {
         String outputType = method.getOutputType();
         boolean isStreaming = method.isServerStreaming();
@@ -115,9 +96,6 @@ public class GrpcEndpointMapper {
         return response;
     }
 
-    /**
-     * Get the gRPC path format for a service method.
-     */
     public String getGrpcPath(String packageName, String serviceName, String methodName) {
         if (packageName == null || packageName.isEmpty()) {
             return "/" + serviceName + "/" + methodName;
@@ -125,18 +103,13 @@ public class GrpcEndpointMapper {
         return "/" + packageName + "." + serviceName + "/" + methodName;
     }
 
-    /**
-     * Extract service name from a gRPC path.
-     */
     public String extractServiceName(String grpcPath) {
         if (grpcPath == null || grpcPath.isEmpty()) {
             return null;
         }
 
-        // Remove leading slash
         String path = grpcPath.startsWith("/") ? grpcPath.substring(1) : grpcPath;
 
-        // Split by last /
         int lastSlash = path.lastIndexOf('/');
         if (lastSlash > 0) {
             String serviceFullName = path.substring(0, lastSlash);
@@ -147,9 +120,6 @@ public class GrpcEndpointMapper {
         return null;
     }
 
-    /**
-     * Extract method name from a gRPC path.
-     */
     public String extractMethodName(String grpcPath) {
         if (grpcPath == null || grpcPath.isEmpty()) {
             return null;
@@ -159,9 +129,6 @@ public class GrpcEndpointMapper {
         return lastSlash >= 0 ? grpcPath.substring(lastSlash + 1) : grpcPath;
     }
 
-    /**
-     * Create endpoint metadata map.
-     */
     public Map<String, Object> createEndpointMetadata(ProtoRpcMethod method, ProtoService service) {
         Map<String, Object> metadata = new LinkedHashMap<>();
 

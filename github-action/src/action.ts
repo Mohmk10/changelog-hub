@@ -7,21 +7,15 @@ import { postPrComment, updatePrComment } from './github/comment';
 import { createCheckRun, updateCheckRun } from './github/check';
 import { Logger } from './utils/logger';
 
-/**
- * Main action runner.
- * Orchestrates the detection of breaking changes and reporting.
- */
 export async function run(): Promise<void> {
   const logger = new Logger('Action');
 
-  // Parse and validate inputs
   logger.info('Parsing action inputs...');
   const inputs = getInputs();
   validateInputs(inputs);
 
   logger.debug('Inputs:', JSON.stringify(inputs, null, 2));
 
-  // Log configuration
   core.startGroup('Configuration');
   core.info(`Spec path: ${inputs.specPath}`);
   core.info(`Base ref: ${inputs.baseRef}`);
@@ -32,22 +26,17 @@ export async function run(): Promise<void> {
   core.info(`Create check: ${inputs.createCheck}`);
   core.endGroup();
 
-  // Detect breaking changes
   core.startGroup('Detecting API Changes');
   logger.info('Analyzing API specifications...');
   const result = await detectBreakingChanges(inputs);
   core.endGroup();
 
-  // Set outputs
   setOutputs(result);
 
-  // Log summary
   logSummary(result);
 
-  // Write GitHub Actions summary
   await writeSummary(result);
 
-  // Comment on PR if enabled and in PR context
   if (inputs.commentOnPr && github.context.payload.pull_request) {
     core.startGroup('Posting PR Comment');
     try {
@@ -68,7 +57,6 @@ export async function run(): Promise<void> {
     core.endGroup();
   }
 
-  // Create check run if enabled
   if (inputs.createCheck && inputs.githubToken) {
     core.startGroup('Creating Check Run');
     try {
@@ -88,7 +76,6 @@ export async function run(): Promise<void> {
     core.endGroup();
   }
 
-  // Determine final status
   if (inputs.failOnBreaking && result.hasBreakingChanges) {
     const message = formatFailureMessage(result);
     core.setFailed(message);
@@ -101,9 +88,6 @@ export async function run(): Promise<void> {
   }
 }
 
-/**
- * Finds an existing Changelog Hub comment on the PR
- */
 async function findExistingComment(token: string, prNumber: number): Promise<number | null> {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
@@ -120,9 +104,6 @@ async function findExistingComment(token: string, prNumber: number): Promise<num
   return existingComment?.id ?? null;
 }
 
-/**
- * Finds an existing Changelog Hub check run
- */
 async function findExistingCheckRun(token: string): Promise<number | null> {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
@@ -139,9 +120,6 @@ async function findExistingCheckRun(token: string): Promise<number | null> {
   return existingCheck?.id ?? null;
 }
 
-/**
- * Formats the failure message with details about breaking changes
- */
 function formatFailureMessage(result: import('./changelog/detector').ChangelogResult): string {
   const lines: string[] = [
     `${result.breakingChangesCount} breaking change(s) detected!`,

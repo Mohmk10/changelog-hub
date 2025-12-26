@@ -38,7 +38,6 @@ class GraphQLIntegrationTest {
         void shouldParseV1Schema() throws Exception {
             GraphQLSchema schema = parser.parseFile("src/test/resources/schemas/schema-v1.graphql");
 
-            // Verify types
             assertThat(schema.getTypes()).isNotEmpty();
             assertThat(schema.getTypes()).containsKeys("User", "Product", "Order", "Review");
             assertThat(schema.getTypes()).containsKeys("UserRole", "OrderStatus", "ProductCategory");
@@ -46,7 +45,6 @@ class GraphQLIntegrationTest {
             assertThat(schema.getTypes()).containsKey("SearchResult");
             assertThat(schema.getTypes()).containsKeys("CreateUserInput", "ProductFilter");
 
-            // Verify operations
             assertThat(schema.getQueries()).isNotEmpty();
             assertThat(schema.getMutations()).isNotEmpty();
             assertThat(schema.getSubscriptions()).isNotEmpty();
@@ -61,7 +59,6 @@ class GraphQLIntegrationTest {
             assertThat(apiSpec.getType()).isEqualTo(ApiType.GRAPHQL);
             assertThat(apiSpec.getEndpoints()).isNotEmpty();
 
-            // Verify endpoints have proper HTTP methods
             assertThat(apiSpec.getEndpoints())
                     .anyMatch(e -> e.getMethod() == HttpMethod.GET && e.getTags().contains("query"));
             assertThat(apiSpec.getEndpoints())
@@ -87,13 +84,10 @@ class GraphQLIntegrationTest {
             List<Change> breakingChanges = comparator.getBreakingChanges(changes);
             assertThat(breakingChanges).isNotEmpty();
 
-            // Verify specific breaking changes
-            // Removed operations
             assertThat(breakingChanges).anyMatch(c ->
                 c.getType() == ChangeType.REMOVED &&
                 c.getCategory() == ChangeCategory.ENDPOINT);
 
-            // Type changes
             assertThat(breakingChanges).anyMatch(c ->
                 c.getCategory() == ChangeCategory.TYPE ||
                 c.getCategory() == ChangeCategory.FIELD);
@@ -163,7 +157,6 @@ class GraphQLIntegrationTest {
 
             List<Change> changes = comparator.compare(v1, v2);
 
-            // The 'orders' query now requires userId
             assertThat(changes).anyMatch(c ->
                 c.getType() == ChangeType.MODIFIED &&
                 c.getSeverity() == Severity.BREAKING &&
@@ -185,11 +178,9 @@ class GraphQLIntegrationTest {
 
             assertThat(changes).isNotEmpty();
 
-            // Should have INFO changes for new additions
             List<Change> infoChanges = comparator.getChangesBySeverity(changes, Severity.INFO);
             assertThat(infoChanges).isNotEmpty();
 
-            // Should have WARNING changes for deprecations
             List<Change> warningChanges = comparator.getChangesBySeverity(changes, Severity.WARNING);
             assertThat(warningChanges).isNotEmpty();
         }
@@ -202,7 +193,6 @@ class GraphQLIntegrationTest {
 
             List<Change> changes = comparator.compare(v1, v2);
 
-            // New queries: userByEmail, featuredProducts, productsByCategory, orderSummary, ping, serverTime
             assertThat(changes).anyMatch(c ->
                 c.getType() == ChangeType.ADDED &&
                 c.getSeverity() == Severity.INFO &&
@@ -217,7 +207,6 @@ class GraphQLIntegrationTest {
 
             List<Change> changes = comparator.compare(v1, v2);
 
-            // New enum values: SUPPORT (UserRole), RETURNED (OrderStatus), TOYS/GARDEN (ProductCategory)
             assertThat(changes).anyMatch(c ->
                 c.getType() == ChangeType.ADDED &&
                 c.getCategory() == ChangeCategory.ENUM_VALUE &&
@@ -232,7 +221,6 @@ class GraphQLIntegrationTest {
 
             List<Change> changes = comparator.compare(v1, v2);
 
-            // Deprecations: name field on User, deleteUser mutation
             assertThat(changes).anyMatch(c ->
                 c.getSeverity() == Severity.WARNING &&
                 c.getDescription().contains("deprecated"));
@@ -246,7 +234,6 @@ class GraphQLIntegrationTest {
 
             List<Change> changes = comparator.compare(v1, v2);
 
-            // New fields: phone/avatarUrl/isActive on User, averageRating/reviewCount on Product, etc.
             assertThat(changes).anyMatch(c ->
                 c.getType() == ChangeType.ADDED &&
                 c.getCategory() == ChangeCategory.FIELD &&
@@ -261,7 +248,6 @@ class GraphQLIntegrationTest {
 
             List<Change> changes = comparator.compare(v1, v2);
 
-            // Review added to SearchResult union
             assertThat(changes).anyMatch(c ->
                 c.getType() == ChangeType.ADDED &&
                 c.getCategory() == ChangeCategory.UNION_MEMBER &&
@@ -306,26 +292,23 @@ class GraphQLIntegrationTest {
         @Test
         @DisplayName("Should complete full workflow: parse -> compare -> report")
         void shouldCompleteFullWorkflow() throws Exception {
-            // Step 1: Parse schemas
+            
             GraphQLSchema v1 = parser.parseFile("src/test/resources/schemas/schema-v1.graphql");
             GraphQLSchema v2 = parser.parseFile("src/test/resources/schemas/schema-v2-breaking.graphql");
 
             assertThat(v1).isNotNull();
             assertThat(v2).isNotNull();
 
-            // Step 2: Convert to ApiSpec
             ApiSpec apiSpec1 = mapper.mapToApiSpec(v1);
             ApiSpec apiSpec2 = mapper.mapToApiSpec(v2);
 
             assertThat(apiSpec1.getType()).isEqualTo(ApiType.GRAPHQL);
             assertThat(apiSpec2.getType()).isEqualTo(ApiType.GRAPHQL);
 
-            // Step 3: Compare schemas
             List<Change> changes = comparator.compare(v1, v2);
 
             assertThat(changes).isNotEmpty();
 
-            // Step 4: Analyze changes
             boolean hasBreaking = comparator.hasBreakingChanges(changes);
             List<Change> breakingChanges = comparator.getBreakingChanges(changes);
             Map<Severity, Long> counts = comparator.countBySeverity(changes);
@@ -334,7 +317,6 @@ class GraphQLIntegrationTest {
             assertThat(breakingChanges).isNotEmpty();
             assertThat(counts).isNotEmpty();
 
-            // Step 5: Verify change details
             for (Change change : breakingChanges) {
                 assertThat(change.getPath()).isNotBlank();
                 assertThat(change.getDescription()).isNotBlank();
@@ -345,7 +327,7 @@ class GraphQLIntegrationTest {
         @Test
         @DisplayName("Should parse and validate schema")
         void shouldParseAndValidateSchema() throws Exception {
-            // Validate that the file is a valid GraphQL schema
+            
             boolean isValid = parser.validateFile(
                     new java.io.File("src/test/resources/schemas/schema-v1.graphql"));
 
@@ -376,7 +358,6 @@ class GraphQLIntegrationTest {
                     .filter(t -> t.isObjectType())
                     .count();
 
-            // User, Product, Order, Review, PageInfo, UserConnection, UserEdge, ProductConnection, ProductEdge
             assertThat(objectTypeCount).isGreaterThanOrEqualTo(5);
         }
 
@@ -389,7 +370,6 @@ class GraphQLIntegrationTest {
                     .filter(t -> t.isEnum())
                     .count();
 
-            // UserRole, OrderStatus, ProductCategory
             assertThat(enumCount).isGreaterThanOrEqualTo(3);
         }
 
@@ -402,7 +382,6 @@ class GraphQLIntegrationTest {
                     .filter(t -> t.isInterface())
                     .count();
 
-            // Node, Timestamped
             assertThat(interfaceCount).isGreaterThanOrEqualTo(2);
         }
 
@@ -415,7 +394,6 @@ class GraphQLIntegrationTest {
                     .filter(t -> t.isUnion())
                     .count();
 
-            // SearchResult
             assertThat(unionCount).isGreaterThanOrEqualTo(1);
         }
 
@@ -428,7 +406,6 @@ class GraphQLIntegrationTest {
                     .filter(t -> t.isInputType())
                     .count();
 
-            // CreateUserInput, UpdateUserInput, ProductFilter, CreateOrderInput, PaginationInput
             assertThat(inputCount).isGreaterThanOrEqualTo(4);
         }
     }

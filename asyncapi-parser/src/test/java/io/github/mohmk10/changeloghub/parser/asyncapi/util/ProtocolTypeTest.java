@@ -7,9 +7,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for ProtocolType.
- */
 class ProtocolTypeTest {
 
     @Test
@@ -130,14 +127,12 @@ class ProtocolTypeTest {
     @Test
     @DisplayName("Should check protocol compatibility")
     void testProtocolCompatibility() {
-        // Kafka secure is compatible with Kafka
+        
         assertTrue(ProtocolType.KAFKA_SECURE.isCompatibleWith(ProtocolType.KAFKA));
         assertTrue(ProtocolType.KAFKA.isCompatibleWith(ProtocolType.KAFKA_SECURE));
 
-        // AMQPS is compatible with AMQP
         assertTrue(ProtocolType.AMQPS.isCompatibleWith(ProtocolType.AMQP));
 
-        // Kafka is not compatible with AMQP
         assertFalse(ProtocolType.KAFKA.isCompatibleWith(ProtocolType.AMQP));
     }
 }

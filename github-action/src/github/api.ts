@@ -3,9 +3,6 @@ import { Logger } from '../utils/logger';
 
 const logger = new Logger('GitHubAPI');
 
-/**
- * GitHub API client wrapper
- */
 export class GitHubApiClient {
   private octokit: ReturnType<typeof github.getOctokit>;
   private owner: string;
@@ -18,9 +15,6 @@ export class GitHubApiClient {
     this.repo = repo;
   }
 
-  /**
-   * Gets repository information
-   */
   async getRepository(): Promise<{
     owner: string;
     repo: string;
@@ -38,9 +32,6 @@ export class GitHubApiClient {
     };
   }
 
-  /**
-   * Gets pull request information
-   */
   async getPullRequest(prNumber: number): Promise<{
     number: number;
     title: string;
@@ -65,9 +56,6 @@ export class GitHubApiClient {
     };
   }
 
-  /**
-   * Lists comments on an issue/PR
-   */
   async listComments(issueNumber: number): Promise<
     Array<{
       id: number;
@@ -92,9 +80,6 @@ export class GitHubApiClient {
     }));
   }
 
-  /**
-   * Creates a comment on an issue/PR
-   */
   async createComment(issueNumber: number, body: string): Promise<number> {
     const { data } = await this.octokit.rest.issues.createComment({
       owner: this.owner,
@@ -107,9 +92,6 @@ export class GitHubApiClient {
     return data.id;
   }
 
-  /**
-   * Updates an existing comment
-   */
   async updateComment(commentId: number, body: string): Promise<void> {
     await this.octokit.rest.issues.updateComment({
       owner: this.owner,
@@ -121,9 +103,6 @@ export class GitHubApiClient {
     logger.info(`Updated comment #${commentId}`);
   }
 
-  /**
-   * Deletes a comment
-   */
   async deleteComment(commentId: number): Promise<void> {
     await this.octokit.rest.issues.deleteComment({
       owner: this.owner,
@@ -134,9 +113,6 @@ export class GitHubApiClient {
     logger.info(`Deleted comment #${commentId}`);
   }
 
-  /**
-   * Creates a check run
-   */
   async createCheckRun(params: {
     name: string;
     headSha: string;
@@ -153,7 +129,7 @@ export class GitHubApiClient {
       message: string;
     }>;
   }): Promise<number> {
-    // Transform annotations to snake_case for GitHub API
+    
     const transformedAnnotations = params.annotations?.map((a) => ({
       path: a.path,
       start_line: a.startLine,
@@ -181,9 +157,6 @@ export class GitHubApiClient {
     return data.id;
   }
 
-  /**
-   * Updates a check run
-   */
   async updateCheckRun(
     checkRunId: number,
     params: {
@@ -212,9 +185,6 @@ export class GitHubApiClient {
     logger.info(`Updated check run #${checkRunId}`);
   }
 
-  /**
-   * Lists check runs for a ref
-   */
   async listCheckRuns(ref: string): Promise<
     Array<{
       id: number;
@@ -237,9 +207,6 @@ export class GitHubApiClient {
     }));
   }
 
-  /**
-   * Gets file content from a specific ref
-   */
   async getFileContent(path: string, ref?: string): Promise<string> {
     const { data } = await this.octokit.rest.repos.getContent({
       owner: this.owner,
@@ -256,9 +223,6 @@ export class GitHubApiClient {
     return content;
   }
 
-  /**
-   * Compares two refs
-   */
   async compareCommits(
     base: string,
     head: string
@@ -293,9 +257,6 @@ export class GitHubApiClient {
     };
   }
 
-  /**
-   * Creates a release
-   */
   async createRelease(params: {
     tagName: string;
     name: string;
@@ -324,9 +285,6 @@ export class GitHubApiClient {
     };
   }
 
-  /**
-   * Gets the current context information
-   */
   static getContext(): {
     sha: string;
     ref: string;
@@ -349,17 +307,11 @@ export class GitHubApiClient {
     };
   }
 
-  /**
-   * Gets pull request number from context if available
-   */
   static getPullRequestNumber(): number | undefined {
     return github.context.payload.pull_request?.number;
   }
 }
 
-/**
- * Creates a GitHub API client with the provided token
- */
 export function createGitHubClient(token: string): GitHubApiClient {
   return new GitHubApiClient(token);
 }

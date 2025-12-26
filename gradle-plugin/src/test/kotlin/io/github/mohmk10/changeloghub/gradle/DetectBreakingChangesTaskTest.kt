@@ -15,9 +15,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Unit tests for DetectBreakingChangesTask.
- */
 class DetectBreakingChangesTaskTest {
 
     @TempDir
@@ -48,7 +45,6 @@ class DetectBreakingChangesTaskTest {
     fun `task skips when skip is true`() {
         task.extension.skip = true
 
-        // Should not throw even without spec files
         task.detect()
     }
 
@@ -130,7 +126,7 @@ class DetectBreakingChangesTaskTest {
 
     @Test
     fun `task is CI-friendly by defaulting failOnBreaking to true`() {
-        // allowBreaking = false means failOnBreaking = true
+        
         assertFalse(task.allowBreaking)
     }
 }

@@ -4,9 +4,6 @@ import io.github.mohmk10.changeloghub.intellij.util.SpecType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-/**
- * Tests for action utilities and helpers.
- */
 class ActionsTest {
 
     @Test

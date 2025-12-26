@@ -121,7 +121,6 @@ class SlackMessageFormatterTest {
 
         String result = formatter.format(changelog);
 
-        // Should mention "more" since there are more than 5
         assertThat(result).contains("more");
     }
 

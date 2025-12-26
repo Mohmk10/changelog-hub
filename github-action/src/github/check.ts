@@ -4,16 +4,8 @@ import { Logger } from '../utils/logger';
 
 const logger = new Logger('CheckRun');
 
-/** Name of the check run */
 const CHECK_RUN_NAME = 'Changelog Hub';
 
-/**
- * Creates a new GitHub Check Run with changelog results.
- *
- * @param token - GitHub token for API access
- * @param result - Changelog detection results
- * @returns Check run ID
- */
 export async function createCheckRun(token: string, result: ChangelogResult): Promise<number> {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
@@ -41,13 +33,6 @@ export async function createCheckRun(token: string, result: ChangelogResult): Pr
   return data.id;
 }
 
-/**
- * Updates an existing GitHub Check Run.
- *
- * @param token - GitHub token for API access
- * @param checkRunId - ID of the check run to update
- * @param result - Changelog detection results
- */
 export async function updateCheckRun(
   token: string,
   checkRunId: number,
@@ -76,12 +61,6 @@ export async function updateCheckRun(
   logger.info(`Updated check run #${checkRunId}`);
 }
 
-/**
- * Creates an in-progress check run.
- *
- * @param token - GitHub token for API access
- * @returns Check run ID
- */
 export async function createInProgressCheckRun(token: string): Promise<number> {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
@@ -103,12 +82,6 @@ export async function createInProgressCheckRun(token: string): Promise<number> {
   return data.id;
 }
 
-/**
- * Finds an existing Changelog Hub check run for the current SHA.
- *
- * @param token - GitHub token for API access
- * @returns Check run ID if found, null otherwise
- */
 export async function findExistingCheckRun(token: string): Promise<number | null> {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
@@ -124,15 +97,11 @@ export async function findExistingCheckRun(token: string): Promise<number | null
   return existingCheck?.id ?? null;
 }
 
-/**
- * Determines the check conclusion based on results.
- */
 function getConclusion(
   result: ChangelogResult
 ): 'success' | 'failure' | 'neutral' | 'cancelled' | 'skipped' {
   if (result.hasBreakingChanges) {
-    // Allow action.ts to decide whether to actually fail
-    // Here we mark as failure for visibility
+
     return 'failure';
   }
 
@@ -143,15 +112,12 @@ function getConclusion(
   return 'success';
 }
 
-/**
- * Formats the check run output.
- */
 function formatCheckOutput(result: ChangelogResult): {
   title: string;
   summary: string;
   text: string;
 } {
-  // Title
+  
   let title: string;
   if (result.hasBreakingChanges) {
     title = `${result.breakingChangesCount} breaking change(s) detected`;
@@ -161,7 +127,6 @@ function formatCheckOutput(result: ChangelogResult): {
     title = `${result.totalChangesCount} API change(s), no breaking changes`;
   }
 
-  // Summary
   const summaryLines: string[] = [
     '## API Change Analysis',
     '',
@@ -187,7 +152,6 @@ function formatCheckOutput(result: ChangelogResult): {
     summaryLines.push('');
   }
 
-  // Text (detailed changelog)
   const text = result.changelog;
 
   return {
@@ -197,10 +161,6 @@ function formatCheckOutput(result: ChangelogResult): {
   };
 }
 
-/**
- * Generates annotations for the check run.
- * Annotations appear inline in the diff view.
- */
 function generateAnnotations(
   result: ChangelogResult
 ): Array<{
@@ -220,19 +180,14 @@ function generateAnnotations(
     title: string;
   }> = [];
 
-  // Only create annotations for breaking changes
-  // Note: We can't determine exact line numbers without more context
-  // This is a simplified version - a full implementation would need to
-  // correlate changes back to specific file locations
-
   for (const change of result.breakingChanges.slice(0, 50)) {
-    // GitHub limits to 50 annotations
+    
     const pathParts = change.path.split(' ');
     const method = pathParts[0];
     const endpoint = pathParts[1] || change.path;
 
     annotations.push({
-      path: 'api/openapi.yaml', // Would need actual file path
+      path: 'api/openapi.yaml', 
       start_line: 1,
       end_line: 1,
       annotation_level: 'failure',
@@ -244,9 +199,6 @@ function generateAnnotations(
   return annotations;
 }
 
-/**
- * Creates a summary check run for multiple spec analyses.
- */
 export async function createSummaryCheckRun(
   token: string,
   results: ChangelogResult[]

@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.analytics.model;
 
 import java.util.Objects;
 
-/**
- * Represents a recommendation based on API analytics.
- */
 public class Recommendation {
 
     private RecommendationType type;
@@ -49,7 +46,6 @@ public class Recommendation {
         return new Builder();
     }
 
-    // Getters and Setters
     public RecommendationType getType() {
         return type;
     }

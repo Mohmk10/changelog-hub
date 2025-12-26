@@ -5,9 +5,6 @@ import io.github.mohmk10.changeloghub.core.model.ApiSpec;
 import io.github.mohmk10.changeloghub.core.model.Endpoint;
 import io.github.mohmk10.changeloghub.core.model.Parameter;
 
-/**
- * Default implementation of MetricsCalculator.
- */
 public class DefaultMetricsCalculator implements MetricsCalculator {
 
     private final ComplexityAnalyzer complexityAnalyzer;

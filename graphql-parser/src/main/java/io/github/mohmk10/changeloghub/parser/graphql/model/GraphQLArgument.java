@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.graphql.model;
 
 import java.util.Objects;
 
-/**
- * Represents a GraphQL field argument or input field.
- */
 public class GraphQLArgument {
 
     private String name;

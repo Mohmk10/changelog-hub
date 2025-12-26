@@ -23,9 +23,6 @@ import java.awt.Dimension
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-/**
- * Action for validating an API specification.
- */
 class ValidateAction : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -60,7 +57,6 @@ class ValidateAction : AnAction() {
                     indicator.text = "Validating..."
                     indicator.fraction = 0.6
 
-                    // Check for missing descriptions
                     apiSpec.endpoints.forEach { endpoint ->
                         if (endpoint.summary.isNullOrBlank() && endpoint.description.isNullOrBlank()) {
                             issues.add(ValidationIssue(
@@ -70,7 +66,6 @@ class ValidateAction : AnAction() {
                             ))
                         }
 
-                        // Check parameters
                         endpoint.parameters.forEach { param ->
                             if (param.description.isNullOrBlank()) {
                                 issues.add(ValidationIssue(

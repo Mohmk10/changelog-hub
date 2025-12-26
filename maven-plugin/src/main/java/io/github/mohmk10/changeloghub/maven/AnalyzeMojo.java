@@ -12,24 +12,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Analyze a single API specification and generate statistics.
- *
- * Usage: mvn changelog:analyze -Dchangelog.spec=api.yaml
- */
 @Mojo(name = "analyze", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class AnalyzeMojo extends AbstractChangelogMojo {
 
-    /**
-     * The API specification file to analyze.
-     */
     @Parameter(property = "changelog.spec", required = true)
     private File spec;
 
-    /**
-     * Output file for the analysis report.
-     * If not specified, output goes to the console.
-     */
     @Parameter(property = "changelog.outputFile")
     private File outputFile;
 
@@ -43,24 +31,18 @@ public class AnalyzeMojo extends AbstractChangelogMojo {
         getLog().info("Analyzing API specification...");
         logVerbose("Spec: " + spec.getAbsolutePath());
 
-        // Validate input file
         validateFileExists(spec, "API specification");
 
-        // Parse specification
         ApiSpec apiSpec = parseSpec(spec);
 
         logVerbose("API: " + apiSpec.getName() + " v" + apiSpec.getVersion());
 
-        // Analyze API
         ApiAnalysis analysis = analyzeApi(apiSpec);
 
-        // Generate output
         String report = generateReport(apiSpec, analysis);
 
-        // Write output
         writeOutput(report);
 
-        // Log summary
         logSummary(apiSpec, analysis);
     }
 
@@ -80,12 +62,11 @@ public class AnalyzeMojo extends AbstractChangelogMojo {
             analysis.totalEndpoints = apiSpec.getEndpoints().size();
 
             for (Endpoint endpoint : apiSpec.getEndpoints()) {
-                // Count deprecated
+                
                 if (endpoint.isDeprecated()) {
                     analysis.deprecatedEndpoints++;
                 }
 
-                // Count methods
                 String method = endpoint.getMethod().name();
                 analysis.methodDistribution.merge(method, 1, Integer::sum);
             }
@@ -335,16 +316,12 @@ public class AnalyzeMojo extends AbstractChangelogMojo {
         getLog().info("-------------------------------------------");
     }
 
-    /**
-     * Internal class to hold analysis results.
-     */
     private static class ApiAnalysis {
         int totalEndpoints = 0;
         int deprecatedEndpoints = 0;
         Map<String, Integer> methodDistribution = new HashMap<>();
     }
 
-    // Setters for testing
     public void setSpec(File spec) {
         this.spec = spec;
     }

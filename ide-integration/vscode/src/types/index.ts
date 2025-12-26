@@ -1,46 +1,19 @@
-/**
- * Supported API specification types
- */
 export type SpecType = 'openapi' | 'asyncapi' | 'graphql' | 'grpc' | 'unknown';
 
-/**
- * Parameter location in HTTP request
- */
 export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie' | 'body';
 
-/**
- * Change type enumeration
- */
 export type ChangeType = 'ADDED' | 'REMOVED' | 'MODIFIED' | 'DEPRECATED';
 
-/**
- * Change category
- */
 export type ChangeCategory = 'ENDPOINT' | 'PARAMETER' | 'SCHEMA' | 'SECURITY' | 'RESPONSE';
 
-/**
- * Severity levels for changes
- */
 export type ChangeSeverity = 'INFO' | 'WARNING' | 'DANGEROUS' | 'BREAKING';
 
-/**
- * Risk level for overall comparison
- */
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
-/**
- * Semantic versioning recommendation
- */
 export type SemverRecommendation = 'MAJOR' | 'MINOR' | 'PATCH' | 'NONE';
 
-/**
- * Output format options
- */
 export type OutputFormat = 'console' | 'markdown' | 'json' | 'html';
 
-/**
- * API specification structure
- */
 export interface ApiSpec {
   name: string;
   version: string;
@@ -51,9 +24,6 @@ export interface ApiSpec {
   raw: unknown;
 }
 
-/**
- * API endpoint definition
- */
 export interface Endpoint {
   id: string;
   path: string;
@@ -68,9 +38,6 @@ export interface Endpoint {
   tags: string[];
 }
 
-/**
- * API parameter definition
- */
 export interface Parameter {
   name: string;
   location: ParameterLocation;
@@ -81,9 +48,6 @@ export interface Parameter {
   schema?: string;
 }
 
-/**
- * Request body definition
- */
 export interface RequestBody {
   contentTypes: string[];
   required: boolean;
@@ -91,9 +55,6 @@ export interface RequestBody {
   description?: string;
 }
 
-/**
- * Response definition
- */
 export interface Response {
   statusCode: string;
   description: string;
@@ -101,9 +62,6 @@ export interface Response {
   schema?: string;
 }
 
-/**
- * Schema definition
- */
 export interface Schema {
   name: string;
   type: string;
@@ -112,9 +70,6 @@ export interface Schema {
   description?: string;
 }
 
-/**
- * Schema property definition
- */
 export interface SchemaProperty {
   name: string;
   type: string;
@@ -124,18 +79,12 @@ export interface SchemaProperty {
   enum?: unknown[];
 }
 
-/**
- * Security scheme definition
- */
 export interface SecurityScheme {
   name: string;
   type: string;
   description?: string;
 }
 
-/**
- * Represents a single change between API versions
- */
 export interface Change {
   type: ChangeType;
   category: ChangeCategory;
@@ -146,9 +95,6 @@ export interface Change {
   newValue?: unknown;
 }
 
-/**
- * Breaking change with migration info
- */
 export interface BreakingChange {
   type: ChangeType;
   category: ChangeCategory;
@@ -158,9 +104,6 @@ export interface BreakingChange {
   impactScore: number;
 }
 
-/**
- * Summary statistics for the comparison
- */
 export interface ComparisonSummary {
   endpointsAdded: number;
   endpointsRemoved: number;
@@ -174,9 +117,6 @@ export interface ComparisonSummary {
   parametersModified: number;
 }
 
-/**
- * Full comparison result
- */
 export interface ComparisonResult {
   apiName: string;
   fromVersion: string;
@@ -190,9 +130,6 @@ export interface ComparisonResult {
   summary: ComparisonSummary;
 }
 
-/**
- * VS Code extension configuration
- */
 export interface ExtensionConfig {
   defaultFormat: OutputFormat;
   autoDetectSpecs: boolean;
@@ -202,9 +139,6 @@ export interface ExtensionConfig {
   severityThreshold: ChangeSeverity;
 }
 
-/**
- * Tree item data for views
- */
 export interface TreeItemData {
   label: string;
   description?: string;

@@ -22,9 +22,6 @@ import javax.swing.JPanel
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 
-/**
- * Panel displaying API specifications in the project.
- */
 class ApiExplorerPanel(private val project: Project) {
 
     val component: JPanel = JPanel(BorderLayout())
@@ -40,7 +37,6 @@ class ApiExplorerPanel(private val project: Project) {
         tree.cellRenderer = ApiSpecTreeCellRenderer()
         tree.isRootVisible = true
 
-        // Double-click to open file
         tree.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
                 if (e.clickCount == 2) {
@@ -56,7 +52,6 @@ class ApiExplorerPanel(private val project: Project) {
         component.add(header, BorderLayout.NORTH)
         component.add(JBScrollPane(tree), BorderLayout.CENTER)
 
-        // Initial scan
         refreshApiSpecs()
     }
 
@@ -81,7 +76,6 @@ class ApiExplorerPanel(private val project: Project) {
     }
 
     private fun isLikelyApiSpec(file: VirtualFile): Boolean {
-        // Simple heuristic to check if file is likely an API spec
         val content = try {
             String(file.contentsToByteArray()).take(500)
         } catch (e: Exception) {

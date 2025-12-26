@@ -9,7 +9,6 @@ const execOptions: ExecSyncOptionsWithStringEncoding = {
   cwd: path.join(__dirname, '..'),
 };
 
-// Helper to run CLI commands
 function runCli(args: string): { stdout: string; exitCode: number } {
   try {
     const stdout = execSync(`node ${cliPath} ${args}`, execOptions);
@@ -23,7 +22,7 @@ function runCli(args: string): { stdout: string; exitCode: number } {
 }
 
 describe('CLI', () => {
-  // Skip these tests if CLI is not built yet
+  
   const cliExists = () => {
     try {
       require('fs').accessSync(cliPath);
@@ -107,7 +106,7 @@ describe('CLI', () => {
       const newSpec = path.join(fixturesPath, 'api-v2-compatible.yaml');
 
       const { stdout } = runCli(`compare "${oldSpec}" "${newSpec}" --format json`);
-      // Extract JSON from output (after "Comparison complete" message)
+      
       const jsonStart = stdout.indexOf('{');
       if (jsonStart !== -1) {
         const jsonStr = stdout.substring(jsonStart);

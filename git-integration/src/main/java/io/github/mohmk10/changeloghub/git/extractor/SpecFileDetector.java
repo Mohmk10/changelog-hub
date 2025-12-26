@@ -10,9 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/**
- * Detects and categorizes API specification files in a Git repository.
- */
 public class SpecFileDetector {
 
     private static final Logger logger = LoggerFactory.getLogger(SpecFileDetector.class);
@@ -20,7 +17,6 @@ public class SpecFileDetector {
     private final FileExtractor fileExtractor;
     private final GitConfig config;
 
-    // Content patterns for detection
     private static final Pattern OPENAPI_PATTERN = Pattern.compile(
         "(?s)(openapi|swagger)\\s*:\\s*['\"]?[23]\\.",
         Pattern.CASE_INSENSITIVE
@@ -60,12 +56,6 @@ public class SpecFileDetector {
         this.config = config;
     }
 
-    /**
-     * Detect all API spec files at a specific reference.
-     *
-     * @param ref the Git reference
-     * @return map of spec type to list of file paths
-     */
     public Map<SpecType, List<String>> detectSpecs(String ref) {
         Map<SpecType, List<String>> result = new EnumMap<>(SpecType.class);
         for (SpecType type : SpecType.values()) {
@@ -86,25 +76,19 @@ public class SpecFileDetector {
         return result;
     }
 
-    /**
-     * Detect the spec type of a specific file.
-     */
     public SpecType detectSpecType(String filePath, String ref) {
         String extension = getExtension(filePath);
         String fileName = getFileName(filePath);
 
-        // Quick check by extension
         SpecType byExtension = detectByExtension(extension, fileName);
         if (byExtension == SpecType.GRAPHQL || byExtension == SpecType.PROTOBUF) {
-            return byExtension; // These are unambiguous
+            return byExtension; 
         }
 
-        // For YAML/JSON files, check content
         if (isYamlOrJson(extension)) {
             return detectByContent(filePath, ref);
         }
 
-        // For Java files, check for Spring annotations
         if ("java".equals(extension)) {
             return detectSpringController(filePath, ref);
         }
@@ -112,9 +96,6 @@ public class SpecFileDetector {
         return byExtension;
     }
 
-    /**
-     * Detect spec type by file extension.
-     */
     private SpecType detectByExtension(String extension, String fileName) {
         if (extension == null) return null;
 
@@ -130,7 +111,7 @@ public class SpecFileDetector {
             case "yaml":
             case "yml":
             case "json":
-                // Check filename patterns
+                
                 String lowerName = fileName.toLowerCase();
                 if (lowerName.startsWith("openapi") || lowerName.startsWith("swagger") ||
                     lowerName.contains("openapi") || lowerName.contains("swagger")) {
@@ -139,22 +120,19 @@ public class SpecFileDetector {
                 if (lowerName.startsWith("asyncapi") || lowerName.contains("asyncapi")) {
                     return SpecType.ASYNCAPI;
                 }
-                // Need content analysis
+                
                 return null;
 
             case "java":
             case "kt":
             case "groovy":
-                return null; // Need content analysis for Spring
+                return null; 
 
             default:
                 return null;
         }
     }
 
-    /**
-     * Detect spec type by analyzing file content.
-     */
     private SpecType detectByContent(String filePath, String ref) {
         Optional<String> content = fileExtractor.getFileContentAsString(filePath, ref);
         if (content.isEmpty()) {
@@ -163,12 +141,10 @@ public class SpecFileDetector {
 
         String text = content.get();
 
-        // Check for OpenAPI/Swagger
         if (OPENAPI_PATTERN.matcher(text).find()) {
             return SpecType.OPENAPI;
         }
 
-        // Check for AsyncAPI
         if (ASYNCAPI_PATTERN.matcher(text).find()) {
             return SpecType.ASYNCAPI;
         }
@@ -176,9 +152,6 @@ public class SpecFileDetector {
         return null;
     }
 
-    /**
-     * Detect if a Java file is a Spring controller.
-     */
     private SpecType detectSpringController(String filePath, String ref) {
         Optional<String> content = fileExtractor.getFileContentAsString(filePath, ref);
         if (content.isEmpty()) {
@@ -192,44 +165,26 @@ public class SpecFileDetector {
         return null;
     }
 
-    /**
-     * Find OpenAPI spec files.
-     */
     public List<String> findOpenApiSpecs(String ref) {
         return detectSpecs(ref).get(SpecType.OPENAPI);
     }
 
-    /**
-     * Find GraphQL schema files.
-     */
     public List<String> findGraphQLSchemas(String ref) {
         return detectSpecs(ref).get(SpecType.GRAPHQL);
     }
 
-    /**
-     * Find Protobuf files.
-     */
     public List<String> findProtobufFiles(String ref) {
         return detectSpecs(ref).get(SpecType.PROTOBUF);
     }
 
-    /**
-     * Find AsyncAPI spec files.
-     */
     public List<String> findAsyncApiSpecs(String ref) {
         return detectSpecs(ref).get(SpecType.ASYNCAPI);
     }
 
-    /**
-     * Find Spring controllers.
-     */
     public List<String> findSpringControllers(String ref) {
         return detectSpecs(ref).get(SpecType.SPRING);
     }
 
-    /**
-     * Get all spec files (all types).
-     */
     public List<SpecFile> findAllSpecs(String ref) {
         List<SpecFile> specs = new ArrayList<>();
         Map<SpecType, List<String>> detected = detectSpecs(ref);
@@ -243,9 +198,6 @@ public class SpecFileDetector {
         return specs;
     }
 
-    /**
-     * Check if file path is in a spec-related directory.
-     */
     public boolean isInSpecDirectory(String filePath) {
         if (filePath == null) return false;
 
@@ -260,10 +212,6 @@ public class SpecFileDetector {
             .anyMatch(dir -> filePath.contains("/" + dir + "/") ||
                            filePath.startsWith(dir + "/"));
     }
-
-    // ============================================================
-    // Utility Methods
-    // ============================================================
 
     private String getExtension(String path) {
         if (path == null) return null;
@@ -283,13 +231,6 @@ public class SpecFileDetector {
                "json".equalsIgnoreCase(extension);
     }
 
-    // ============================================================
-    // Nested Types
-    // ============================================================
-
-    /**
-     * Types of API specifications.
-     */
     public enum SpecType {
         OPENAPI("OpenAPI/Swagger"),
         GRAPHQL("GraphQL"),
@@ -308,9 +249,6 @@ public class SpecFileDetector {
         }
     }
 
-    /**
-     * Represents a detected spec file.
-     */
     public static class SpecFile {
         private final String path;
         private final SpecType type;

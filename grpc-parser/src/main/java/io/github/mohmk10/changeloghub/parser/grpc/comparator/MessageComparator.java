@@ -11,9 +11,6 @@ import io.github.mohmk10.changeloghub.parser.grpc.model.ProtoMessage;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Comparator for detecting breaking changes in Protocol Buffers messages.
- */
 public class MessageComparator {
 
     private final FieldComparator fieldComparator;
@@ -26,9 +23,6 @@ public class MessageComparator {
         this.fieldComparator = fieldComparator;
     }
 
-    /**
-     * Compare two message lists and detect changes.
-     */
     public List<BreakingChange> compareMessages(List<ProtoMessage> oldMessages, List<ProtoMessage> newMessages,
                                                  String packagePath) {
         List<BreakingChange> changes = new ArrayList<>();
@@ -36,21 +30,18 @@ public class MessageComparator {
         Map<String, ProtoMessage> oldByName = mapByName(oldMessages);
         Map<String, ProtoMessage> newByName = mapByName(newMessages);
 
-        // Detect removed messages
         for (ProtoMessage oldMessage : oldMessages) {
             if (!newByName.containsKey(oldMessage.getName())) {
                 changes.add(createMessageRemovedChange(oldMessage, packagePath));
             }
         }
 
-        // Detect added messages
         for (ProtoMessage newMessage : newMessages) {
             if (!oldByName.containsKey(newMessage.getName())) {
                 changes.add(createMessageAddedChange(newMessage, packagePath));
             }
         }
 
-        // Detect modified messages
         for (ProtoMessage oldMessage : oldMessages) {
             ProtoMessage newMessage = newByName.get(oldMessage.getName());
             if (newMessage != null) {
@@ -64,41 +55,33 @@ public class MessageComparator {
         return changes;
     }
 
-    /**
-     * Compare two individual messages.
-     */
     public List<BreakingChange> compareMessage(ProtoMessage oldMessage, ProtoMessage newMessage, String messagePath) {
         List<BreakingChange> changes = new ArrayList<>();
 
-        // Compare fields
         changes.addAll(fieldComparator.compareFields(
                 oldMessage.getFields(),
                 newMessage.getFields(),
                 messagePath
         ));
 
-        // Compare reserved numbers (new reservations might indicate removed fields)
         Set<Integer> newReserved = new HashSet<>(newMessage.getReservedNumbers());
         newReserved.removeAll(oldMessage.getReservedNumbers());
         for (Integer reserved : newReserved) {
             changes.add(createReservedNumberAddedChange(reserved, messagePath));
         }
 
-        // Compare nested messages
         changes.addAll(compareMessages(
                 oldMessage.getNestedMessages(),
                 newMessage.getNestedMessages(),
                 messagePath
         ));
 
-        // Compare nested enums
         changes.addAll(compareEnums(
                 oldMessage.getNestedEnums(),
                 newMessage.getNestedEnums(),
                 messagePath
         ));
 
-        // Check deprecation
         if (!oldMessage.isDeprecated() && newMessage.isDeprecated()) {
             changes.add(createMessageDeprecationChange(newMessage, messagePath));
         }
@@ -106,9 +89,6 @@ public class MessageComparator {
         return changes;
     }
 
-    /**
-     * Compare two enum lists.
-     */
     public List<BreakingChange> compareEnums(List<ProtoEnum> oldEnums, List<ProtoEnum> newEnums,
                                               String parentPath) {
         List<BreakingChange> changes = new ArrayList<>();
@@ -116,21 +96,18 @@ public class MessageComparator {
         Map<String, ProtoEnum> oldByName = mapEnumsByName(oldEnums);
         Map<String, ProtoEnum> newByName = mapEnumsByName(newEnums);
 
-        // Detect removed enums
         for (ProtoEnum oldEnum : oldEnums) {
             if (!newByName.containsKey(oldEnum.getName())) {
                 changes.add(createEnumRemovedChange(oldEnum, parentPath));
             }
         }
 
-        // Detect added enums
         for (ProtoEnum newEnum : newEnums) {
             if (!oldByName.containsKey(newEnum.getName())) {
                 changes.add(createEnumAddedChange(newEnum, parentPath));
             }
         }
 
-        // Detect modified enums
         for (ProtoEnum oldEnum : oldEnums) {
             ProtoEnum newEnum = newByName.get(oldEnum.getName());
             if (newEnum != null) {
@@ -142,9 +119,6 @@ public class MessageComparator {
         return changes;
     }
 
-    /**
-     * Compare two individual enums.
-     */
     public List<BreakingChange> compareEnum(ProtoEnum oldEnum, ProtoEnum newEnum, String enumPath) {
         List<BreakingChange> changes = new ArrayList<>();
 
@@ -152,17 +126,15 @@ public class MessageComparator {
         Map<String, ProtoEnumValue> newValues = mapEnumValuesByName(newEnum.getValues());
         Map<Integer, ProtoEnumValue> oldByNumber = mapEnumValuesByNumber(oldEnum.getValues());
 
-        // Detect removed enum values
         for (ProtoEnumValue oldValue : oldEnum.getValues()) {
             if (!newValues.containsKey(oldValue.getName())) {
                 changes.add(createEnumValueRemovedChange(oldValue, enumPath));
             }
         }
 
-        // Detect added enum values
         for (ProtoEnumValue newValue : newEnum.getValues()) {
             if (!oldValues.containsKey(newValue.getName())) {
-                // Check if number was reused
+                
                 if (oldByNumber.containsKey(newValue.getNumber())) {
                     ProtoEnumValue oldValueWithSameNumber = oldByNumber.get(newValue.getNumber());
                     changes.add(createEnumValueNumberReusedChange(oldValueWithSameNumber, newValue, enumPath));
@@ -172,7 +144,6 @@ public class MessageComparator {
             }
         }
 
-        // Check for number changes
         for (ProtoEnumValue oldValue : oldEnum.getValues()) {
             ProtoEnumValue newValue = newValues.get(oldValue.getName());
             if (newValue != null && oldValue.getNumber() != newValue.getNumber()) {
@@ -180,15 +151,12 @@ public class MessageComparator {
             }
         }
 
-        // Check deprecation
         if (!oldEnum.isDeprecated() && newEnum.isDeprecated()) {
             changes.add(createEnumDeprecationChange(newEnum, enumPath));
         }
 
         return changes;
     }
-
-    // Message change creation methods
 
     private BreakingChange createMessageRemovedChange(ProtoMessage message, String packagePath) {
         String path = packagePath.isEmpty() ? message.getName() : packagePath + "." + message.getName();
@@ -260,8 +228,6 @@ public class MessageComparator {
                 .impactScore(30)
                 .build();
     }
-
-    // Enum change creation methods
 
     private BreakingChange createEnumRemovedChange(ProtoEnum protoEnum, String parentPath) {
         String path = parentPath + "." + protoEnum.getName();
@@ -395,8 +361,6 @@ public class MessageComparator {
                 .impactScore(25)
                 .build();
     }
-
-    // Helper methods
 
     private Map<String, ProtoMessage> mapByName(List<ProtoMessage> messages) {
         Map<String, ProtoMessage> map = new LinkedHashMap<>();

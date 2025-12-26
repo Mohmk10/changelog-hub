@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.notification.util;
 
 import io.github.mohmk10.changeloghub.core.model.Severity;
 
-/**
- * Types of events that can trigger notifications.
- */
 public enum EventType {
     BREAKING_CHANGE_DETECTED("Breaking Change Detected", Severity.BREAKING, true),
     DANGEROUS_CHANGE_DETECTED("Dangerous Change Detected", Severity.DANGEROUS, true),
@@ -38,34 +35,25 @@ public enum EventType {
         return critical;
     }
 
-    /**
-     * Check if this event type should trigger immediate notification.
-     */
     public boolean requiresImmediateNotification() {
         return critical;
     }
 
-    /**
-     * Get color code for this event type.
-     */
     public String getColorCode() {
         return switch (defaultSeverity) {
-            case BREAKING -> "#dc3545"; // Red
-            case DANGEROUS -> "#fd7e14"; // Orange
-            case WARNING -> "#ffc107"; // Yellow
-            case INFO -> "#28a745"; // Green
+            case BREAKING -> "#dc3545"; 
+            case DANGEROUS -> "#fd7e14"; 
+            case WARNING -> "#ffc107"; 
+            case INFO -> "#28a745"; 
         };
     }
 
-    /**
-     * Get emoji for this event type.
-     */
     public String getEmoji() {
         return switch (defaultSeverity) {
-            case BREAKING -> "\u26A0\uFE0F"; // Warning sign
-            case DANGEROUS -> "\u2757"; // Exclamation mark
-            case WARNING -> "\uD83D\uDCA1"; // Light bulb
-            case INFO -> "\u2139\uFE0F"; // Info
+            case BREAKING -> "\u26A0\uFE0F"; 
+            case DANGEROUS -> "\u2757"; 
+            case WARNING -> "\uD83D\uDCA1"; 
+            case INFO -> "\u2139\uFE0F"; 
         };
     }
 }

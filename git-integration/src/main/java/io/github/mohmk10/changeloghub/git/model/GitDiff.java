@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.git.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents the diff between two Git references.
- */
 public class GitDiff {
 
     private String oldRef;
@@ -104,16 +101,10 @@ public class GitDiff {
         this.renamedFiles.add(file);
     }
 
-    /**
-     * Get total number of changes.
-     */
     public int getTotalChanges() {
         return addedFiles.size() + modifiedFiles.size() + deletedFiles.size() + renamedFiles.size();
     }
 
-    /**
-     * Get all changed files (added, modified, deleted, renamed).
-     */
     public List<String> getAllChangedFiles() {
         List<String> all = new ArrayList<>();
         all.addAll(addedFiles);
@@ -123,17 +114,11 @@ public class GitDiff {
         return all;
     }
 
-    /**
-     * Check if there are any changes.
-     */
     public boolean hasChanges() {
         return !addedFiles.isEmpty() || !modifiedFiles.isEmpty() ||
                !deletedFiles.isEmpty() || !renamedFiles.isEmpty();
     }
 
-    /**
-     * Check if a specific file was changed.
-     */
     public boolean hasFileChanged(String filePath) {
         return addedFiles.contains(filePath) ||
                modifiedFiles.contains(filePath) ||

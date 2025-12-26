@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.analytics.exception;
 
-/**
- * Exception thrown when analytics operations fail.
- */
 public class AnalyticsException extends RuntimeException {
 
     private final ErrorCode errorCode;

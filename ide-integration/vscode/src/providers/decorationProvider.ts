@@ -1,16 +1,13 @@
 import * as vscode from 'vscode';
 import { parseSpec } from '../core/parser';
 
-/**
- * Provides text decorations for API specifications
- */
 export class DecorationProvider {
   private deprecatedDecorationType: vscode.TextEditorDecorationType;
   private endpointDecorationType: vscode.TextEditorDecorationType;
   private schemaDecorationType: vscode.TextEditorDecorationType;
 
   constructor() {
-    // Deprecated decoration - strikethrough and dimmed
+    
     this.deprecatedDecorationType = vscode.window.createTextEditorDecorationType({
       textDecoration: 'line-through',
       opacity: '0.6',
@@ -21,13 +18,11 @@ export class DecorationProvider {
       },
     });
 
-    // Endpoint decoration - subtle highlight
     this.endpointDecorationType = vscode.window.createTextEditorDecorationType({
       backgroundColor: new vscode.ThemeColor('editor.findMatchHighlightBackground'),
       borderRadius: '2px',
     });
 
-    // Schema decoration
     this.schemaDecorationType = vscode.window.createTextEditorDecorationType({
       fontWeight: 'bold',
       color: new vscode.ThemeColor('symbolIcon.classForeground'),
@@ -53,7 +48,6 @@ export class DecorationProvider {
       const endpointDecorations: vscode.DecorationOptions[] = [];
       const schemaDecorations: vscode.DecorationOptions[] = [];
 
-      // Decorate deprecated endpoints
       for (const endpoint of spec.endpoints) {
         if (endpoint.deprecated) {
           const range = this.findRange(document, endpoint.path);
@@ -68,7 +62,6 @@ export class DecorationProvider {
         }
       }
 
-      // Decorate HTTP methods
       const methodRegex = /\b(get|post|put|delete|patch|options|head):/gi;
       let match;
       while ((match = methodRegex.exec(content)) !== null) {
@@ -90,7 +83,6 @@ export class DecorationProvider {
         });
       }
 
-      // Apply decorations
       editor.setDecorations(this.deprecatedDecorationType, deprecatedDecorations);
       editor.setDecorations(this.endpointDecorationType, endpointDecorations);
       editor.setDecorations(this.schemaDecorationType, schemaDecorations);

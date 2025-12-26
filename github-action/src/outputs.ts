@@ -1,9 +1,6 @@
 import * as core from '@actions/core';
 import { ChangelogResult } from './changelog/detector';
 
-/**
- * Output keys for the GitHub Action
- */
 export enum OutputKey {
   HAS_BREAKING_CHANGES = 'has-breaking-changes',
   BREAKING_CHANGES_COUNT = 'breaking-changes-count',
@@ -16,12 +13,6 @@ export enum OutputKey {
   SUMMARY = 'summary',
 }
 
-/**
- * Sets all output values from the changelog result.
- * These outputs can be used by subsequent steps in the workflow.
- *
- * @param result - The changelog detection result
- */
 export function setOutputs(result: ChangelogResult): void {
   core.setOutput(OutputKey.HAS_BREAKING_CHANGES, result.hasBreakingChanges.toString());
   core.setOutput(OutputKey.BREAKING_CHANGES_COUNT, result.breakingChangesCount.toString());
@@ -38,9 +29,6 @@ export function setOutputs(result: ChangelogResult): void {
   core.setOutput(OutputKey.SUMMARY, generateSummary(result));
 }
 
-/**
- * Generates a brief summary of the changes
- */
 function generateSummary(result: ChangelogResult): string {
   const parts: string[] = [];
 
@@ -60,9 +48,6 @@ function generateSummary(result: ChangelogResult): string {
   return `${parts.join(', ')}. Risk: ${result.riskLevel}. Recommended: ${result.semverRecommendation}`;
 }
 
-/**
- * Writes the changelog to the GitHub Actions summary
- */
 export async function writeSummary(result: ChangelogResult): Promise<void> {
   const summary = core.summary
     .addHeading('Changelog Hub Results', 2)
@@ -90,9 +75,6 @@ export async function writeSummary(result: ChangelogResult): Promise<void> {
   await summary.write();
 }
 
-/**
- * Logs the result summary to the action output
- */
 export function logSummary(result: ChangelogResult): void {
   core.info('');
   core.info('='.repeat(60));

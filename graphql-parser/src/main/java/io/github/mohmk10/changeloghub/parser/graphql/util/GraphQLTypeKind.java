@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.graphql.util;
 
-/**
- * Enum representing the different kinds of GraphQL types.
- */
 public enum GraphQLTypeKind {
     OBJECT,
     INPUT_OBJECT,

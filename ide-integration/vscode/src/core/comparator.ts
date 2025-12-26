@@ -10,9 +10,6 @@ import {
   SemverRecommendation,
 } from '../types';
 
-/**
- * Compares two API specifications and identifies all changes.
- */
 export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResult {
   const changes: Change[] = [];
   const breakingChanges: BreakingChange[] = [];
@@ -29,26 +26,21 @@ export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResu
     parametersModified: 0,
   };
 
-  // Compare endpoints
   const endpointChanges = compareEndpoints(oldSpec.endpoints, newSpec.endpoints, summary);
   changes.push(...endpointChanges);
 
-  // Compare schemas
   const schemaChanges = compareSchemas(oldSpec.schemas, newSpec.schemas, summary);
   changes.push(...schemaChanges);
 
-  // Compare security
   const securityChanges = compareSecurity(oldSpec.security, newSpec.security);
   changes.push(...securityChanges);
 
-  // Extract breaking changes
   for (const change of changes) {
     if (change.severity === 'BREAKING') {
       breakingChanges.push(createBreakingChange(change));
     }
   }
 
-  // Calculate risk
   const riskScore = calculateRiskScore(breakingChanges, changes);
   const riskLevel = calculateRiskLevel(riskScore);
   const semverRecommendation = getSemverRecommendation(breakingChanges, changes);
@@ -76,7 +68,6 @@ function compareEndpoints(
   const oldMap = new Map(oldEndpoints.map((e) => [e.id, e]));
   const newMap = new Map(newEndpoints.map((e) => [e.id, e]));
 
-  // Removed endpoints
   for (const [id, oldEndpoint] of oldMap) {
     if (!newMap.has(id)) {
       summary.endpointsRemoved++;
@@ -91,7 +82,6 @@ function compareEndpoints(
     }
   }
 
-  // Added endpoints
   for (const [id, newEndpoint] of newMap) {
     if (!oldMap.has(id)) {
       summary.endpointsAdded++;
@@ -106,7 +96,6 @@ function compareEndpoints(
     }
   }
 
-  // Modified endpoints
   for (const [id, newEndpoint] of newMap) {
     const oldEndpoint = oldMap.get(id);
     if (oldEndpoint) {
@@ -129,7 +118,6 @@ function compareEndpointDetails(
   const changes: Change[] = [];
   const basePath = `${newEndpoint.method} ${newEndpoint.path}`;
 
-  // Check deprecation
   if (!oldEndpoint.deprecated && newEndpoint.deprecated) {
     summary.endpointsDeprecated++;
     changes.push({
@@ -141,11 +129,9 @@ function compareEndpointDetails(
     });
   }
 
-  // Compare parameters
   const oldParams = new Map(oldEndpoint.parameters.map((p) => [p.name, p]));
   const newParams = new Map(newEndpoint.parameters.map((p) => [p.name, p]));
 
-  // Removed parameters
   for (const [name, oldParam] of oldParams) {
     if (!newParams.has(name)) {
       summary.parametersRemoved++;
@@ -160,7 +146,6 @@ function compareEndpointDetails(
     }
   }
 
-  // Added parameters
   for (const [name, newParam] of newParams) {
     if (!oldParams.has(name)) {
       summary.parametersAdded++;
@@ -175,11 +160,10 @@ function compareEndpointDetails(
     }
   }
 
-  // Modified parameters
   for (const [name, newParam] of newParams) {
     const oldParam = oldParams.get(name);
     if (oldParam) {
-      // Type change
+      
       if (oldParam.type !== newParam.type) {
         summary.parametersModified++;
         changes.push({
@@ -193,7 +177,6 @@ function compareEndpointDetails(
         });
       }
 
-      // Required change
       if (!oldParam.required && newParam.required) {
         summary.parametersModified++;
         changes.push({
@@ -221,7 +204,6 @@ function compareSchemas(
   const oldMap = new Map(oldSchemas.map((s) => [s.name, s]));
   const newMap = new Map(newSchemas.map((s) => [s.name, s]));
 
-  // Removed schemas
   for (const [name] of oldMap) {
     if (!newMap.has(name)) {
       summary.schemasRemoved++;
@@ -236,7 +218,6 @@ function compareSchemas(
     }
   }
 
-  // Added schemas
   for (const [name] of newMap) {
     if (!oldMap.has(name)) {
       summary.schemasAdded++;
@@ -251,7 +232,6 @@ function compareSchemas(
     }
   }
 
-  // Modified schemas
   for (const [name, newSchema] of newMap) {
     const oldSchema = oldMap.get(name);
     if (oldSchema) {
@@ -273,7 +253,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
   const oldProps = new Map(oldSchema.properties.map((p) => [p.name, p]));
   const newProps = new Map(newSchema.properties.map((p) => [p.name, p]));
 
-  // Removed properties
   for (const [name, oldProp] of oldProps) {
     if (!newProps.has(name)) {
       changes.push({
@@ -287,7 +266,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
     }
   }
 
-  // Added properties
   for (const [name, newProp] of newProps) {
     if (!oldProps.has(name)) {
       const isRequired = newSchema.required.includes(name);
@@ -302,7 +280,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
     }
   }
 
-  // Modified properties
   for (const [name, newProp] of newProps) {
     const oldProp = oldProps.get(name);
     if (oldProp) {

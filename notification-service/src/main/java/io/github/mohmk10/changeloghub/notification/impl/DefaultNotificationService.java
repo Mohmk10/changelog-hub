@@ -13,9 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.*;
 
-/**
- * Default implementation of the notification service.
- */
 public class DefaultNotificationService implements NotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultNotificationService.class);
@@ -39,7 +36,6 @@ public class DefaultNotificationService implements NotificationService {
     private void initialize() {
         if (initialized) return;
 
-        // Initialize channels from config
         for (Map.Entry<ChannelType, ChannelConfig> entry : config.getChannels().entrySet()) {
             ChannelType type = entry.getKey();
             ChannelConfig channelConfig = entry.getValue();
@@ -51,7 +47,6 @@ public class DefaultNotificationService implements NotificationService {
             }
         }
 
-        // Initialize executor for async operations
         if (config.isAsyncEnabled()) {
             executor = Executors.newFixedThreadPool(config.getAsyncThreadPoolSize());
         }
@@ -77,7 +72,6 @@ public class DefaultNotificationService implements NotificationService {
             return NotificationResult.failure(notification.getId(), null, "Notifications disabled");
         }
 
-        // Apply filters
         for (NotificationFilter filter : config.getFilters()) {
             if (!filter.shouldSend(notification)) {
                 String reason = filter.getFilterReason(notification);
@@ -86,13 +80,11 @@ public class DefaultNotificationService implements NotificationService {
             }
         }
 
-        // Determine target channels
         Set<ChannelType> targets = notification.getTargetChannels();
         if (targets.isEmpty()) {
             targets = config.getConfiguredChannels();
         }
 
-        // Send to first successful channel
         for (ChannelType type : targets) {
             NotificationChannel channel = channels.get(type);
             if (channel != null && channel.isConfigured()) {
@@ -146,7 +138,6 @@ public class DefaultNotificationService implements NotificationService {
                 NotificationResult.failure(notification.getId(), null, "Notifications disabled"));
         }
 
-        // Apply filters
         for (NotificationFilter filter : config.getFilters()) {
             if (!filter.shouldSend(notification)) {
                 logger.debug("Notification filtered: {}", filter.getFilterReason(notification));
@@ -286,9 +277,6 @@ public class DefaultNotificationService implements NotificationService {
         return sb.toString();
     }
 
-    /**
-     * Shutdown the executor service.
-     */
     public void shutdown() {
         if (executor != null) {
             executor.shutdown();
@@ -303,16 +291,10 @@ public class DefaultNotificationService implements NotificationService {
         }
     }
 
-    /**
-     * Get a channel by type (for testing).
-     */
     NotificationChannel getChannel(ChannelType type) {
         return channels.get(type);
     }
 
-    /**
-     * Create with builder pattern.
-     */
     public static Builder builder() {
         return new Builder();
     }

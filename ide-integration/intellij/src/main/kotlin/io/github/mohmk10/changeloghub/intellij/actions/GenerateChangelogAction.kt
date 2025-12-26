@@ -30,15 +30,11 @@ import java.awt.datatransfer.StringSelection
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-/**
- * Action for generating a changelog from API spec comparison.
- */
 class GenerateChangelogAction : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
 
-        // Show format selection dialog
         val settings = project.getService(ChangelogHubSettings::class.java)
         val formatDialog = FormatSelectionDialog(project, settings.state.defaultFormat)
 
@@ -48,14 +44,12 @@ class GenerateChangelogAction : AnAction() {
 
         val selectedFormat = formatDialog.selectedFormat
 
-        // Select old spec file
         val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
             .withTitle("Select OLD API Spec")
             .withFileFilter { FileUtils.isApiSpec(it) }
 
         val oldFile = FileChooser.chooseFile(descriptor, project, null) ?: return
 
-        // Select new spec file
         val newFile = FileChooser.chooseFile(
             FileChooserDescriptorFactory.createSingleFileDescriptor()
                 .withTitle("Select NEW API Spec")
@@ -64,7 +58,6 @@ class GenerateChangelogAction : AnAction() {
             null
         ) ?: return
 
-        // Generate changelog in background
         generateChangelogInBackground(project, oldFile, newFile, selectedFormat)
     }
 
@@ -160,7 +153,6 @@ private class ChangelogDialog(
     }
 
     override fun doOKAction() {
-        // Copy to clipboard
         val selection = StringSelection(changelog)
         Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
         super.doOKAction()

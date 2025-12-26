@@ -20,9 +20,6 @@ import org.apache.hc.core5.util.Timeout;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Discord notification channel using webhooks.
- */
 public class DiscordNotifier extends AbstractNotificationChannel {
 
     private final ObjectMapper objectMapper;
@@ -62,14 +59,13 @@ public class DiscordNotifier extends AbstractNotificationChannel {
         String webhookUrl = config.getWebhookUrl();
 
         try {
-            // Build Discord webhook payload
+            
             Map<String, Object> payload = new HashMap<>();
-            payload.put("content", null); // Use embeds instead
+            payload.put("content", null); 
 
-            // The formatter returns JSON with embeds
             if (formatter instanceof DiscordMessageFormatter) {
                 String embedsJson = formattedMessage;
-                // Parse and merge with payload
+                
                 Map<String, Object> formattedPayload = objectMapper.readValue(embedsJson, Map.class);
                 payload.putAll(formattedPayload);
             } else {
@@ -150,9 +146,6 @@ public class DiscordNotifier extends AbstractNotificationChannel {
         }
     }
 
-    /**
-     * Send with Discord embeds.
-     */
     public NotificationResult sendWithEmbeds(Notification notification, String embedsJson) {
         try {
             HttpPost httpPost = new HttpPost(config.getWebhookUrl());
@@ -183,15 +176,11 @@ public class DiscordNotifier extends AbstractNotificationChannel {
         }
     }
 
-    /**
-     * Create a configured DiscordNotifier.
-     */
     public static DiscordNotifier create(String webhookUrl) {
         ChannelConfig config = ChannelConfig.discord(webhookUrl).build();
         return new DiscordNotifier(config);
     }
 
-    // Allow setting a custom HTTP client for testing
     void setHttpClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }

@@ -6,17 +6,11 @@ import io.github.mohmk10.changeloghub.intellij.model.*
 import io.github.mohmk10.changeloghub.intellij.util.Logger
 import org.yaml.snakeyaml.Yaml
 
-/**
- * Service for parsing API specifications in various formats.
- */
 @Service(Service.Level.PROJECT)
 class ParserService(private val project: Project) {
 
     private val yaml = Yaml()
 
-    /**
-     * Parse API specification content.
-     */
     fun parse(content: String, fileName: String): ApiSpec {
         val extension = fileName.substringAfterLast('.').lowercase()
 
@@ -40,7 +34,6 @@ class ParserService(private val project: Project) {
                 parseAsyncApi(content, fileName)
 
             else ->
-                // Default to OpenAPI
                 parseOpenApi(content, fileName)
         }
     }
@@ -135,7 +128,6 @@ class ParserService(private val project: Project) {
     private fun parseGraphQL(content: String, fileName: String): ApiSpec {
         val endpoints = mutableListOf<Endpoint>()
 
-        // Simple regex-based parsing for GraphQL type definitions
         val queryMatch = Regex("""type\s+Query\s*\{([^}]+)\}""").find(content)
         queryMatch?.groupValues?.getOrNull(1)?.let { queryBody ->
             Regex("""(\w+)""").findAll(queryBody).forEach { match ->
@@ -156,7 +148,6 @@ class ParserService(private val project: Project) {
     private fun parseProto(content: String, fileName: String): ApiSpec {
         val endpoints = mutableListOf<Endpoint>()
 
-        // Simple regex-based parsing for protobuf service definitions
         val serviceMatch = Regex("""service\s+(\w+)\s*\{([^}]+)\}""").findAll(content)
         serviceMatch.forEach { match ->
             val serviceName = match.groupValues[1]
@@ -170,9 +161,6 @@ class ParserService(private val project: Project) {
         return ApiSpec(fileName, "1.0.0", ApiType.GRPC, endpoints)
     }
 
-    /**
-     * Detect the type of API specification.
-     */
     fun detectType(content: String): ApiType {
         return when {
             content.contains("openapi:") || content.contains("swagger:") ||
@@ -188,9 +176,6 @@ class ParserService(private val project: Project) {
         }
     }
 
-    /**
-     * Check if content is a valid API specification.
-     */
     fun isValidSpec(content: String): Boolean {
         return try {
             detectType(content)

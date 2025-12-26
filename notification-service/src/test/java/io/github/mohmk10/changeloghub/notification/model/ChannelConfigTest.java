@@ -129,7 +129,7 @@ class ChannelConfigTest {
             .build();
 
         assertThat(config.isEnabled()).isFalse();
-        assertThat(config.isValid()).isTrue(); // Disabled configs are valid
+        assertThat(config.isValid()).isTrue(); 
     }
 
     @Test

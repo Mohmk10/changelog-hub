@@ -79,7 +79,6 @@ class GraphQLModelMapperTest {
             GraphQLSchema schema = parser.parse(sdl);
             ApiSpec apiSpec = mapper.mapToApiSpec(schema);
 
-            // 1 query + 2 mutations = 3 endpoints
             assertThat(apiSpec.getEndpoints()).hasSize(3);
         }
 
@@ -97,7 +96,6 @@ class GraphQLModelMapperTest {
             GraphQLSchema schema = parser.parse(sdl);
             ApiSpec apiSpec = mapper.mapToApiSpec(schema);
 
-            // 1 query + 1 subscription = 2 endpoints
             assertThat(apiSpec.getEndpoints()).hasSize(2);
         }
 
@@ -448,10 +446,8 @@ class GraphQLModelMapperTest {
             GraphQLSchema schema = parser.parseFile("src/test/resources/schemas/schema-v1.graphql");
             ApiSpec apiSpec = mapper.mapToApiSpec(schema);
 
-            // Verify all operations are mapped
             assertThat(apiSpec.getEndpoints()).hasSizeGreaterThan(10);
 
-            // Verify metadata
             assertThat((Integer) apiSpec.getMetadata().get("queryCount")).isGreaterThan(5);
             assertThat((Integer) apiSpec.getMetadata().get("mutationCount")).isGreaterThan(5);
             assertThat((Integer) apiSpec.getMetadata().get("subscriptionCount")).isGreaterThan(0);

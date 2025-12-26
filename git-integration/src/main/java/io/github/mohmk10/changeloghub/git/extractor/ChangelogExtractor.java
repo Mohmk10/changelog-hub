@@ -22,9 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Extracts changelogs by comparing API specs between Git references.
- */
 public class ChangelogExtractor {
 
     private static final Logger logger = LoggerFactory.getLogger(ChangelogExtractor.class);
@@ -34,18 +31,15 @@ public class ChangelogExtractor {
     private final SpecFileDetector specFileDetector;
     private final GitConfig config;
 
-    // Parsers
     private final OpenApiParser openApiParser;
     private final DefaultGraphQLParser graphQLParser;
     private final DefaultGrpcParser grpcParser;
     private final DefaultAsyncApiParser asyncApiParser;
 
-    // Mappers
     private final GraphQLModelMapper graphQLModelMapper;
     private final GrpcModelMapper grpcModelMapper;
     private final AsyncApiModelMapper asyncApiModelMapper;
 
-    // Core components
     private final ChangelogGenerator changelogGenerator;
 
     public ChangelogExtractor(Repository repository) {
@@ -58,36 +52,24 @@ public class ChangelogExtractor {
         this.fileExtractor = new FileExtractor(repository, config);
         this.specFileDetector = new SpecFileDetector(repository, config);
 
-        // Initialize parsers
         this.openApiParser = new DefaultOpenApiParser();
         this.graphQLParser = new DefaultGraphQLParser();
         this.grpcParser = new DefaultGrpcParser();
         this.asyncApiParser = new DefaultAsyncApiParser();
 
-        // Initialize mappers
         this.graphQLModelMapper = new GraphQLModelMapper();
         this.grpcModelMapper = new GrpcModelMapper();
         this.asyncApiModelMapper = new AsyncApiModelMapper();
 
-        // Initialize changelog generator
         this.changelogGenerator = new DefaultChangelogGenerator();
     }
 
-    /**
-     * Extract changelog between two Git references for all detected specs.
-     *
-     * @param oldRef the old Git reference
-     * @param newRef the new Git reference
-     * @return list of changelogs for each spec file
-     */
     public List<SpecChangelog> extractChangelogs(String oldRef, String newRef) {
         List<SpecChangelog> changelogs = new ArrayList<>();
 
-        // Detect specs in both refs
         Map<SpecFileDetector.SpecType, List<String>> oldSpecs = specFileDetector.detectSpecs(oldRef);
         Map<SpecFileDetector.SpecType, List<String>> newSpecs = specFileDetector.detectSpecs(newRef);
 
-        // Collect all unique spec files
         Set<String> allSpecFiles = new HashSet<>();
         oldSpecs.values().forEach(allSpecFiles::addAll);
         newSpecs.values().forEach(allSpecFiles::addAll);
@@ -108,9 +90,6 @@ public class ChangelogExtractor {
         return changelogs;
     }
 
-    /**
-     * Extract changelog for a specific spec file.
-     */
     public SpecChangelog extractChangelogForFile(String specPath, String oldRef, String newRef) {
         SpecFileDetector.SpecType specType = specFileDetector.detectSpecType(specPath, newRef);
         if (specType == null) {
@@ -144,8 +123,8 @@ public class ChangelogExtractor {
                 oldRef,
                 newRef,
                 changelog,
-                !oldExists, // isNew
-                !newExists  // isDeleted
+                !oldExists, 
+                !newExists  
             );
         } catch (Exception e) {
             logger.warn("Failed to parse spec: {} - {}", specPath, e.getMessage());
@@ -153,29 +132,23 @@ public class ChangelogExtractor {
         }
     }
 
-    /**
-     * Extract changelog only for changed files (using diff).
-     */
     public List<SpecChangelog> extractChangelogsForChangedFiles(GitDiff diff, String oldRef, String newRef) {
         List<SpecChangelog> changelogs = new ArrayList<>();
 
         Set<String> changedSpecFiles = new HashSet<>();
 
-        // Check added files
         for (String file : diff.getAddedFiles()) {
             if (isSpecFile(file, newRef)) {
                 changedSpecFiles.add(file);
             }
         }
 
-        // Check modified files
         for (String file : diff.getModifiedFiles()) {
             if (isSpecFile(file, newRef) || isSpecFile(file, oldRef)) {
                 changedSpecFiles.add(file);
             }
         }
 
-        // Check deleted files
         for (String file : diff.getDeletedFiles()) {
             if (isSpecFile(file, oldRef)) {
                 changedSpecFiles.add(file);
@@ -198,9 +171,6 @@ public class ChangelogExtractor {
         return changelogs;
     }
 
-    /**
-     * Get a summary of all changelogs.
-     */
     public ChangelogSummary summarize(List<SpecChangelog> changelogs) {
         int totalChanges = 0;
         int breakingChanges = 0;
@@ -232,10 +202,6 @@ public class ChangelogExtractor {
         );
     }
 
-    // ============================================================
-    // Helper Methods
-    // ============================================================
-
     private boolean isSpecFile(String filePath, String ref) {
         SpecFileDetector.SpecType type = specFileDetector.detectSpecType(filePath, ref);
         return type != null;
@@ -261,8 +227,7 @@ public class ChangelogExtractor {
                 return asyncApiModelMapper.map(asyncApiParser.parse(specContent));
 
             case SPRING:
-                // Spring parsing requires file path context
-                // For now, return null - would need SpringParser integration
+
                 logger.debug("Spring controller parsing not yet supported via Git extraction");
                 return null;
 
@@ -271,13 +236,6 @@ public class ChangelogExtractor {
         }
     }
 
-    // ============================================================
-    // Nested Types
-    // ============================================================
-
-    /**
-     * Changelog for a specific spec file.
-     */
     public static class SpecChangelog {
         private final String specPath;
         private final SpecFileDetector.SpecType specType;
@@ -349,9 +307,6 @@ public class ChangelogExtractor {
         }
     }
 
-    /**
-     * Summary of all extracted changelogs.
-     */
     public static class ChangelogSummary {
         private final int totalSpecs;
         private final int totalChanges;

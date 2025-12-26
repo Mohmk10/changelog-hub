@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.analytics.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Represents an analytical insight derived from API metrics and history.
- */
 public class Insight {
 
     private InsightType type;
@@ -65,7 +62,6 @@ public class Insight {
         return new Builder();
     }
 
-    // Getters and Setters
     public InsightType getType() {
         return type;
     }

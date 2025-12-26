@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents a GraphQL operation (Query, Mutation, or Subscription).
- */
 public class GraphQLOperation {
 
     public enum OperationType {

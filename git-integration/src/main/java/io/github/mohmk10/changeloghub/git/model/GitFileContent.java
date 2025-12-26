@@ -4,9 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * Represents the content of a file at a specific Git reference.
- */
 public class GitFileContent {
 
     private String path;
@@ -90,18 +87,12 @@ public class GitFileContent {
         this.commitId = commitId;
     }
 
-    /**
-     * Get file name from path.
-     */
     public String getFileName() {
         if (path == null) return null;
         int lastSlash = path.lastIndexOf('/');
         return lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
     }
 
-    /**
-     * Get file extension.
-     */
     public String getExtension() {
         String fileName = getFileName();
         if (fileName == null) return null;
@@ -109,18 +100,12 @@ public class GitFileContent {
         return lastDot > 0 ? fileName.substring(lastDot + 1) : null;
     }
 
-    /**
-     * Check if file is empty.
-     */
     public boolean isEmpty() {
         return !exists || size == 0 ||
                (content == null && bytes == null) ||
                (content != null && content.isEmpty());
     }
 
-    /**
-     * Check if this is a text file (based on extension).
-     */
     public boolean isTextFile() {
         String ext = getExtension();
         if (ext == null) return true;

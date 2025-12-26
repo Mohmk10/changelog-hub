@@ -20,7 +20,6 @@
     </properties>
 
     <dependencies>
-        <!-- Internal dependencies -->
         <dependency>
             <groupId>io.github.mohmk10</groupId>
             <artifactId>core</artifactId>
@@ -32,7 +31,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Picocli -->
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
@@ -45,7 +43,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -57,7 +54,6 @@
             <version>2.0.9</version>
         </dependency>
 
-        <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -86,7 +82,6 @@
 
     <build>
         <plugins>
-            <!-- Compiler plugin with annotation processing for Picocli -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -105,7 +100,6 @@
                 </configuration>
             </plugin>
 
-            <!-- JAR plugin for executable JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -120,7 +114,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Shade plugin for fat JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

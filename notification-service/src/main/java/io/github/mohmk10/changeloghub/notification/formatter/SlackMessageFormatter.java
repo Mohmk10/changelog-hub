@@ -7,9 +7,6 @@ import io.github.mohmk10.changeloghub.notification.util.NotificationConstants;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Formats messages for Slack using Block Kit.
- */
 public class SlackMessageFormatter implements MessageFormatter {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_INSTANT;
@@ -22,23 +19,19 @@ public class SlackMessageFormatter implements MessageFormatter {
             return format(notification.getChangelog());
         }
 
-        // Simple text format for non-changelog notifications
         json.append("{");
         json.append("\"blocks\": [");
 
-        // Header
         json.append("{\"type\": \"header\", \"text\": {\"type\": \"plain_text\", \"text\": \"")
             .append(escapeJson(notification.getTitle() != null ? notification.getTitle() : "Notification"))
             .append("\"}},");
 
-        // Message section
         json.append("{\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": \"")
             .append(escapeJson(notification.getMessage() != null ? notification.getMessage() : ""))
             .append("\"}}");
 
         json.append("]");
 
-        // Add fallback text
         json.append(",\"text\": \"")
             .append(escapeJson(notification.getTitle()))
             .append("\"");
@@ -53,7 +46,6 @@ public class SlackMessageFormatter implements MessageFormatter {
         StringBuilder json = new StringBuilder();
         json.append("{\"blocks\": [");
 
-        // Header with emoji based on severity
         String emoji = getEmoji(changelog);
         String headerText = emoji + " API Changes Detected";
         if (changelog.getApiName() != null) {
@@ -64,7 +56,6 @@ public class SlackMessageFormatter implements MessageFormatter {
             .append(escapeJson(headerText))
             .append("\", \"emoji\": true}},");
 
-        // Version info
         if (changelog.getFromVersion() != null && changelog.getToVersion() != null) {
             json.append("{\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": \"")
                 .append("*Version:* `").append(escapeJson(changelog.getFromVersion()))
@@ -72,7 +63,6 @@ public class SlackMessageFormatter implements MessageFormatter {
                 .append("\"}},");
         }
 
-        // Summary section
         int breakingCount = changelog.getBreakingChanges().size();
         int totalCount = changelog.getChanges().size();
 
@@ -82,10 +72,8 @@ public class SlackMessageFormatter implements MessageFormatter {
             .append(breakingCount > 0 ? ":warning: " : "").append(breakingCount).append("\"}");
         json.append("]},");
 
-        // Divider
         json.append("{\"type\": \"divider\"},");
 
-        // Breaking changes section
         List<BreakingChange> breakingChanges = changelog.getBreakingChanges();
         if (!breakingChanges.isEmpty()) {
             json.append("{\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": \"")
@@ -109,7 +97,6 @@ public class SlackMessageFormatter implements MessageFormatter {
             }
         }
 
-        // Other changes summary
         List<Change> changes = changelog.getChanges();
         long dangerousCount = changes.stream()
             .filter(c -> c.getSeverity() == Severity.DANGEROUS)
@@ -135,18 +122,15 @@ public class SlackMessageFormatter implements MessageFormatter {
             json.append("\"}]},");
         }
 
-        // Remove trailing comma and close
         if (json.charAt(json.length() - 1) == ',') {
             json.deleteCharAt(json.length() - 1);
         }
 
         json.append("],");
 
-        // Attachments with color based on severity
         String color = getColor(changelog);
         json.append("\"attachments\": [{\"color\": \"").append(color).append("\", \"blocks\": []}],");
 
-        // Fallback text
         json.append("\"text\": \"").append(escapeJson(headerText)).append("\"");
 
         json.append("}");

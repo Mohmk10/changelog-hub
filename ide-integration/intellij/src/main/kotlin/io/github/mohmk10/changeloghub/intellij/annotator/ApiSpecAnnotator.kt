@@ -10,19 +10,16 @@ import org.jetbrains.yaml.psi.YAMLKeyValue
 import java.awt.Color
 import java.awt.Font
 
-/**
- * Annotator for highlighting API specification elements.
- */
 class ApiSpecAnnotator : Annotator {
 
     private val httpMethodColors = mapOf(
-        "get" to Color(0x61, 0xAF, 0xEF),      // Blue
-        "post" to Color(0x98, 0xC3, 0x79),     // Green
-        "put" to Color(0xE5, 0xC0, 0x7B),      // Yellow
-        "delete" to Color(0xE0, 0x6C, 0x75),   // Red
-        "patch" to Color(0xC6, 0x78, 0xDD),    // Purple
-        "options" to Color(0x56, 0xB6, 0xC2),  // Cyan
-        "head" to Color(0xAB, 0xB2, 0xBF)      // Gray
+        "get" to Color(0x61, 0xAF, 0xEF),
+        "post" to Color(0x98, 0xC3, 0x79),
+        "put" to Color(0xE5, 0xC0, 0x7B),
+        "delete" to Color(0xE0, 0x6C, 0x75),
+        "patch" to Color(0xC6, 0x78, 0xDD),
+        "options" to Color(0x56, 0xB6, 0xC2),
+        "head" to Color(0xAB, 0xB2, 0xBF)
     )
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -33,7 +30,6 @@ class ApiSpecAnnotator : Annotator {
 
         val key = element.keyText.lowercase()
 
-        // Highlight HTTP methods
         if (key in httpMethodColors) {
             val color = httpMethodColors[key] ?: return
             val keyElement = element.key ?: return
@@ -47,7 +43,6 @@ class ApiSpecAnnotator : Annotator {
                 .create()
         }
 
-        // Highlight deprecated
         if (key == "deprecated" && element.valueText == "true") {
             holder.newAnnotation(HighlightSeverity.WARNING, "This element is deprecated")
                 .range(element)
@@ -58,7 +53,6 @@ class ApiSpecAnnotator : Annotator {
                 .create()
         }
 
-        // Highlight paths
         if (element.parent?.parent is YAMLKeyValue) {
             val parentKey = (element.parent?.parent as? YAMLKeyValue)?.keyText
             if (parentKey == "paths" && key.startsWith("/")) {

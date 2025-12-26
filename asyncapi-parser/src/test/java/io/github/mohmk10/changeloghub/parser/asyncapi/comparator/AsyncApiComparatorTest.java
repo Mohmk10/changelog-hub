@@ -15,9 +15,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for AsyncApiComparator.
- */
 class AsyncApiComparatorTest {
 
     private AsyncApiComparator comparator;
@@ -43,14 +40,11 @@ class AsyncApiComparatorTest {
         assertNotNull(changes);
         assertFalse(changes.isEmpty());
 
-        // Should have breaking changes
         assertTrue(comparator.hasBreakingChanges(changes));
 
-        // Get breaking changes
         List<Change> breakingChanges = comparator.filterBySeverity(changes, Severity.BREAKING);
         assertFalse(breakingChanges.isEmpty());
 
-        // Print changes for debugging
         System.out.println("=== Breaking Changes ===");
         for (Change change : breakingChanges) {
             System.out.println(change.getSeverity() + ": " + change.getDescription() + " @ " + change.getPath());
@@ -71,16 +65,13 @@ class AsyncApiComparatorTest {
         assertNotNull(changes);
         assertFalse(changes.isEmpty());
 
-        // Should have INFO level changes (additions)
         List<Change> infoChanges = comparator.filterBySeverity(changes, Severity.INFO);
         assertFalse(infoChanges.isEmpty());
 
-        // Check for new server added
         boolean hasNewServer = infoChanges.stream()
                 .anyMatch(c -> c.getDescription().contains("Server") && c.getDescription().contains("added"));
         assertTrue(hasNewServer, "Should detect new server added");
 
-        // Check for new channel added
         boolean hasNewChannel = infoChanges.stream()
                 .anyMatch(c -> c.getDescription().contains("Channel") && c.getDescription().contains("added"));
         assertTrue(hasNewChannel, "Should detect new channel added");
@@ -102,7 +93,6 @@ class AsyncApiComparatorTest {
 
         List<Change> changes = comparator.compare(v1, v2);
 
-        // user/created was renamed to users/created (effectively removed)
         List<Change> breakingChanges = comparator.filterBySeverity(changes, Severity.BREAKING);
 
         boolean hasChannelRemoved = breakingChanges.stream()
@@ -163,7 +153,6 @@ class AsyncApiComparatorTest {
 
         List<Change> breakingChanges = comparator.filterBySeverity(changes, Severity.BREAKING);
 
-        // 'error' enum value was removed from NotificationPayload.type
         boolean hasEnumRemoved = breakingChanges.stream()
                 .anyMatch(c -> c.getDescription().contains("Enum value") &&
                               c.getDescription().contains("removed"));
@@ -204,7 +193,6 @@ class AsyncApiComparatorTest {
 
         List<Change> infoChanges = comparator.filterBySeverity(changes, Severity.INFO);
 
-        // Check for new optional properties
         boolean hasOptionalAdded = infoChanges.stream()
                 .anyMatch(c -> c.getDescription().contains("optional") &&
                               c.getDescription().contains("property") &&
@@ -225,7 +213,6 @@ class AsyncApiComparatorTest {
 
         List<Change> infoChanges = comparator.filterBySeverity(changes, Severity.INFO);
 
-        // 'success' enum value added to NotificationPayload.type
         boolean hasEnumAdded = infoChanges.stream()
                 .anyMatch(c -> c.getDescription().contains("Enum value") &&
                               c.getDescription().contains("added"));
@@ -263,7 +250,6 @@ class AsyncApiComparatorTest {
 
         List<Change> changes = comparator.compare(v1, v1Copy);
 
-        // Should have no breaking or dangerous changes
         List<Change> breakingChanges = comparator.filterBySeverity(changes, Severity.BREAKING);
         assertTrue(breakingChanges.isEmpty(), "Identical specs should have no breaking changes");
     }
@@ -279,11 +265,9 @@ class AsyncApiComparatorTest {
 
         List<Change> changes = comparator.compare(v1, v2);
 
-        // Filter by CHANNEL category
         List<Change> channelChanges = comparator.filterByCategory(changes, ChangeCategory.CHANNEL);
         assertNotNull(channelChanges);
 
-        // Filter by SERVER category
         List<Change> serverChanges = comparator.filterByCategory(changes, ChangeCategory.SERVER);
         assertNotNull(serverChanges);
     }

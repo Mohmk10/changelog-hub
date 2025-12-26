@@ -7,20 +7,17 @@ public enum ChangeCategory {
     RESPONSE,
     SCHEMA,
     SECURITY,
-    // GraphQL specific
     TYPE,
     FIELD,
     ENUM_VALUE,
     UNION_MEMBER,
     INTERFACE,
-    // gRPC/Protocol Buffers specific
     SERVICE,
     RPC_METHOD,
     MESSAGE,
     FIELD_NUMBER,
     STREAMING_TYPE,
     PACKAGE,
-    // AsyncAPI/Event-Driven specific
     CHANNEL,
     SERVER,
     OPERATION,

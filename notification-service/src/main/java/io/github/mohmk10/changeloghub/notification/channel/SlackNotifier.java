@@ -12,9 +12,6 @@ import io.github.mohmk10.changeloghub.notification.util.ChannelType;
 
 import java.io.IOException;
 
-/**
- * Slack notification channel using Slack webhooks.
- */
 public class SlackNotifier extends AbstractNotificationChannel {
 
     private final Slack slack;
@@ -43,12 +40,10 @@ public class SlackNotifier extends AbstractNotificationChannel {
             Payload.PayloadBuilder payloadBuilder = Payload.builder()
                 .text(formattedMessage);
 
-            // Add channel if specified
             if (config.getChannel() != null && !config.getChannel().isEmpty()) {
                 payloadBuilder.channel(config.getChannel());
             }
 
-            // Add mentions
             if (!notification.getMentions().isEmpty()) {
                 String mentionsText = String.join(" ", notification.getMentions());
                 payloadBuilder.text(mentionsText + "\n" + formattedMessage);
@@ -94,7 +89,7 @@ public class SlackNotifier extends AbstractNotificationChannel {
         }
 
         try {
-            // Send a minimal test payload
+            
             Payload testPayload = Payload.builder()
                 .text("ChangelogHub connection test")
                 .build();
@@ -108,9 +103,6 @@ public class SlackNotifier extends AbstractNotificationChannel {
         }
     }
 
-    /**
-     * Send with Slack blocks (rich formatting).
-     */
     public NotificationResult sendWithBlocks(Notification notification, String blocksJson) {
         try {
             WebhookResponse response = slack.send(config.getWebhookUrl(), blocksJson);
@@ -131,17 +123,11 @@ public class SlackNotifier extends AbstractNotificationChannel {
         }
     }
 
-    /**
-     * Create a configured SlackNotifier.
-     */
     public static SlackNotifier create(String webhookUrl) {
         ChannelConfig config = ChannelConfig.slack(webhookUrl).build();
         return new SlackNotifier(config);
     }
 
-    /**
-     * Create with channel override.
-     */
     public static SlackNotifier create(String webhookUrl, String channel) {
         ChannelConfig config = ChannelConfig.slack(webhookUrl)
             .channel(channel)

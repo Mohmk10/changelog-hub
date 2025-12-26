@@ -47,7 +47,7 @@ class MetricsAggregatorTest {
         );
 
         ApiMetrics result = aggregator.aggregate(changelogs);
-        assertThat(result.getTotalChanges()).isEqualTo(25); // 10 + 15 (changes only, not including breaking)
+        assertThat(result.getTotalChanges()).isEqualTo(25); 
     }
 
     @Test
@@ -58,7 +58,7 @@ class MetricsAggregatorTest {
         );
 
         ApiMetrics result = aggregator.aggregate(changelogs);
-        assertThat(result.getBreakingChanges()).isEqualTo(8); // 5 + 3
+        assertThat(result.getBreakingChanges()).isEqualTo(8); 
     }
 
     @Test
@@ -66,7 +66,7 @@ class MetricsAggregatorTest {
         Changelog changelog = createChangelog(10, 5);
 
         ApiMetrics result = aggregator.aggregate(Collections.singletonList(changelog));
-        assertThat(result.getTotalChanges()).isEqualTo(10); // changes only
+        assertThat(result.getTotalChanges()).isEqualTo(10); 
         assertThat(result.getBreakingChanges()).isEqualTo(5);
     }
 
@@ -76,7 +76,7 @@ class MetricsAggregatorTest {
         Changelog changelog2 = createChangelog(3, 1);
 
         ApiMetrics result = aggregator.aggregate(Arrays.asList(changelog1, changelog2));
-        // Total endpoints is based on unique paths found in changes
+        
         assertThat(result.getTotalEndpoints()).isGreaterThanOrEqualTo(0);
     }
 

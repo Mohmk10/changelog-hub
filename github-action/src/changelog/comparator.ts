@@ -4,23 +4,17 @@ import { Logger } from '../utils/logger';
 
 const logger = new Logger('Comparator');
 
-/**
- * Result of comparing two API specifications
- */
 export interface ComparisonResult {
-  /** All detected changes */
+  
   changes: Change[];
-  /** Breaking changes only */
+  
   breakingChanges: BreakingChange[];
-  /** Calculated risk score */
+  
   riskScore: number;
-  /** Summary statistics */
+  
   summary: ComparisonSummary;
 }
 
-/**
- * Summary statistics for the comparison
- */
 export interface ComparisonSummary {
   endpointsAdded: number;
   endpointsRemoved: number;
@@ -34,13 +28,6 @@ export interface ComparisonSummary {
   parametersModified: number;
 }
 
-/**
- * Compares two API specifications and identifies all changes.
- *
- * @param oldSpec - The previous/base API specification
- * @param newSpec - The new/head API specification
- * @returns Comparison result with all changes
- */
 export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResult {
   logger.info('Comparing API specifications...');
 
@@ -59,26 +46,21 @@ export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResu
     parametersModified: 0,
   };
 
-  // Compare endpoints
   const endpointChanges = compareEndpoints(oldSpec.endpoints, newSpec.endpoints, summary);
   changes.push(...endpointChanges);
 
-  // Compare schemas
   const schemaChanges = compareSchemas(oldSpec.schemas, newSpec.schemas, summary);
   changes.push(...schemaChanges);
 
-  // Compare security definitions
   const securityChanges = compareSecurity(oldSpec.security, newSpec.security);
   changes.push(...securityChanges);
 
-  // Extract breaking changes
   for (const change of changes) {
     if (change.severity === 'BREAKING') {
       breakingChanges.push(createBreakingChange(change));
     }
   }
 
-  // Calculate risk score
   const riskScore = calculateRiskScore(breakingChanges, changes);
 
   logger.info(`Comparison complete: ${changes.length} changes, ${breakingChanges.length} breaking`);
@@ -91,9 +73,6 @@ export function compareSpecs(oldSpec: ApiSpec, newSpec: ApiSpec): ComparisonResu
   };
 }
 
-/**
- * Compares endpoint definitions
- */
 function compareEndpoints(
   oldEndpoints: Endpoint[],
   newEndpoints: Endpoint[],
@@ -103,7 +82,6 @@ function compareEndpoints(
   const oldMap = new Map(oldEndpoints.map((e) => [e.id, e]));
   const newMap = new Map(newEndpoints.map((e) => [e.id, e]));
 
-  // Removed endpoints (BREAKING)
   for (const [id, oldEndpoint] of oldMap) {
     if (!newMap.has(id)) {
       summary.endpointsRemoved++;
@@ -118,7 +96,6 @@ function compareEndpoints(
     }
   }
 
-  // Added endpoints (INFO)
   for (const [id, newEndpoint] of newMap) {
     if (!oldMap.has(id)) {
       summary.endpointsAdded++;
@@ -133,7 +110,6 @@ function compareEndpoints(
     }
   }
 
-  // Modified endpoints
   for (const [id, newEndpoint] of newMap) {
     const oldEndpoint = oldMap.get(id);
     if (oldEndpoint) {
@@ -148,9 +124,6 @@ function compareEndpoints(
   return changes;
 }
 
-/**
- * Compares details of two endpoints
- */
 function compareEndpointDetails(
   oldEndpoint: Endpoint,
   newEndpoint: Endpoint,
@@ -159,7 +132,6 @@ function compareEndpointDetails(
   const changes: Change[] = [];
   const basePath = `${newEndpoint.method} ${newEndpoint.path}`;
 
-  // Check deprecation
   if (!oldEndpoint.deprecated && newEndpoint.deprecated) {
     summary.endpointsDeprecated++;
     changes.push({
@@ -171,7 +143,6 @@ function compareEndpointDetails(
     });
   }
 
-  // Compare parameters
   const paramChanges = compareParameters(
     oldEndpoint.parameters,
     newEndpoint.parameters,
@@ -180,7 +151,6 @@ function compareEndpointDetails(
   );
   changes.push(...paramChanges);
 
-  // Compare request body
   if (oldEndpoint.requestBody || newEndpoint.requestBody) {
     const reqBodyChanges = compareRequestBody(
       oldEndpoint.requestBody,
@@ -190,16 +160,12 @@ function compareEndpointDetails(
     changes.push(...reqBodyChanges);
   }
 
-  // Compare responses
   const responseChanges = compareResponses(oldEndpoint.responses, newEndpoint.responses, basePath);
   changes.push(...responseChanges);
 
   return changes;
 }
 
-/**
- * Compares parameters between endpoints
- */
 function compareParameters(
   oldParams: Parameter[],
   newParams: Parameter[],
@@ -210,7 +176,6 @@ function compareParameters(
   const oldMap = new Map(oldParams.map((p) => [`${p.location}:${p.name}`, p]));
   const newMap = new Map(newParams.map((p) => [`${p.location}:${p.name}`, p]));
 
-  // Removed parameters
   for (const [key, oldParam] of oldMap) {
     if (!newMap.has(key)) {
       summary.parametersRemoved++;
@@ -226,11 +191,10 @@ function compareParameters(
     }
   }
 
-  // Added parameters
   for (const [key, newParam] of newMap) {
     if (!oldMap.has(key)) {
       summary.parametersAdded++;
-      // New required parameter is breaking
+      
       const severity: ChangeSeverity = newParam.required ? 'BREAKING' : 'INFO';
       changes.push({
         type: 'ADDED',
@@ -243,7 +207,6 @@ function compareParameters(
     }
   }
 
-  // Modified parameters
   for (const [key, newParam] of newMap) {
     const oldParam = oldMap.get(key);
     if (oldParam) {
@@ -258,9 +221,6 @@ function compareParameters(
   return changes;
 }
 
-/**
- * Compares details of two parameters
- */
 function compareParameterDetails(
   oldParam: Parameter,
   newParam: Parameter,
@@ -269,7 +229,6 @@ function compareParameterDetails(
   const changes: Change[] = [];
   const paramPath = `${basePath} -> ${newParam.location}:${newParam.name}`;
 
-  // Required changed from false to true (BREAKING)
   if (!oldParam.required && newParam.required) {
     changes.push({
       type: 'MODIFIED',
@@ -282,7 +241,6 @@ function compareParameterDetails(
     });
   }
 
-  // Type changed (potentially BREAKING)
   if (oldParam.type !== newParam.type) {
     const isCompatible = isTypeCompatible(oldParam.type, newParam.type);
     changes.push({
@@ -299,9 +257,6 @@ function compareParameterDetails(
   return changes;
 }
 
-/**
- * Compares request body definitions
- */
 function compareRequestBody(
   oldBody: Endpoint['requestBody'],
   newBody: Endpoint['requestBody'],
@@ -309,7 +264,6 @@ function compareRequestBody(
 ): Change[] {
   const changes: Change[] = [];
 
-  // Request body added
   if (!oldBody && newBody) {
     changes.push({
       type: 'ADDED',
@@ -320,7 +274,6 @@ function compareRequestBody(
     });
   }
 
-  // Request body removed
   if (oldBody && !newBody) {
     changes.push({
       type: 'REMOVED',
@@ -331,9 +284,8 @@ function compareRequestBody(
     });
   }
 
-  // Request body modified
   if (oldBody && newBody) {
-    // Required changed
+    
     if (!oldBody.required && newBody.required) {
       changes.push({
         type: 'MODIFIED',
@@ -346,7 +298,6 @@ function compareRequestBody(
       });
     }
 
-    // Content types changed
     const oldTypes = new Set(oldBody.contentTypes);
     const newTypes = new Set(newBody.contentTypes);
     for (const type of oldTypes) {
@@ -366,9 +317,6 @@ function compareRequestBody(
   return changes;
 }
 
-/**
- * Compares response definitions
- */
 function compareResponses(
   oldResponses: Endpoint['responses'],
   newResponses: Endpoint['responses'],
@@ -378,7 +326,6 @@ function compareResponses(
   const oldMap = new Map(oldResponses.map((r) => [r.statusCode, r]));
   const newMap = new Map(newResponses.map((r) => [r.statusCode, r]));
 
-  // Removed responses
   for (const [code, _oldResp] of oldMap) {
     if (!newMap.has(code)) {
       changes.push({
@@ -392,7 +339,6 @@ function compareResponses(
     }
   }
 
-  // Added responses
   for (const [code, newResp] of newMap) {
     if (!oldMap.has(code)) {
       changes.push({
@@ -409,9 +355,6 @@ function compareResponses(
   return changes;
 }
 
-/**
- * Compares schema definitions
- */
 function compareSchemas(
   oldSchemas: Schema[],
   newSchemas: Schema[],
@@ -421,7 +364,6 @@ function compareSchemas(
   const oldMap = new Map(oldSchemas.map((s) => [s.name, s]));
   const newMap = new Map(newSchemas.map((s) => [s.name, s]));
 
-  // Removed schemas (potentially BREAKING)
   for (const [name, _oldSchema] of oldMap) {
     if (!newMap.has(name)) {
       summary.schemasRemoved++;
@@ -436,7 +378,6 @@ function compareSchemas(
     }
   }
 
-  // Added schemas (INFO)
   for (const [name, _newSchema] of newMap) {
     if (!oldMap.has(name)) {
       summary.schemasAdded++;
@@ -451,7 +392,6 @@ function compareSchemas(
     }
   }
 
-  // Modified schemas
   for (const [name, newSchema] of newMap) {
     const oldSchema = oldMap.get(name);
     if (oldSchema) {
@@ -466,9 +406,6 @@ function compareSchemas(
   return changes;
 }
 
-/**
- * Compares details of two schemas
- */
 function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
   const changes: Change[] = [];
   const basePath = `#/components/schemas/${newSchema.name}`;
@@ -476,7 +413,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
   const oldProps = new Map(oldSchema.properties.map((p) => [p.name, p]));
   const newProps = new Map(newSchema.properties.map((p) => [p.name, p]));
 
-  // Removed properties
   for (const [propName, oldProp] of oldProps) {
     if (!newProps.has(propName)) {
       changes.push({
@@ -490,10 +426,9 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
     }
   }
 
-  // Added properties
   for (const [propName, newProp] of newProps) {
     if (!oldProps.has(propName)) {
-      // New required property on response schema is breaking for clients
+      
       const severity: ChangeSeverity = newProp.required ? 'WARNING' : 'INFO';
       changes.push({
         type: 'ADDED',
@@ -506,11 +441,10 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
     }
   }
 
-  // Modified properties
   for (const [propName, newProp] of newProps) {
     const oldProp = oldProps.get(propName);
     if (oldProp) {
-      // Type changed
+      
       if (oldProp.type !== newProp.type) {
         changes.push({
           type: 'MODIFIED',
@@ -523,7 +457,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
         });
       }
 
-      // Required changed
       if (!oldProp.required && newProp.required) {
         changes.push({
           type: 'MODIFIED',
@@ -541,9 +474,6 @@ function compareSchemaDetails(oldSchema: Schema, newSchema: Schema): Change[] {
   return changes;
 }
 
-/**
- * Compares security definitions
- */
 function compareSecurity(
   oldSecurity: ApiSpec['security'],
   newSecurity: ApiSpec['security']
@@ -552,7 +482,6 @@ function compareSecurity(
   const oldMap = new Map(oldSecurity.map((s) => [s.name, s]));
   const newMap = new Map(newSecurity.map((s) => [s.name, s]));
 
-  // Removed security schemes (BREAKING)
   for (const [name] of oldMap) {
     if (!newMap.has(name)) {
       changes.push({
@@ -566,7 +495,6 @@ function compareSecurity(
     }
   }
 
-  // Added security schemes (INFO)
   for (const [name] of newMap) {
     if (!oldMap.has(name)) {
       changes.push({
@@ -583,25 +511,17 @@ function compareSecurity(
   return changes;
 }
 
-/**
- * Checks if two types are compatible
- */
 function isTypeCompatible(oldType: string, newType: string): boolean {
-  // Same type is always compatible
+  
   if (oldType === newType) return true;
 
-  // Number -> Integer is compatible
   if (oldType === 'number' && newType === 'integer') return true;
 
-  // String can accept any type
   if (newType === 'string') return true;
 
   return false;
 }
 
-/**
- * Creates a breaking change with migration suggestion
- */
 function createBreakingChange(change: Change): BreakingChange {
   return {
     ...change,
@@ -610,9 +530,6 @@ function createBreakingChange(change: Change): BreakingChange {
   };
 }
 
-/**
- * Generates a migration suggestion based on the change
- */
 function generateMigrationSuggestion(change: Change): string {
   switch (change.category) {
     case 'ENDPOINT':
@@ -647,23 +564,17 @@ function generateMigrationSuggestion(change: Change): string {
   return 'Review and update client code accordingly';
 }
 
-/**
- * Calculates the impact score for a breaking change
- */
 function calculateImpactScore(change: Change): number {
-  let score = 50; // Base score
+  let score = 50; 
 
-  // Endpoint changes have higher impact
   if (change.category === 'ENDPOINT') {
     score += 30;
   }
 
-  // Removed items have higher impact than modified
   if (change.type === 'REMOVED') {
     score += 20;
   }
 
-  // Security changes have high impact
   if (change.category === 'SECURITY') {
     score += 25;
   }
@@ -671,9 +582,6 @@ function calculateImpactScore(change: Change): number {
   return Math.min(100, score);
 }
 
-/**
- * Calculates overall risk score
- */
 function calculateRiskScore(breakingChanges: BreakingChange[], allChanges: Change[]): number {
   if (allChanges.length === 0) return 0;
 
@@ -682,11 +590,9 @@ function calculateRiskScore(breakingChanges: BreakingChange[], allChanges: Chang
     totalScore += change.impactScore;
   }
 
-  // Add minor points for non-breaking dangerous changes
   const dangerousChanges = allChanges.filter((c) => c.severity === 'DANGEROUS');
   totalScore += dangerousChanges.length * 15;
 
-  // Normalize to 0-100
   const maxPossible = breakingChanges.length * 100 + dangerousChanges.length * 15;
   return Math.min(100, Math.round((totalScore / Math.max(maxPossible, 100)) * 100));
 }

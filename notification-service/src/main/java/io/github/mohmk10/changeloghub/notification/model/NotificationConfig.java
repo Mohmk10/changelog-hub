@@ -7,9 +7,6 @@ import io.github.mohmk10.changeloghub.notification.util.EventType;
 
 import java.util.*;
 
-/**
- * Main configuration for the notification service.
- */
 public class NotificationConfig {
 
     private boolean enabled;
@@ -140,9 +137,6 @@ public class NotificationConfig {
         this.failFast = failFast;
     }
 
-    /**
-     * Check if severity meets minimum threshold.
-     */
     public boolean meetsSeverityThreshold(Severity severity) {
         if (minimumSeverity == null || severity == null) {
             return true;
@@ -150,19 +144,13 @@ public class NotificationConfig {
         return severity.ordinal() <= minimumSeverity.ordinal();
     }
 
-    /**
-     * Validate the configuration.
-     */
     public boolean isValid() {
         if (!enabled) return true;
 
-        // At least one channel must be configured
         if (channels.isEmpty()) return false;
 
-        // At least one event type must be enabled
         if (enabledEvents.isEmpty()) return false;
 
-        // Check each channel is valid
         for (ChannelConfig config : channels.values()) {
             if (config.isEnabled() && !config.isValid()) {
                 return false;

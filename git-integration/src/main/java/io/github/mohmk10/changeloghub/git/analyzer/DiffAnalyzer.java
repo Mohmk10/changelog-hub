@@ -22,9 +22,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Analyzes diffs between Git references.
- */
 public class DiffAnalyzer {
 
     private static final Logger logger = LoggerFactory.getLogger(DiffAnalyzer.class);
@@ -41,13 +38,6 @@ public class DiffAnalyzer {
         this.config = config;
     }
 
-    /**
-     * Get the diff between two references.
-     *
-     * @param oldRef the old reference
-     * @param newRef the new reference
-     * @return the diff
-     */
     public GitDiff getDiff(String oldRef, String newRef) {
         try {
             ObjectId oldId = resolveRef(oldRef);
@@ -112,7 +102,6 @@ public class DiffAnalyzer {
                     }
                 }
 
-                // Need to reconstruct with all files
                 return buildDiffFromEntries(diffs, oldRef, newRef, oldCommitId, newCommitId);
             }
 
@@ -122,50 +111,32 @@ public class DiffAnalyzer {
         }
     }
 
-    /**
-     * Get changed files between two references.
-     */
     public List<String> getChangedFiles(String oldRef, String newRef) {
         GitDiff diff = getDiff(oldRef, newRef);
         return diff.getAllChangedFiles();
     }
 
-    /**
-     * Get added files between two references.
-     */
     public List<String> getAddedFiles(String oldRef, String newRef) {
         GitDiff diff = getDiff(oldRef, newRef);
         return diff.getAddedFiles();
     }
 
-    /**
-     * Get modified files between two references.
-     */
     public List<String> getModifiedFiles(String oldRef, String newRef) {
         GitDiff diff = getDiff(oldRef, newRef);
         return diff.getModifiedFiles();
     }
 
-    /**
-     * Get deleted files between two references.
-     */
     public List<String> getDeletedFiles(String oldRef, String newRef) {
         GitDiff diff = getDiff(oldRef, newRef);
         return diff.getDeletedFiles();
     }
 
-    /**
-     * Get files changed with a specific extension.
-     */
     public List<String> getChangedFilesWithExtension(String oldRef, String newRef, String extension) {
         return getChangedFiles(oldRef, newRef).stream()
             .filter(file -> file.endsWith("." + extension))
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get files changed in a specific directory.
-     */
     public List<String> getChangedFilesInDirectory(String oldRef, String newRef, String directory) {
         String dir = directory.endsWith("/") ? directory : directory + "/";
         return getChangedFiles(oldRef, newRef).stream()
@@ -173,25 +144,16 @@ public class DiffAnalyzer {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Check if there are any changes between two references.
-     */
     public boolean hasChanges(String oldRef, String newRef) {
         GitDiff diff = getDiff(oldRef, newRef);
         return diff.hasChanges();
     }
 
-    /**
-     * Check if a specific file was changed.
-     */
     public boolean fileChanged(String oldRef, String newRef, String filePath) {
         GitDiff diff = getDiff(oldRef, newRef);
         return diff.hasFileChanged(filePath);
     }
 
-    /**
-     * Get diff statistics.
-     */
     public DiffStats getStats(String oldRef, String newRef) {
         GitDiff diff = getDiff(oldRef, newRef);
 
@@ -199,12 +161,11 @@ public class DiffAnalyzer {
         Map<String, Integer> changesByDirectory = new HashMap<>();
 
         for (String file : diff.getAllChangedFiles()) {
-            // By extension
+            
             int lastDot = file.lastIndexOf('.');
             String ext = lastDot > 0 ? file.substring(lastDot + 1) : "no-ext";
             changesByExtension.merge(ext, 1, Integer::sum);
 
-            // By directory
             int lastSlash = file.lastIndexOf('/');
             String dir = lastSlash > 0 ? file.substring(0, lastSlash) : "/";
             changesByDirectory.merge(dir, 1, Integer::sum);
@@ -220,19 +181,12 @@ public class DiffAnalyzer {
         );
     }
 
-    /**
-     * Get files that match spec patterns.
-     */
     public List<String> getChangedSpecFiles(String oldRef, String newRef) {
         return getChangedFiles(oldRef, newRef).stream()
             .filter(config::matchesSpecPattern)
             .filter(file -> !config.shouldIgnore(file))
             .collect(Collectors.toList());
     }
-
-    // ============================================================
-    // Helper Methods
-    // ============================================================
 
     private ObjectId resolveRef(String ref) throws IOException {
         if (ref == null) return null;
@@ -295,13 +249,6 @@ public class DiffAnalyzer {
             .build();
     }
 
-    // ============================================================
-    // Nested Types
-    // ============================================================
-
-    /**
-     * Diff statistics.
-     */
     public static class DiffStats {
         private final int added;
         private final int modified;

@@ -11,14 +11,8 @@ import io.github.mohmk10.changeloghub.parser.grpc.util.StreamType;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Comparator for detecting breaking changes in Protocol Buffers services and RPC methods.
- */
 public class ServiceComparator {
 
-    /**
-     * Compare two service lists and detect changes.
-     */
     public List<BreakingChange> compareServices(List<ProtoService> oldServices, List<ProtoService> newServices,
                                                  String packageName) {
         List<BreakingChange> changes = new ArrayList<>();
@@ -26,21 +20,18 @@ public class ServiceComparator {
         Map<String, ProtoService> oldByName = mapByName(oldServices);
         Map<String, ProtoService> newByName = mapByName(newServices);
 
-        // Detect removed services
         for (ProtoService oldService : oldServices) {
             if (!newByName.containsKey(oldService.getName())) {
                 changes.add(createServiceRemovedChange(oldService, packageName));
             }
         }
 
-        // Detect added services
         for (ProtoService newService : newServices) {
             if (!oldByName.containsKey(newService.getName())) {
                 changes.add(createServiceAddedChange(newService, packageName));
             }
         }
 
-        // Detect modified services
         for (ProtoService oldService : oldServices) {
             ProtoService newService = newByName.get(oldService.getName());
             if (newService != null) {
@@ -52,16 +43,11 @@ public class ServiceComparator {
         return changes;
     }
 
-    /**
-     * Compare two individual services.
-     */
     public List<BreakingChange> compareService(ProtoService oldService, ProtoService newService, String servicePath) {
         List<BreakingChange> changes = new ArrayList<>();
 
-        // Compare RPC methods
         changes.addAll(compareRpcMethods(oldService.getMethods(), newService.getMethods(), servicePath));
 
-        // Check deprecation
         if (!oldService.isDeprecated() && newService.isDeprecated()) {
             changes.add(createServiceDeprecationChange(newService, servicePath));
         }
@@ -69,9 +55,6 @@ public class ServiceComparator {
         return changes;
     }
 
-    /**
-     * Compare RPC method lists.
-     */
     public List<BreakingChange> compareRpcMethods(List<ProtoRpcMethod> oldMethods, List<ProtoRpcMethod> newMethods,
                                                    String servicePath) {
         List<BreakingChange> changes = new ArrayList<>();
@@ -79,21 +62,18 @@ public class ServiceComparator {
         Map<String, ProtoRpcMethod> oldByName = mapMethodsByName(oldMethods);
         Map<String, ProtoRpcMethod> newByName = mapMethodsByName(newMethods);
 
-        // Detect removed methods
         for (ProtoRpcMethod oldMethod : oldMethods) {
             if (!newByName.containsKey(oldMethod.getName())) {
                 changes.add(createMethodRemovedChange(oldMethod, servicePath));
             }
         }
 
-        // Detect added methods
         for (ProtoRpcMethod newMethod : newMethods) {
             if (!oldByName.containsKey(newMethod.getName())) {
                 changes.add(createMethodAddedChange(newMethod, servicePath));
             }
         }
 
-        // Detect modified methods
         for (ProtoRpcMethod oldMethod : oldMethods) {
             ProtoRpcMethod newMethod = newByName.get(oldMethod.getName());
             if (newMethod != null) {
@@ -105,38 +85,29 @@ public class ServiceComparator {
         return changes;
     }
 
-    /**
-     * Compare two individual RPC methods.
-     */
     public List<BreakingChange> compareRpcMethod(ProtoRpcMethod oldMethod, ProtoRpcMethod newMethod, String methodPath) {
         List<BreakingChange> changes = new ArrayList<>();
 
-        // Check input type change
         if (!oldMethod.getInputType().equals(newMethod.getInputType())) {
             changes.add(createInputTypeChangedChange(oldMethod, newMethod, methodPath));
         }
 
-        // Check output type change
         if (!oldMethod.getOutputType().equals(newMethod.getOutputType())) {
             changes.add(createOutputTypeChangedChange(oldMethod, newMethod, methodPath));
         }
 
-        // Check streaming type change
         StreamType oldStreamType = oldMethod.getStreamType();
         StreamType newStreamType = newMethod.getStreamType();
         if (oldStreamType != newStreamType) {
             changes.add(createStreamingTypeChangedChange(oldMethod, newMethod, methodPath));
         }
 
-        // Check deprecation
         if (!oldMethod.isDeprecated() && newMethod.isDeprecated()) {
             changes.add(createMethodDeprecationChange(newMethod, methodPath));
         }
 
         return changes;
     }
-
-    // Service change creation methods
 
     private BreakingChange createServiceRemovedChange(ProtoService service, String packageName) {
         String path = getServicePath(packageName, service.getName());
@@ -193,8 +164,6 @@ public class ServiceComparator {
                 .impactScore(30)
                 .build();
     }
-
-    // RPC method change creation methods
 
     private BreakingChange createMethodRemovedChange(ProtoRpcMethod method, String servicePath) {
         String path = servicePath + "/" + method.getName();
@@ -276,7 +245,6 @@ public class ServiceComparator {
         StreamType oldType = oldMethod.getStreamType();
         StreamType newType = newMethod.getStreamType();
 
-        // Determine severity based on the type of change
         Severity severity;
         String migrationSuggestion;
 
@@ -322,8 +290,6 @@ public class ServiceComparator {
                 .impactScore(25)
                 .build();
     }
-
-    // Helper methods
 
     private String getServicePath(String packageName, String serviceName) {
         if (packageName == null || packageName.isEmpty()) {

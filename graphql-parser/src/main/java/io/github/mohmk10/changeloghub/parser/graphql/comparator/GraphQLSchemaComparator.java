@@ -6,45 +6,31 @@ import io.github.mohmk10.changeloghub.parser.graphql.model.GraphQLSchema;
 
 import java.util.*;
 
-/**
- * Compares two GraphQL schemas and detects breaking changes.
- */
 public class GraphQLSchemaComparator {
 
     private final GraphQLTypeComparator typeComparator = new GraphQLTypeComparator();
     private final GraphQLFieldComparator fieldComparator = new GraphQLFieldComparator();
 
-    /**
-     * Compares two GraphQL schemas and returns all detected changes.
-     */
     public List<Change> compare(GraphQLSchema oldSchema, GraphQLSchema newSchema) {
         List<Change> changes = new ArrayList<>();
 
-        // Compare types
         changes.addAll(typeComparator.compareTypes(oldSchema.getTypes(), newSchema.getTypes()));
 
-        // Compare queries
         changes.addAll(compareOperations(oldSchema.getQueries(), newSchema.getQueries(), "Query"));
 
-        // Compare mutations
         changes.addAll(compareOperations(oldSchema.getMutations(), newSchema.getMutations(), "Mutation"));
 
-        // Compare subscriptions
         changes.addAll(compareOperations(oldSchema.getSubscriptions(), newSchema.getSubscriptions(), "Subscription"));
 
         return changes;
     }
 
-    /**
-     * Compares two lists of operations.
-     */
     public List<Change> compareOperations(List<GraphQLOperation> oldOps, List<GraphQLOperation> newOps, String opType) {
         List<Change> changes = new ArrayList<>();
 
         Map<String, GraphQLOperation> oldOpMap = toMap(oldOps);
         Map<String, GraphQLOperation> newOpMap = toMap(newOps);
 
-        // Check for removed operations (BREAKING)
         for (String opName : oldOpMap.keySet()) {
             if (!newOpMap.containsKey(opName)) {
                 changes.add(createChange(
@@ -59,7 +45,6 @@ public class GraphQLSchemaComparator {
             }
         }
 
-        // Check for added operations (INFO)
         for (String opName : newOpMap.keySet()) {
             if (!oldOpMap.containsKey(opName)) {
                 changes.add(createChange(
@@ -74,7 +59,6 @@ public class GraphQLSchemaComparator {
             }
         }
 
-        // Check for modified operations
         for (String opName : oldOpMap.keySet()) {
             if (newOpMap.containsKey(opName)) {
                 GraphQLOperation oldOp = oldOpMap.get(opName);
@@ -86,13 +70,9 @@ public class GraphQLSchemaComparator {
         return changes;
     }
 
-    /**
-     * Compares two individual operations.
-     */
     public List<Change> compareOperation(GraphQLOperation oldOp, GraphQLOperation newOp, String path) {
         List<Change> changes = new ArrayList<>();
 
-        // Check return type change (BREAKING if incompatible)
         if (!Objects.equals(oldOp.getReturnType(), newOp.getReturnType())) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -105,7 +85,6 @@ public class GraphQLSchemaComparator {
             ));
         }
 
-        // Check deprecation (WARNING)
         if (!oldOp.isDeprecated() && newOp.isDeprecated()) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -118,40 +97,27 @@ public class GraphQLSchemaComparator {
             ));
         }
 
-        // Compare arguments
         changes.addAll(fieldComparator.compareArguments(oldOp.getArguments(), newOp.getArguments(), path));
 
         return changes;
     }
 
-    /**
-     * Checks if there are any breaking changes.
-     */
     public boolean hasBreakingChanges(List<Change> changes) {
         return changes.stream().anyMatch(c -> c.getSeverity() == Severity.BREAKING);
     }
 
-    /**
-     * Gets only breaking changes.
-     */
     public List<Change> getBreakingChanges(List<Change> changes) {
         return changes.stream()
                 .filter(c -> c.getSeverity() == Severity.BREAKING)
                 .toList();
     }
 
-    /**
-     * Gets changes by severity.
-     */
     public List<Change> getChangesBySeverity(List<Change> changes, Severity severity) {
         return changes.stream()
                 .filter(c -> c.getSeverity() == severity)
                 .toList();
     }
 
-    /**
-     * Counts changes by severity.
-     */
     public Map<Severity, Long> countBySeverity(List<Change> changes) {
         Map<Severity, Long> counts = new EnumMap<>(Severity.class);
         for (Severity s : Severity.values()) {

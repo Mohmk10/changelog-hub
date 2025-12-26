@@ -1,8 +1,5 @@
 package io.github.mohmk10.changeloghub.parser.asyncapi.exception;
 
-/**
- * Exception thrown when parsing AsyncAPI specifications fails.
- */
 public class AsyncApiParseException extends RuntimeException {
 
     private final String location;

@@ -36,7 +36,7 @@ paths:
             type: integer
             format: int32
             default: 0
-        # NEW: Optional filter parameter added (non-breaking)
+
         - name: status
           in: query
           description: Filter by pet status
@@ -47,7 +47,7 @@ paths:
               - available
               - pending
               - sold
-        # NEW: Optional sort parameter added (non-breaking)
+
         - name: sort
           in: query
           description: Sort order
@@ -160,7 +160,7 @@ paths:
     delete:
       operationId: deletePet
       summary: Delete a pet
-      # DEPRECATED: Mark as deprecated (non-breaking, warning only)
+
       deprecated: true
       description: |
         Deletes a pet from the store.
@@ -200,7 +200,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/Store"
 
-  # NEW: Additional endpoint added (non-breaking)
   /pets/{petId}/photos:
     get:
       operationId: listPetPhotos
@@ -268,7 +267,6 @@ paths:
         "404":
           description: Pet not found
 
-  # NEW: Health check endpoint added (non-breaking)
   /health:
     get:
       operationId: healthCheck
@@ -306,7 +304,7 @@ components:
             - available
             - pending
             - sold
-            # NEW: Added 'archived' status (non-breaking)
+
             - archived
           description: Status of the pet in the store
         category:
@@ -317,12 +315,12 @@ components:
           items:
             type: string
           description: Tags for the pet
-        # NEW: Optional field added (non-breaking)
+
         createdAt:
           type: string
           format: date-time
           description: When the pet was added to the store
-        # NEW: Optional field added (non-breaking)
+
         updatedAt:
           type: string
           format: date-time
@@ -346,7 +344,7 @@ components:
         category:
           type: string
           description: Category of the pet
-        # NEW: Optional field added (non-breaking)
+
         tags:
           type: array
           items:
@@ -367,7 +365,7 @@ components:
             - sold
             - archived
           description: New status for the pet
-        # NEW: Optional field added (non-breaking)
+
         tags:
           type: array
           items:
@@ -387,15 +385,14 @@ components:
           type: string
         location:
           type: string
-        # NEW: Optional field added (non-breaking)
+
         phone:
           type: string
-        # NEW: Optional field added (non-breaking)
+
         email:
           type: string
           format: email
 
-    # NEW: Schema added (non-breaking)
     Photo:
       type: object
       required:
@@ -414,7 +411,6 @@ components:
           type: string
           format: date-time
 
-    # NEW: Schema added (non-breaking)
     HealthStatus:
       type: object
       required:

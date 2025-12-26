@@ -1,32 +1,15 @@
 package io.github.mohmk10.changeloghub.parser.grpc.util;
 
-/**
- * Enum representing Protocol Buffers field rules.
- */
 public enum ProtoFieldRule {
-    /**
-     * Optional field (proto3 default, explicit in proto2).
-     */
+    
     OPTIONAL("optional"),
 
-    /**
-     * Required field (proto2 only, deprecated).
-     */
     REQUIRED("required"),
 
-    /**
-     * Repeated field (zero or more values).
-     */
     REPEATED("repeated"),
 
-    /**
-     * Map field (key-value pairs).
-     */
     MAP("map"),
 
-    /**
-     * Singular field (proto3 default when no rule specified).
-     */
     SINGULAR("singular");
 
     private final String keyword;

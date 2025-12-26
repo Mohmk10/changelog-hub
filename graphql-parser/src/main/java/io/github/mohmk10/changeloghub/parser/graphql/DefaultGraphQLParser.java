@@ -26,10 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Default implementation of GraphQL schema parser.
- * Uses graphql-java library to parse GraphQL SDL files.
- */
 public class DefaultGraphQLParser implements GraphQLParser {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultGraphQLParser.class);
@@ -55,10 +51,8 @@ public class DefaultGraphQLParser implements GraphQLParser {
         try {
             logger.debug("Parsing GraphQL schema from SDL content");
 
-            // Parse SDL to TypeDefinitionRegistry
             TypeDefinitionRegistry registry = schemaParser.parse(sdlContent);
 
-            // Build GraphQL schema model
             return buildSchema(registry, sdlContent);
 
         } catch (SchemaProblem e) {
@@ -161,25 +155,18 @@ public class DefaultGraphQLParser implements GraphQLParser {
         }
     }
 
-    /**
-     * Builds a GraphQL schema model from a TypeDefinitionRegistry.
-     */
     private GraphQLSchema buildSchema(TypeDefinitionRegistry registry, String sdlContent) {
         GraphQLSchema schema = new GraphQLSchema();
 
-        // Extract schema name and description from SDL comments if present
         extractSchemaMetadata(schema, sdlContent);
 
-        // Analyze types
         List<GraphQLType> types = typeAnalyzer.analyzeTypes(registry);
         Map<String, GraphQLType> typeMap = types.stream()
                 .collect(Collectors.toMap(GraphQLType::getName, t -> t, (a, b) -> a));
         schema.setTypes(typeMap);
 
-        // Analyze operations
         List<GraphQLOperation> allOperations = operationAnalyzer.analyzeOperations(registry);
 
-        // Separate operations by type
         List<GraphQLOperation> queries = allOperations.stream()
                 .filter(GraphQLOperation::isQuery)
                 .toList();
@@ -200,11 +187,8 @@ public class DefaultGraphQLParser implements GraphQLParser {
         return schema;
     }
 
-    /**
-     * Extracts schema metadata from SDL content.
-     */
     private void extractSchemaMetadata(GraphQLSchema schema, String sdlContent) {
-        // Look for schema description in comments
+        
         String[] lines = sdlContent.split("\n");
         StringBuilder description = new StringBuilder();
         boolean inDescription = false;
@@ -212,7 +196,6 @@ public class DefaultGraphQLParser implements GraphQLParser {
         for (String line : lines) {
             String trimmed = line.trim();
 
-            // Handle block comments
             if (trimmed.startsWith("\"\"\"")) {
                 if (inDescription) {
                     inDescription = false;
@@ -220,7 +203,7 @@ public class DefaultGraphQLParser implements GraphQLParser {
                     break;
                 } else {
                     inDescription = true;
-                    // Check if it's a single-line block comment
+                    
                     if (trimmed.length() > 6 && trimmed.endsWith("\"\"\"")) {
                         schema.setDescription(trimmed.substring(3, trimmed.length() - 3).trim());
                         break;
@@ -229,7 +212,7 @@ public class DefaultGraphQLParser implements GraphQLParser {
             } else if (inDescription) {
                 description.append(trimmed).append(" ");
             } else if (trimmed.startsWith("#")) {
-                // Single line comment at the start could be API name
+                
                 String comment = trimmed.substring(1).trim();
                 if (comment.toLowerCase().contains("api") || comment.toLowerCase().contains("schema")) {
                     if (schema.getName() == null) {
@@ -237,12 +220,11 @@ public class DefaultGraphQLParser implements GraphQLParser {
                     }
                 }
             } else if (!trimmed.isEmpty() && !trimmed.startsWith("\"")) {
-                // Non-comment, non-empty line - stop looking for header metadata
+                
                 break;
             }
         }
 
-        // Set defaults if not found
         if (schema.getName() == null) {
             schema.setName("GraphQL API");
         }
@@ -251,16 +233,10 @@ public class DefaultGraphQLParser implements GraphQLParser {
         }
     }
 
-    /**
-     * Creates a parser with custom configuration.
-     */
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * Builder for creating configured GraphQL parsers.
-     */
     public static class Builder {
         private boolean lenientParsing = false;
 

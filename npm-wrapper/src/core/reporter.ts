@@ -1,13 +1,6 @@
 import chalk from 'chalk';
 import { ComparisonResult, OutputFormat } from '../types';
 
-/**
- * Generates a report from comparison results in the specified format.
- *
- * @param result - Comparison result
- * @param format - Output format
- * @returns Formatted report string
- */
 export function generateReport(result: ComparisonResult, format: OutputFormat): string {
   switch (format) {
     case 'json':
@@ -22,9 +15,6 @@ export function generateReport(result: ComparisonResult, format: OutputFormat): 
   }
 }
 
-/**
- * Generates a JSON report
- */
 function generateJsonReport(result: ComparisonResult): string {
   const report = {
     metadata: {
@@ -63,19 +53,14 @@ function generateJsonReport(result: ComparisonResult): string {
   return JSON.stringify(report, null, 2);
 }
 
-/**
- * Generates a Markdown report
- */
 function generateMarkdownReport(result: ComparisonResult): string {
   const lines: string[] = [];
 
-  // Header
   lines.push('# API Changelog');
   lines.push('');
   lines.push(`**${result.apiName}** v${result.fromVersion} → v${result.toVersion}`);
   lines.push('');
 
-  // Summary table
   lines.push('## Summary');
   lines.push('');
   lines.push('| Metric | Value |');
@@ -87,7 +72,6 @@ function generateMarkdownReport(result: ComparisonResult): string {
   lines.push(`| Recommended Bump | **${result.semverRecommendation}** |`);
   lines.push('');
 
-  // Breaking changes section
   if (result.breakingChanges.length > 0) {
     lines.push('## Breaking Changes');
     lines.push('');
@@ -105,7 +89,6 @@ function generateMarkdownReport(result: ComparisonResult): string {
     }
   }
 
-  // Other changes by severity
   const dangerousChanges = result.changes.filter((c) => c.severity === 'DANGEROUS');
   if (dangerousChanges.length > 0) {
     lines.push('## Dangerous Changes');
@@ -136,20 +119,15 @@ function generateMarkdownReport(result: ComparisonResult): string {
     lines.push('');
   }
 
-  // Footer
   lines.push('---');
   lines.push(`*Generated at ${new Date().toISOString()} by Changelog Hub*`);
 
   return lines.join('\n');
 }
 
-/**
- * Generates a console-friendly report with colors
- */
 function generateConsoleReport(result: ComparisonResult): string {
   const lines: string[] = [];
 
-  // Header
   lines.push('');
   lines.push(chalk.bold.blue('═'.repeat(60)));
   lines.push(chalk.bold.blue('  API CHANGELOG'));
@@ -160,7 +138,6 @@ function generateConsoleReport(result: ComparisonResult): string {
   lines.push('');
   lines.push(chalk.gray('─'.repeat(60)));
 
-  // Summary
   lines.push(chalk.bold('\n  SUMMARY\n'));
   lines.push(`  Total Changes:       ${result.totalChanges}`);
   lines.push(`  Breaking Changes:    ${chalk.red(result.breakingChanges.length.toString())}`);
@@ -169,7 +146,6 @@ function generateConsoleReport(result: ComparisonResult): string {
   lines.push(`  Recommended Bump:    ${chalk.bold(result.semverRecommendation)}`);
   lines.push('');
 
-  // Breaking changes
   if (result.breakingChanges.length > 0) {
     lines.push(chalk.gray('─'.repeat(60)));
     lines.push(chalk.red.bold('\n  BREAKING CHANGES\n'));
@@ -181,7 +157,6 @@ function generateConsoleReport(result: ComparisonResult): string {
     }
   }
 
-  // Dangerous changes
   const dangerousChanges = result.changes.filter((c) => c.severity === 'DANGEROUS');
   if (dangerousChanges.length > 0) {
     lines.push(chalk.gray('─'.repeat(60)));
@@ -192,7 +167,6 @@ function generateConsoleReport(result: ComparisonResult): string {
     lines.push('');
   }
 
-  // Warnings
   const warnings = result.changes.filter((c) => c.severity === 'WARNING');
   if (warnings.length > 0) {
     lines.push(chalk.gray('─'.repeat(60)));
@@ -203,7 +177,6 @@ function generateConsoleReport(result: ComparisonResult): string {
     lines.push('');
   }
 
-  // Additions
   const additions = result.changes.filter((c) => c.type === 'ADDED' && c.severity === 'INFO');
   if (additions.length > 0) {
     lines.push(chalk.gray('─'.repeat(60)));
@@ -220,9 +193,6 @@ function generateConsoleReport(result: ComparisonResult): string {
   return lines.join('\n');
 }
 
-/**
- * Generates an HTML report
- */
 function generateHtmlReport(result: ComparisonResult): string {
   const breakingRows = result.breakingChanges
     .map(
@@ -334,9 +304,6 @@ function generateHtmlReport(result: ComparisonResult): string {
 </html>`;
 }
 
-/**
- * Format risk level with color
- */
 function formatRiskLevel(level: string): string {
   switch (level) {
     case 'CRITICAL':
@@ -352,9 +319,6 @@ function formatRiskLevel(level: string): string {
   }
 }
 
-/**
- * Format risk score with color
- */
 function formatRiskScore(score: number): string {
   if (score >= 75) return chalk.red(`${score}/100`);
   if (score >= 50) return chalk.yellow(`${score}/100`);
@@ -362,16 +326,10 @@ function formatRiskScore(score: number): string {
   return chalk.green(`${score}/100`);
 }
 
-/**
- * Get CSS class for risk level
- */
 function getRiskClass(level: string): string {
   return `risk-${level.toLowerCase()}`;
 }
 
-/**
- * Escape HTML special characters
- */
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')

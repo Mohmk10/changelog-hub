@@ -21,7 +21,7 @@ servers:
     url: kafka.staging.example.com:9092
     protocol: kafka
     description: Staging Kafka broker
-  # INFO: New server added
+
   development:
     url: localhost:9092
     protocol: kafka
@@ -63,7 +63,6 @@ channels:
       message:
         $ref: '#/components/messages/Notification'
 
-  # INFO: New channel added
   user/deleted:
     description: Channel for user deletion events
     publish:
@@ -99,7 +98,6 @@ components:
       payload:
         $ref: '#/components/schemas/NotificationPayload'
 
-    # INFO: New message added
     UserDeleted:
       name: UserDeleted
       title: User Deleted Event
@@ -127,7 +125,7 @@ components:
         username:
           type: string
           description: Optional username
-        # INFO: New optional field
+
         displayName:
           type: string
           description: User display name
@@ -135,7 +133,7 @@ components:
           type: string
           format: date-time
           description: Timestamp of creation
-        # INFO: New optional field
+
         locale:
           type: string
           description: User locale preference
@@ -157,7 +155,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-        # INFO: New optional field
+
         updatedBy:
           type: string
           description: ID of user or system that made the update
@@ -178,20 +176,19 @@ components:
             - info
             - warning
             - error
-            # INFO: New enum value
+
             - success
         message:
           type: string
         read:
           type: boolean
           default: false
-        # INFO: New optional field
+
         actionUrl:
           type: string
           format: uri
           description: Optional action URL
 
-    # INFO: New schema
     UserDeletedPayload:
       type: object
       required:
@@ -223,7 +220,7 @@ components:
           format: date-time
         correlationId:
           type: string
-        # INFO: New optional header
+
         traceId:
           type: string
           description: Distributed tracing ID
@@ -233,6 +230,6 @@ tags:
     description: User-related events
   - name: notification
     description: Notification events
-  # INFO: New tag
+
   - name: lifecycle
     description: User lifecycle events

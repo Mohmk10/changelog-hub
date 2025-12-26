@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.asyncapi.model;
 
 import java.util.*;
 
-/**
- * Model representing a JSON Schema in AsyncAPI.
- */
 public class AsyncSchema {
 
     private String name;
@@ -13,7 +10,7 @@ public class AsyncSchema {
     private String description;
     private List<String> requiredFields;
     private Map<String, AsyncSchema> properties;
-    private AsyncSchema items; // For array types
+    private AsyncSchema items; 
     private List<String> enumValues;
     private Object defaultValue;
     private String ref;
@@ -36,12 +33,10 @@ public class AsyncSchema {
         this.extensions = new LinkedHashMap<>();
     }
 
-    // Builder pattern
     public static Builder builder() {
         return new Builder();
     }
 
-    // Getters and setters
     public String getName() {
         return name;
     }
@@ -210,7 +205,6 @@ public class AsyncSchema {
         this.extensions = extensions != null ? new LinkedHashMap<>(extensions) : new LinkedHashMap<>();
     }
 
-    // Utility methods
     public boolean isReference() {
         return ref != null && !ref.isBlank();
     }

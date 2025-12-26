@@ -5,20 +5,13 @@ import io.github.mohmk10.changeloghub.parser.graphql.model.GraphQLType;
 
 import java.util.*;
 
-/**
- * Compares GraphQL types.
- */
 public class GraphQLTypeComparator {
 
     private final GraphQLFieldComparator fieldComparator = new GraphQLFieldComparator();
 
-    /**
-     * Compares two maps of types.
-     */
     public List<Change> compareTypes(Map<String, GraphQLType> oldTypes, Map<String, GraphQLType> newTypes) {
         List<Change> changes = new ArrayList<>();
 
-        // Check for removed types (BREAKING)
         for (String typeName : oldTypes.keySet()) {
             if (!newTypes.containsKey(typeName)) {
                 changes.add(createChange(
@@ -33,7 +26,6 @@ public class GraphQLTypeComparator {
             }
         }
 
-        // Check for added types (INFO)
         for (String typeName : newTypes.keySet()) {
             if (!oldTypes.containsKey(typeName)) {
                 changes.add(createChange(
@@ -48,7 +40,6 @@ public class GraphQLTypeComparator {
             }
         }
 
-        // Check for modified types
         for (String typeName : oldTypes.keySet()) {
             if (newTypes.containsKey(typeName)) {
                 GraphQLType oldType = oldTypes.get(typeName);
@@ -60,14 +51,10 @@ public class GraphQLTypeComparator {
         return changes;
     }
 
-    /**
-     * Compares two individual types.
-     */
     public List<Change> compareType(GraphQLType oldType, GraphQLType newType) {
         List<Change> changes = new ArrayList<>();
         String path = oldType.getName();
 
-        // Check if type kind changed (BREAKING)
         if (oldType.getKind() != newType.getKind()) {
             changes.add(createChange(
                     ChangeType.MODIFIED,
@@ -78,10 +65,9 @@ public class GraphQLTypeComparator {
                     oldType.getKind(),
                     newType.getKind()
             ));
-            return changes; // No further comparison if kind changed
+            return changes; 
         }
 
-        // Compare based on type kind
         switch (oldType.getKind()) {
             case OBJECT, INPUT_OBJECT, INTERFACE:
                 changes.addAll(fieldComparator.compareFields(oldType.getFields(), newType.getFields(), path));
@@ -96,7 +82,6 @@ public class GraphQLTypeComparator {
                 break;
         }
 
-        // Compare interfaces (for object types)
         if (oldType.isObjectType()) {
             changes.addAll(compareInterfaces(oldType, newType, path));
         }
@@ -104,16 +89,12 @@ public class GraphQLTypeComparator {
         return changes;
     }
 
-    /**
-     * Compares enum values between two enum types.
-     */
     public List<Change> compareEnumValues(GraphQLType oldType, GraphQLType newType, String path) {
         List<Change> changes = new ArrayList<>();
 
         Set<String> oldValues = new HashSet<>(oldType.getEnumValues());
         Set<String> newValues = new HashSet<>(newType.getEnumValues());
 
-        // Removed enum values (BREAKING)
         for (String value : oldValues) {
             if (!newValues.contains(value)) {
                 changes.add(createChange(
@@ -128,7 +109,6 @@ public class GraphQLTypeComparator {
             }
         }
 
-        // Added enum values (INFO)
         for (String value : newValues) {
             if (!oldValues.contains(value)) {
                 changes.add(createChange(
@@ -146,16 +126,12 @@ public class GraphQLTypeComparator {
         return changes;
     }
 
-    /**
-     * Compares union member types.
-     */
     public List<Change> compareUnionTypes(GraphQLType oldType, GraphQLType newType, String path) {
         List<Change> changes = new ArrayList<>();
 
         Set<String> oldMembers = new HashSet<>(oldType.getPossibleTypes());
         Set<String> newMembers = new HashSet<>(newType.getPossibleTypes());
 
-        // Removed union members (BREAKING)
         for (String member : oldMembers) {
             if (!newMembers.contains(member)) {
                 changes.add(createChange(
@@ -170,7 +146,6 @@ public class GraphQLTypeComparator {
             }
         }
 
-        // Added union members (INFO)
         for (String member : newMembers) {
             if (!oldMembers.contains(member)) {
                 changes.add(createChange(
@@ -188,16 +163,12 @@ public class GraphQLTypeComparator {
         return changes;
     }
 
-    /**
-     * Compares implemented interfaces.
-     */
     public List<Change> compareInterfaces(GraphQLType oldType, GraphQLType newType, String path) {
         List<Change> changes = new ArrayList<>();
 
         Set<String> oldInterfaces = new HashSet<>(oldType.getInterfaces());
         Set<String> newInterfaces = new HashSet<>(newType.getInterfaces());
 
-        // Removed interfaces (BREAKING)
         for (String iface : oldInterfaces) {
             if (!newInterfaces.contains(iface)) {
                 changes.add(createChange(
@@ -212,7 +183,6 @@ public class GraphQLTypeComparator {
             }
         }
 
-        // Added interfaces (INFO)
         for (String iface : newInterfaces) {
             if (!oldInterfaces.contains(iface)) {
                 changes.add(createChange(

@@ -7,27 +7,18 @@ import io.github.mohmk10.changeloghub.intellij.model.*
 import io.github.mohmk10.changeloghub.intellij.util.FileUtils
 import io.github.mohmk10.changeloghub.intellij.util.Logger
 
-/**
- * Service for comparing API specifications.
- */
 @Service(Service.Level.PROJECT)
 class ComparisonService(private val project: Project) {
 
     private val parserService: ParserService
         get() = project.getService(ParserService::class.java)
 
-    /**
-     * Compare two API specification files.
-     */
     fun compare(oldFile: VirtualFile, newFile: VirtualFile): ComparisonResult {
         val oldContent = FileUtils.readContent(oldFile)
         val newContent = FileUtils.readContent(newFile)
         return compareContents(oldContent, oldFile.name, newContent, newFile.name)
     }
 
-    /**
-     * Compare content string with a file.
-     */
     fun compareWithContent(oldContent: String, newFile: VirtualFile): ComparisonResult {
         val newContent = FileUtils.readContent(newFile)
         return compareContents(oldContent, "old", newContent, newFile.name)
@@ -85,7 +76,6 @@ class ComparisonService(private val project: Project) {
         val oldEndpoints = oldSpec.endpoints.associateBy { "${it.method}:${it.path}" }
         val newEndpoints = newSpec.endpoints.associateBy { "${it.method}:${it.path}" }
 
-        // Find removed endpoints (breaking change)
         oldEndpoints.forEach { (key, oldEndpoint) ->
             if (!newEndpoints.containsKey(key)) {
                 changes.add(Change(
@@ -100,7 +90,6 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Find added endpoints
         newEndpoints.forEach { (key, newEndpoint) ->
             if (!oldEndpoints.containsKey(key)) {
                 changes.add(Change(
@@ -114,11 +103,9 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Find modified endpoints
         oldEndpoints.forEach { (key, oldEndpoint) ->
             val newEndpoint = newEndpoints[key] ?: return@forEach
 
-            // Check for deprecated status change
             if (!oldEndpoint.deprecated && newEndpoint.deprecated) {
                 changes.add(Change(
                     path = "${oldEndpoint.method} ${oldEndpoint.path}",
@@ -131,11 +118,9 @@ class ComparisonService(private val project: Project) {
                 ))
             }
 
-            // Check for parameter changes
             compareParameters(oldEndpoint, newEndpoint, changes)
         }
 
-        // Compare schemas
         compareSchemas(oldSpec.schemas, newSpec.schemas, changes)
 
         return changes
@@ -146,7 +131,6 @@ class ComparisonService(private val project: Project) {
         val newParams = newEndpoint.parameters.associateBy { it.name }
         val path = "${oldEndpoint.method} ${oldEndpoint.path}"
 
-        // Find removed parameters
         oldParams.forEach { (name, _) ->
             if (!newParams.containsKey(name)) {
                 changes.add(Change(
@@ -161,7 +145,6 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Find added required parameters (breaking change)
         newParams.forEach { (name, param) ->
             if (!oldParams.containsKey(name) && param.required) {
                 changes.add(Change(
@@ -185,7 +168,6 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Check for required status changes
         oldParams.forEach { (name, oldParam) ->
             val newParam = newParams[name] ?: return@forEach
             if (!oldParam.required && newParam.required) {
@@ -206,7 +188,6 @@ class ComparisonService(private val project: Project) {
         val oldSchemaMap = oldSchemas.associateBy { it.name }
         val newSchemaMap = newSchemas.associateBy { it.name }
 
-        // Find removed schemas
         oldSchemaMap.forEach { (name, _) ->
             if (!newSchemaMap.containsKey(name)) {
                 changes.add(Change(
@@ -221,7 +202,6 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Find added schemas
         newSchemaMap.forEach { (name, _) ->
             if (!oldSchemaMap.containsKey(name)) {
                 changes.add(Change(
@@ -235,7 +215,6 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Check for property changes in existing schemas
         oldSchemaMap.forEach { (name, oldSchema) ->
             val newSchema = newSchemaMap[name] ?: return@forEach
             compareSchemaProperties(name, oldSchema.properties, newSchema.properties, changes)
@@ -246,7 +225,6 @@ class ComparisonService(private val project: Project) {
         val oldPropMap = oldProps.associateBy { it.name }
         val newPropMap = newProps.associateBy { it.name }
 
-        // Find removed properties (breaking if required)
         oldPropMap.forEach { (name, oldProp) ->
             if (!newPropMap.containsKey(name)) {
                 changes.add(Change(
@@ -261,7 +239,6 @@ class ComparisonService(private val project: Project) {
             }
         }
 
-        // Find added required properties (breaking)
         newPropMap.forEach { (name, newProp) ->
             if (!oldPropMap.containsKey(name) && newProp.required) {
                 changes.add(Change(
@@ -295,9 +272,6 @@ class ComparisonService(private val project: Project) {
     }
 }
 
-/**
- * Result of a comparison operation.
- */
 data class ComparisonResult(
     val changes: List<ChangeInfo>,
     val breakingChanges: List<BreakingChangeInfo>,
@@ -307,9 +281,6 @@ data class ComparisonResult(
     val semverRecommendation: String
 )
 
-/**
- * Information about a single change.
- */
 data class ChangeInfo(
     val path: String,
     val type: String,
@@ -319,9 +290,6 @@ data class ChangeInfo(
     val migrationSuggestion: String
 )
 
-/**
- * Information about a breaking change.
- */
 data class BreakingChangeInfo(
     val path: String,
     val type: String,

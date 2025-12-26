@@ -3,20 +3,15 @@ package io.github.mohmk10.changeloghub.parser.grpc.util;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * Constants for Protocol Buffers parsing.
- */
 public final class ProtoConstants {
 
     private ProtoConstants() {
-        // Utility class
+        
     }
 
-    // Syntax versions
     public static final String SYNTAX_PROTO2 = "proto2";
     public static final String SYNTAX_PROTO3 = "proto3";
 
-    // Keywords
     public static final String KEYWORD_SYNTAX = "syntax";
     public static final String KEYWORD_PACKAGE = "package";
     public static final String KEYWORD_IMPORT = "import";
@@ -33,12 +28,10 @@ public final class ProtoConstants {
     public static final String KEYWORD_EXTENSIONS = "extensions";
     public static final String KEYWORD_EXTEND = "extend";
 
-    // Field rules
     public static final String RULE_OPTIONAL = "optional";
     public static final String RULE_REQUIRED = "required";
     public static final String RULE_REPEATED = "repeated";
 
-    // Common options
     public static final String OPTION_DEPRECATED = "deprecated";
     public static final String OPTION_JAVA_PACKAGE = "java_package";
     public static final String OPTION_JAVA_OUTER_CLASSNAME = "java_outer_classname";
@@ -46,7 +39,6 @@ public final class ProtoConstants {
     public static final String OPTION_GO_PACKAGE = "go_package";
     public static final String OPTION_CSHARP_NAMESPACE = "csharp_namespace";
 
-    // Scalar type names
     public static final Set<String> SCALAR_TYPES = Set.of(
             "double", "float",
             "int32", "int64",
@@ -57,7 +49,6 @@ public final class ProtoConstants {
             "bool", "string", "bytes"
     );
 
-    // Well-known types
     public static final Set<String> WELL_KNOWN_TYPES = Set.of(
             "google.protobuf.Any",
             "google.protobuf.Timestamp",
@@ -78,7 +69,6 @@ public final class ProtoConstants {
             "google.protobuf.UInt64Value"
     );
 
-    // Regex patterns
     public static final Pattern SYNTAX_PATTERN = Pattern.compile(
             "syntax\\s*=\\s*[\"']([^\"']+)[\"']\\s*;");
 
@@ -117,9 +107,7 @@ public final class ProtoConstants {
     public static final Pattern ONEOF_PATTERN = Pattern.compile(
             "oneof\\s+(\\w+)\\s*\\{([^}]*)\\}", Pattern.DOTALL);
 
-    // File extension
     public static final String PROTO_EXTENSION = ".proto";
 
-    // gRPC path format
     public static final String GRPC_PATH_FORMAT = "/%s.%s/%s";
 }

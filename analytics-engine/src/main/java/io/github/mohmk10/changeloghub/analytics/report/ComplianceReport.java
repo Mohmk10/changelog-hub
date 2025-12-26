@@ -6,9 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Report on API compliance with standards and best practices.
- */
 public class ComplianceReport {
 
     private String apiName;
@@ -21,9 +18,6 @@ public class ComplianceReport {
     private int warningChecks;
     private LocalDateTime generatedAt;
 
-    /**
-     * Individual compliance check result.
-     */
     public static class ComplianceCheck {
         private String name;
         private String category;
@@ -56,9 +50,6 @@ public class ComplianceReport {
         public void setDetails(String details) { this.details = details; }
     }
 
-    /**
-     * Compliance violation details.
-     */
     public static class ComplianceViolation {
         private String rule;
         private String severity;
@@ -98,7 +89,6 @@ public class ComplianceReport {
         return new Builder();
     }
 
-    // Getters and Setters
     public String getApiName() { return apiName; }
     public void setApiName(String apiName) { this.apiName = apiName; }
 
@@ -128,9 +118,6 @@ public class ComplianceReport {
     public LocalDateTime getGeneratedAt() { return generatedAt; }
     public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
 
-    /**
-     * Get compliance percentage.
-     */
     public double getCompliancePercentage() {
         int total = passedChecks + failedChecks + warningChecks;
         if (total == 0) return 100.0;
@@ -146,19 +133,15 @@ public class ComplianceReport {
                 case PASSED -> passedChecks++;
                 case FAILED -> failedChecks++;
                 case WARNING -> warningChecks++;
-                default -> { /* SKIPPED - not counted */ }
+                default -> {  }
             }
         }
     }
 
-    /**
-     * Convert report to Markdown format.
-     */
     public String toMarkdown() {
         StringBuilder sb = new StringBuilder();
         sb.append("# Compliance Report: ").append(apiName).append("\n\n");
 
-        // Summary
         sb.append("## Summary\n\n");
         if (overallStatus != null) {
             sb.append("- **Status:** ").append(overallStatus.getStatus()).append("\n");
@@ -168,7 +151,6 @@ public class ComplianceReport {
         sb.append("- **Failed Checks:** ").append(failedChecks).append("\n");
         sb.append("- **Warnings:** ").append(warningChecks).append("\n\n");
 
-        // Violations
         if (!violations.isEmpty()) {
             sb.append("## Violations\n\n");
             for (ComplianceViolation violation : violations) {
@@ -182,7 +164,6 @@ public class ComplianceReport {
             }
         }
 
-        // Check Results
         if (!checks.isEmpty()) {
             sb.append("## Check Results\n\n");
             sb.append("| Check | Category | Status | Message |\n");
@@ -203,7 +184,6 @@ public class ComplianceReport {
             sb.append("\n");
         }
 
-        // Recommendations
         if (!recommendations.isEmpty()) {
             sb.append("## Recommendations\n\n");
             for (Recommendation rec : recommendations) {

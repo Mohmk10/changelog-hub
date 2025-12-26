@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Default implementation of GitService.
- */
 public class DefaultGitService implements GitService {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultGitService.class);
@@ -40,7 +37,6 @@ public class DefaultGitService implements GitService {
     private GitConfig config;
     private Path repositoryPath;
 
-    // Lazy-initialized components
     private FileExtractor fileExtractor;
     private SpecFileDetector specFileDetector;
     private ChangelogExtractor changelogExtractor;
@@ -59,41 +55,21 @@ public class DefaultGitService implements GitService {
         this.config = config != null ? config : new GitConfig();
     }
 
-    // ============================================================
-    // Factory Methods
-    // ============================================================
-
-    /**
-     * Create a new GitService instance.
-     */
     public static GitService create() {
         return new DefaultGitService();
     }
 
-    /**
-     * Create a new GitService instance with configuration.
-     */
     public static GitService create(GitConfig config) {
         return new DefaultGitService(config);
     }
 
-    /**
-     * Open a repository and return a GitService.
-     */
     public static GitService openRepository(Path path) {
         return new DefaultGitService().open(path);
     }
 
-    /**
-     * Open a repository and return a GitService.
-     */
     public static GitService openRepository(String path) {
         return new DefaultGitService().open(path);
     }
-
-    // ============================================================
-    // Repository Management
-    // ============================================================
 
     @Override
     public GitService open(Path path) {
@@ -128,7 +104,6 @@ public class DefaultGitService implements GitService {
                 .setURI(url)
                 .setDirectory(localPath.toFile());
 
-            // Add credentials if configured
             if (config.hasCredentials()) {
                 GitConfig.CredentialsConfig creds = config.getCredentials();
                 if (creds.isTokenAuth()) {
@@ -171,10 +146,6 @@ public class DefaultGitService implements GitService {
         return repositoryPath;
     }
 
-    // ============================================================
-    // File Operations
-    // ============================================================
-
     @Override
     public Optional<GitFileContent> getFileContent(String filePath, String ref) {
         ensureOpen();
@@ -198,10 +169,6 @@ public class DefaultGitService implements GitService {
         ensureOpen();
         return fileExtractor.fileExists(filePath, ref);
     }
-
-    // ============================================================
-    // Branch Operations
-    // ============================================================
 
     @Override
     public List<GitBranch> getBranches() {
@@ -227,10 +194,6 @@ public class DefaultGitService implements GitService {
         return branchAnalyzer.getDefaultBranch();
     }
 
-    // ============================================================
-    // Tag Operations
-    // ============================================================
-
     @Override
     public List<GitTag> getTags() {
         ensureOpen();
@@ -255,10 +218,6 @@ public class DefaultGitService implements GitService {
         return tagAnalyzer.getLatestTag();
     }
 
-    // ============================================================
-    // Commit Operations
-    // ============================================================
-
     @Override
     public List<GitCommit> getCommits(String fromRef, String toRef) {
         ensureOpen();
@@ -277,10 +236,6 @@ public class DefaultGitService implements GitService {
         return commitAnalyzer.getCommit(ref);
     }
 
-    // ============================================================
-    // Diff Operations
-    // ============================================================
-
     @Override
     public GitDiff getDiff(String oldRef, String newRef) {
         ensureOpen();
@@ -298,10 +253,6 @@ public class DefaultGitService implements GitService {
         ensureOpen();
         return diffAnalyzer.hasChanges(oldRef, newRef);
     }
-
-    // ============================================================
-    // Spec Detection
-    // ============================================================
 
     @Override
     public Map<SpecFileDetector.SpecType, List<String>> detectSpecs(String ref) {
@@ -333,10 +284,6 @@ public class DefaultGitService implements GitService {
         return specFileDetector.findAsyncApiSpecs(ref);
     }
 
-    // ============================================================
-    // Changelog Generation
-    // ============================================================
-
     @Override
     public List<ChangelogExtractor.SpecChangelog> generateChangelogs(String oldRef, String newRef) {
         ensureOpen();
@@ -358,10 +305,6 @@ public class DefaultGitService implements GitService {
         return changelogExtractor.extractChangelogsForChangedFiles(diff, oldRef, newRef);
     }
 
-    // ============================================================
-    // Comparisons
-    // ============================================================
-
     @Override
     public GitRefComparator.RefComparison compareRefs(String oldRef, String newRef) {
         ensureOpen();
@@ -380,10 +323,6 @@ public class DefaultGitService implements GitService {
         return refComparator.compareConsecutiveTags();
     }
 
-    // ============================================================
-    // Breaking Changes
-    // ============================================================
-
     @Override
     public boolean hasBreakingChanges(String oldRef, String newRef) {
         ensureOpen();
@@ -395,10 +334,6 @@ public class DefaultGitService implements GitService {
         ensureOpen();
         return specComparator.getBreakingChanges(oldRef, newRef);
     }
-
-    // ============================================================
-    // Release Notes
-    // ============================================================
 
     @Override
     public GitRefComparator.ReleaseNotes generateReleaseNotes(String oldRef, String newRef) {
@@ -412,10 +347,6 @@ public class DefaultGitService implements GitService {
         return specComparator.generateMigrationGuide(oldRef, newRef);
     }
 
-    // ============================================================
-    // Lifecycle
-    // ============================================================
-
     @Override
     public void close() {
         if (repository != null) {
@@ -424,10 +355,6 @@ public class DefaultGitService implements GitService {
             logger.debug("Repository closed");
         }
     }
-
-    // ============================================================
-    // Helper Methods
-    // ============================================================
 
     private void ensureOpen() {
         if (repository == null) {
@@ -452,7 +379,7 @@ public class DefaultGitService implements GitService {
         if (gitDir.exists()) {
             return gitDir;
         }
-        // Check if this is a bare repository
+        
         File headFile = new File(dir, "HEAD");
         if (headFile.exists()) {
             return dir;

@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Filter that limits the rate of notifications to prevent spam.
- */
 public class RateLimitFilter implements NotificationFilter {
 
     private final int maxNotificationsPerWindow;
@@ -46,7 +43,7 @@ public class RateLimitFilter implements NotificationFilter {
         StringBuilder key = new StringBuilder("global");
 
         if (perChannel) {
-            // Use first target channel or "all"
+            
             String channel = notification.getTargetChannels().stream()
                 .findFirst()
                 .map(ChannelType::name)
@@ -78,34 +75,22 @@ public class RateLimitFilter implements NotificationFilter {
 
     @Override
     public int getPriority() {
-        return 5; // Run very early
+        return 5; 
     }
 
-    /**
-     * Reset all rate limit buckets.
-     */
     public void reset() {
         buckets.clear();
     }
 
-    /**
-     * Reset a specific bucket.
-     */
     public void reset(String bucketKey) {
         buckets.remove(bucketKey);
     }
 
-    /**
-     * Get current count for a bucket.
-     */
     public int getCurrentCount(String bucketKey) {
         RateLimitBucket bucket = buckets.get(bucketKey);
         return bucket != null ? bucket.getCurrentCount() : 0;
     }
 
-    /**
-     * Get remaining capacity for the global bucket.
-     */
     public int getRemainingCapacity() {
         RateLimitBucket bucket = buckets.get("global");
         return bucket != null
@@ -121,30 +106,18 @@ public class RateLimitFilter implements NotificationFilter {
         return windowDuration;
     }
 
-    /**
-     * Create a filter allowing N notifications per minute.
-     */
     public static RateLimitFilter perMinute(int max) {
         return new RateLimitFilter(max, Duration.ofMinutes(1));
     }
 
-    /**
-     * Create a filter allowing N notifications per hour.
-     */
     public static RateLimitFilter perHour(int max) {
         return new RateLimitFilter(max, Duration.ofHours(1));
     }
 
-    /**
-     * Create a filter with per-channel limits.
-     */
     public static RateLimitFilter perChannelPerMinute(int max) {
         return new RateLimitFilter(max, Duration.ofMinutes(1), true, false);
     }
 
-    /**
-     * Sliding window rate limit bucket.
-     */
     private static class RateLimitBucket {
         private final int maxCount;
         private final long windowMillis;
@@ -160,13 +133,11 @@ public class RateLimitFilter implements NotificationFilter {
         synchronized boolean tryAcquire() {
             long now = Instant.now().toEpochMilli();
 
-            // Reset window if expired
             if (now - windowStart >= windowMillis) {
                 windowStart = now;
                 count.set(0);
             }
 
-            // Check if we can acquire
             if (count.get() < maxCount) {
                 count.incrementAndGet();
                 return true;
@@ -178,7 +149,7 @@ public class RateLimitFilter implements NotificationFilter {
         int getCurrentCount() {
             long now = Instant.now().toEpochMilli();
             if (now - windowStart >= windowMillis) {
-                return 0; // Window expired
+                return 0; 
             }
             return count.get();
         }

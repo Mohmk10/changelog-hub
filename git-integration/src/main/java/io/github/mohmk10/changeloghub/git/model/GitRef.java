@@ -5,9 +5,6 @@ import io.github.mohmk10.changeloghub.git.util.GitRefType;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Represents a Git reference (branch, tag, or commit).
- */
 public class GitRef {
 
     private String name;

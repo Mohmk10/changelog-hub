@@ -2,9 +2,6 @@ package io.github.mohmk10.changeloghub.parser.graphql.model;
 
 import java.util.*;
 
-/**
- * Represents a complete GraphQL schema.
- */
 public class GraphQLSchema {
 
     private String name;

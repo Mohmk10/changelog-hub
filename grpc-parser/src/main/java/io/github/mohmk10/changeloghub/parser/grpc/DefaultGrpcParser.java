@@ -25,10 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-/**
- * Default implementation of GrpcParser using regex-based parsing.
- * Supports proto2 and proto3 syntax without requiring the protobuf compiler.
- */
 public class DefaultGrpcParser implements GrpcParser {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultGrpcParser.class);
@@ -72,35 +68,27 @@ public class DefaultGrpcParser implements GrpcParser {
         logger.debug("Parsing proto content{}", fileName != null ? " from " + fileName : "");
 
         try {
-            // Remove comments
+            
             String cleanContent = removeComments(content);
 
-            // Extract syntax
             String syntax = extractSyntax(cleanContent);
             if (syntax != null && !supportsSyntax(syntax)) {
                 throw GrpcParseException.unsupportedSyntax(syntax);
             }
 
-            // Extract package
             String packageName = extractPackage(cleanContent);
 
-            // Extract imports
             List<String> imports = extractImports(cleanContent);
             List<String> publicImports = extractPublicImports(cleanContent);
 
-            // Extract options
             var options = extractOptions(cleanContent);
 
-            // Parse services
             List<ProtoService> services = serviceAnalyzer.analyzeServices(cleanContent, packageName);
 
-            // Parse messages
             List<ProtoMessage> messages = messageAnalyzer.analyzeMessages(cleanContent, packageName);
 
-            // Parse top-level enums
             List<ProtoEnum> enums = enumAnalyzer.analyzeEnums(cleanContent, packageName);
 
-            // Build ProtoFile
             ProtoFile.Builder builder = ProtoFile.builder()
                     .fileName(fileName)
                     .syntax(syntax != null ? syntax : ProtoConstants.SYNTAX_PROTO3)
@@ -251,22 +239,13 @@ public class DefaultGrpcParser implements GrpcParser {
         return SUPPORTED_SYNTAXES;
     }
 
-    // Private helper methods
-
-    /**
-     * Remove single-line and multi-line comments from the content.
-     */
     private String removeComments(String content) {
-        // Remove single-line comments
+        
         String noSingleLine = content.replaceAll("//.*$", "");
 
-        // Remove multi-line comments
         return noSingleLine.replaceAll("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/", "");
     }
 
-    /**
-     * Extract syntax declaration.
-     */
     private String extractSyntax(String content) {
         Matcher matcher = ProtoConstants.SYNTAX_PATTERN.matcher(content);
         if (matcher.find()) {
@@ -275,9 +254,6 @@ public class DefaultGrpcParser implements GrpcParser {
         return null;
     }
 
-    /**
-     * Extract package declaration.
-     */
     private String extractPackage(String content) {
         Matcher matcher = ProtoConstants.PACKAGE_PATTERN.matcher(content);
         if (matcher.find()) {
@@ -286,24 +262,18 @@ public class DefaultGrpcParser implements GrpcParser {
         return null;
     }
 
-    /**
-     * Extract import statements.
-     */
     private List<String> extractImports(String content) {
         List<String> imports = new ArrayList<>();
         Matcher matcher = ProtoConstants.IMPORT_PATTERN.matcher(content);
         while (matcher.find()) {
-            String modifier = matcher.group(1); // public or weak
-            if (modifier == null) { // regular import
+            String modifier = matcher.group(1); 
+            if (modifier == null) { 
                 imports.add(matcher.group(2));
             }
         }
         return imports;
     }
 
-    /**
-     * Extract public import statements.
-     */
     private List<String> extractPublicImports(String content) {
         List<String> imports = new ArrayList<>();
         Matcher matcher = ProtoConstants.IMPORT_PATTERN.matcher(content);
@@ -316,9 +286,6 @@ public class DefaultGrpcParser implements GrpcParser {
         return imports;
     }
 
-    /**
-     * Extract file-level options.
-     */
     private java.util.Map<String, String> extractOptions(String content) {
         java.util.Map<String, String> options = new java.util.LinkedHashMap<>();
         Matcher matcher = ProtoConstants.OPTION_PATTERN.matcher(content);
@@ -326,7 +293,6 @@ public class DefaultGrpcParser implements GrpcParser {
             String key = matcher.group(1);
             String value = matcher.group(2).trim();
 
-            // Remove quotes from string values
             if (value.startsWith("\"") && value.endsWith("\"")) {
                 value = value.substring(1, value.length() - 1);
             }
@@ -336,9 +302,6 @@ public class DefaultGrpcParser implements GrpcParser {
         return options;
     }
 
-    /**
-     * Extract filename from a URL.
-     */
     private String extractFileNameFromUrl(URL url) {
         String path = url.getPath();
         int lastSlash = path.lastIndexOf('/');

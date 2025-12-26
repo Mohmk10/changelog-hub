@@ -7,9 +7,6 @@ import io.github.mohmk10.changeloghub.notification.util.ChannelType;
 import java.time.Instant;
 import java.util.*;
 
-/**
- * Represents a notification to be sent.
- */
 public class Notification {
 
     private final String id;

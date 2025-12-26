@@ -3,9 +3,6 @@ import { parseSpec } from '../core/parser';
 import { isInlineWarningsEnabled } from '../utils/config';
 import { Logger } from '../utils/logger';
 
-/**
- * Provides diagnostics for API specification files
- */
 export class DiagnosticProvider {
   constructor(private diagnosticCollection: vscode.DiagnosticCollection) {}
 
@@ -25,7 +22,6 @@ export class DiagnosticProvider {
       const content = document.getText();
       const spec = parseSpec(content, document.fileName);
 
-      // Check for deprecated endpoints
       for (const endpoint of spec.endpoints) {
         if (endpoint.deprecated) {
           const range = this.findRange(document, endpoint.path);
@@ -42,7 +38,6 @@ export class DiagnosticProvider {
           }
         }
 
-        // Check for missing descriptions
         if (!endpoint.description && !endpoint.summary) {
           const range = this.findRange(document, endpoint.path);
           if (range) {
@@ -57,7 +52,6 @@ export class DiagnosticProvider {
           }
         }
 
-        // Check for missing response definitions
         if (endpoint.responses.length === 0) {
           const range = this.findRange(document, endpoint.path);
           if (range) {
@@ -73,7 +67,6 @@ export class DiagnosticProvider {
         }
       }
 
-      // Check schemas
       for (const schema of spec.schemas) {
         if (schema.properties.length === 0 && schema.type === 'object') {
           const range = this.findRange(document, schema.name);
@@ -90,7 +83,7 @@ export class DiagnosticProvider {
         }
       }
     } catch (error) {
-      // Parse error
+      
       const message = error instanceof Error ? error.message : 'Unknown error';
       if (!message.includes('Unsupported') && !message.includes('Unknown')) {
         const diagnostic = new vscode.Diagnostic(
@@ -112,7 +105,6 @@ export class DiagnosticProvider {
       return false;
     }
 
-    // Quick content check
     const text = document.getText().substring(0, 500);
     return (
       text.includes('openapi') ||

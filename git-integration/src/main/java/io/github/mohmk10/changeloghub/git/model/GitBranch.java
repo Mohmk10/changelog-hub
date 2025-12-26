@@ -3,9 +3,6 @@ package io.github.mohmk10.changeloghub.git.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Represents a Git branch.
- */
 public class GitBranch {
 
     private String name;
@@ -74,9 +71,6 @@ public class GitBranch {
         this.lastCommitDate = lastCommitDate;
     }
 
-    /**
-     * Get short branch name without refs/heads/ or refs/remotes/ prefix.
-     */
     public String getShortName() {
         if (name == null) return null;
         if (name.startsWith("refs/heads/")) {
@@ -88,26 +82,17 @@ public class GitBranch {
         return name;
     }
 
-    /**
-     * Check if this is a main branch (main or master).
-     */
     public boolean isMainBranch() {
         String shortName = getShortName();
         return "main".equals(shortName) || "master".equals(shortName);
     }
 
-    /**
-     * Check if this is a feature branch.
-     */
     public boolean isFeatureBranch() {
         String shortName = getShortName();
         return shortName != null &&
                (shortName.startsWith("feature/") || shortName.startsWith("feat/"));
     }
 
-    /**
-     * Check if this is a release branch.
-     */
     public boolean isReleaseBranch() {
         String shortName = getShortName();
         return shortName != null && shortName.startsWith("release/");
