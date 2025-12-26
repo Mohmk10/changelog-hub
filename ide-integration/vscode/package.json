@@ -1,0 +1,246 @@
+{
+  "name": "changelog-hub",
+  "displayName": "Changelog Hub",
+  "description": "API breaking change detector with automatic changelog generation",
+  "version": "1.0.0",
+  "publisher": "mohmk10",
+  "icon": "resources/icons/changelog-hub.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mohmk10/changelog-hub"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "api",
+    "openapi",
+    "swagger",
+    "graphql",
+    "grpc",
+    "asyncapi",
+    "changelog",
+    "breaking-changes"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onLanguage:json",
+    "onLanguage:graphql",
+    "onLanguage:proto3",
+    "workspaceContains:**/*.yaml",
+    "workspaceContains:**/*.graphql",
+    "workspaceContains:**/*.proto"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "changelogHub.compare",
+        "title": "Compare API Specs",
+        "category": "Changelog Hub",
+        "icon": "$(git-compare)"
+      },
+      {
+        "command": "changelogHub.compareWithGit",
+        "title": "Compare with Git Ref",
+        "category": "Changelog Hub",
+        "icon": "$(git-branch)"
+      },
+      {
+        "command": "changelogHub.analyze",
+        "title": "Analyze API Spec",
+        "category": "Changelog Hub",
+        "icon": "$(search)"
+      },
+      {
+        "command": "changelogHub.validate",
+        "title": "Validate API Spec",
+        "category": "Changelog Hub",
+        "icon": "$(check)"
+      },
+      {
+        "command": "changelogHub.generateChangelog",
+        "title": "Generate Changelog",
+        "category": "Changelog Hub",
+        "icon": "$(output)"
+      },
+      {
+        "command": "changelogHub.showBreakingChanges",
+        "title": "Show Breaking Changes",
+        "category": "Changelog Hub",
+        "icon": "$(warning)"
+      },
+      {
+        "command": "changelogHub.refreshViews",
+        "title": "Refresh Views",
+        "category": "Changelog Hub",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "changelogHub.compare",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json || resourceExtname == .graphql || resourceExtname == .proto",
+          "group": "changelogHub"
+        },
+        {
+          "command": "changelogHub.analyze",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json || resourceExtname == .graphql || resourceExtname == .proto",
+          "group": "changelogHub"
+        },
+        {
+          "command": "changelogHub.compareWithGit",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json || resourceExtname == .graphql || resourceExtname == .proto",
+          "group": "changelogHub"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "changelogHub.compare",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json || resourceExtname == .graphql || resourceExtname == .proto",
+          "group": "changelogHub"
+        },
+        {
+          "command": "changelogHub.validate",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .json || resourceExtname == .graphql || resourceExtname == .proto",
+          "group": "changelogHub"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "changelogHub.refreshViews",
+          "when": "view == changelogHub.breakingChanges || view == changelogHub.apiExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "changelogHub.compare",
+          "when": "view == changelogHub.breakingChanges",
+          "group": "navigation"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "changelog-hub",
+          "title": "Changelog Hub",
+          "icon": "resources/icons/changelog-hub.svg"
+        }
+      ]
+    },
+    "views": {
+      "changelog-hub": [
+        {
+          "id": "changelogHub.apiExplorer",
+          "name": "API Explorer"
+        },
+        {
+          "id": "changelogHub.breakingChanges",
+          "name": "Breaking Changes"
+        },
+        {
+          "id": "changelogHub.changelog",
+          "name": "Changelog"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Changelog Hub",
+      "properties": {
+        "changelogHub.defaultFormat": {
+          "type": "string",
+          "enum": ["markdown", "json", "html"],
+          "default": "markdown",
+          "description": "Default output format for changelogs"
+        },
+        "changelogHub.autoDetectSpecs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically detect API spec files in workspace"
+        },
+        "changelogHub.specPatterns": {
+          "type": "array",
+          "default": ["**/openapi.yaml", "**/swagger.yaml", "**/api.yaml", "**/*.graphql", "**/*.proto"],
+          "description": "Glob patterns to detect API spec files"
+        },
+        "changelogHub.showInlineWarnings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show inline warnings for breaking changes"
+        },
+        "changelogHub.baseRef": {
+          "type": "string",
+          "default": "main",
+          "description": "Default Git ref for comparison"
+        },
+        "changelogHub.severityThreshold": {
+          "type": "string",
+          "enum": ["INFO", "WARNING", "DANGEROUS", "BREAKING"],
+          "default": "INFO",
+          "description": "Minimum severity level to display"
+        }
+      }
+    },
+    "colors": [
+      {
+        "id": "changelogHub.breakingChange",
+        "description": "Color for breaking changes",
+        "defaults": {
+          "dark": "#ff6b6b",
+          "light": "#d63031"
+        }
+      },
+      {
+        "id": "changelogHub.warning",
+        "description": "Color for warnings",
+        "defaults": {
+          "dark": "#feca57",
+          "light": "#f39c12"
+        }
+      },
+      {
+        "id": "changelogHub.info",
+        "description": "Color for info changes",
+        "defaults": {
+          "dark": "#54a0ff",
+          "light": "#0984e3"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile",
+    "test": "node ./out/tests/runTest.js",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "yaml": "^2.3.4"
+  }
+}
