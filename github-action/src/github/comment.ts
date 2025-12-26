@@ -1,0 +1,266 @@
+import * as github from '@actions/github';
+import { ChangelogResult } from '../changelog/detector';
+import { Logger } from '../utils/logger';
+
+const logger = new Logger('PRComment');
+
+/** Marker to identify Changelog Hub comments */
+const COMMENT_MARKER = '<!-- changelog-hub-comment -->';
+
+/**
+ * Posts a new comment on the PR with changelog results.
+ *
+ * @param token - GitHub token for API access
+ * @param result - Changelog detection results
+ */
+export async function postPrComment(token: string, result: ChangelogResult): Promise<number> {
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.repo;
+  const prNumber = github.context.payload.pull_request?.number;
+
+  if (!prNumber) {
+    throw new Error('No pull request context found');
+  }
+
+  const body = formatComment(result);
+
+  const { data } = await octokit.rest.issues.createComment({
+    owner,
+    repo,
+    issue_number: prNumber,
+    body,
+  });
+
+  logger.info(`Posted comment #${data.id} on PR #${prNumber}`);
+  return data.id;
+}
+
+/**
+ * Updates an existing Changelog Hub comment on the PR.
+ *
+ * @param token - GitHub token for API access
+ * @param commentId - ID of the comment to update
+ * @param result - Changelog detection results
+ */
+export async function updatePrComment(
+  token: string,
+  commentId: number,
+  result: ChangelogResult
+): Promise<void> {
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.repo;
+
+  const body = formatComment(result);
+
+  await octokit.rest.issues.updateComment({
+    owner,
+    repo,
+    comment_id: commentId,
+    body,
+  });
+
+  logger.info(`Updated comment #${commentId}`);
+}
+
+/**
+ * Finds an existing Changelog Hub comment on a PR.
+ *
+ * @param token - GitHub token for API access
+ * @param prNumber - Pull request number
+ * @returns Comment ID if found, null otherwise
+ */
+export async function findExistingComment(token: string, prNumber: number): Promise<number | null> {
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.repo;
+
+  const { data: comments } = await octokit.rest.issues.listComments({
+    owner,
+    repo,
+    issue_number: prNumber,
+    per_page: 100,
+  });
+
+  const existingComment = comments.find((c) => c.body?.includes(COMMENT_MARKER));
+  return existingComment?.id ?? null;
+}
+
+/**
+ * Deletes a Changelog Hub comment from a PR.
+ *
+ * @param token - GitHub token for API access
+ * @param commentId - ID of the comment to delete
+ */
+export async function deleteComment(token: string, commentId: number): Promise<void> {
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.repo;
+
+  await octokit.rest.issues.deleteComment({
+    owner,
+    repo,
+    comment_id: commentId,
+  });
+
+  logger.info(`Deleted comment #${commentId}`);
+}
+
+/**
+ * Formats the changelog result as a PR comment.
+ */
+function formatComment(result: ChangelogResult): string {
+  const emoji = getStatusEmoji(result);
+  const status = getStatusText(result);
+  const riskBadge = getRiskBadge(result.riskLevel);
+
+  const lines: string[] = [
+    COMMENT_MARKER,
+    `## ${emoji} Changelog Hub: ${status}`,
+    '',
+    riskBadge,
+    '',
+    '### Summary',
+    '',
+    '| Metric | Value |',
+    '|--------|-------|',
+    `| Total Changes | ${result.totalChangesCount} |`,
+    `| Breaking Changes | ${result.breakingChangesCount} |`,
+    `| Risk Level | ${formatRiskLevel(result.riskLevel)} |`,
+    `| Risk Score | ${result.riskScore}/100 |`,
+    `| Recommended Bump | **${result.semverRecommendation}** |`,
+    '',
+  ];
+
+  // Breaking changes section
+  if (result.breakingChanges.length > 0) {
+    lines.push('### Breaking Changes');
+    lines.push('');
+    lines.push('> **Warning:** The following changes may break existing clients.');
+    lines.push('');
+
+    for (const change of result.breakingChanges.slice(0, 10)) {
+      lines.push(`<details>`);
+      lines.push(`<summary><strong>${escapeHtml(change.path)}</strong></summary>`);
+      lines.push('');
+      lines.push(`- **Type:** ${change.type}`);
+      lines.push(`- **Description:** ${escapeHtml(change.description)}`);
+      lines.push(`- **Impact Score:** ${change.impactScore}/100`);
+      lines.push(`- **Migration:** ${escapeHtml(change.migrationSuggestion)}`);
+      lines.push('');
+      lines.push('</details>');
+      lines.push('');
+    }
+
+    if (result.breakingChanges.length > 10) {
+      lines.push(
+        `<em>...and ${result.breakingChanges.length - 10} more breaking changes</em>`
+      );
+      lines.push('');
+    }
+  }
+
+  // Non-breaking changes summary
+  const nonBreakingCount = result.totalChangesCount - result.breakingChangesCount;
+  if (nonBreakingCount > 0) {
+    lines.push('### Other Changes');
+    lines.push('');
+
+    const additions = result.changes.filter((c) => c.type === 'ADDED' && c.severity !== 'BREAKING');
+    const modifications = result.changes.filter(
+      (c) => c.type === 'MODIFIED' && c.severity !== 'BREAKING'
+    );
+    const deprecations = result.changes.filter((c) => c.type === 'DEPRECATED');
+
+    if (additions.length > 0) {
+      lines.push(`- **Additions:** ${additions.length}`);
+    }
+    if (modifications.length > 0) {
+      lines.push(`- **Modifications:** ${modifications.length}`);
+    }
+    if (deprecations.length > 0) {
+      lines.push(`- **Deprecations:** ${deprecations.length}`);
+    }
+    lines.push('');
+  }
+
+  // Full changelog in collapsible section
+  lines.push('<details>');
+  lines.push('<summary>View Full Changelog</summary>');
+  lines.push('');
+  lines.push('```markdown');
+  lines.push(result.changelog);
+  lines.push('```');
+  lines.push('');
+  lines.push('</details>');
+  lines.push('');
+
+  // Footer
+  lines.push('---');
+  lines.push(
+    `*Generated by [Changelog Hub](https://github.com/Mohmk10/changelog-hub) | ${new Date().toISOString()}*`
+  );
+
+  return lines.join('\n');
+}
+
+/**
+ * Gets the appropriate status emoji based on results
+ */
+function getStatusEmoji(result: ChangelogResult): string {
+  if (result.hasBreakingChanges) {
+    if (result.riskLevel === 'CRITICAL') return '🚨';
+    if (result.riskLevel === 'HIGH') return '🔴';
+    return '🟠';
+  }
+  if (result.totalChangesCount === 0) return '⚪';
+  return '🟢';
+}
+
+/**
+ * Gets the status text based on results
+ */
+function getStatusText(result: ChangelogResult): string {
+  if (result.hasBreakingChanges) {
+    return `${result.breakingChangesCount} Breaking Change${result.breakingChangesCount > 1 ? 's' : ''} Detected`;
+  }
+  if (result.totalChangesCount === 0) {
+    return 'No API Changes';
+  }
+  return 'No Breaking Changes';
+}
+
+/**
+ * Gets a visual badge for the risk level
+ */
+function getRiskBadge(riskLevel: string): string {
+  const badges: Record<string, string> = {
+    LOW: '![Risk: Low](https://img.shields.io/badge/Risk-Low-green)',
+    MEDIUM: '![Risk: Medium](https://img.shields.io/badge/Risk-Medium-yellow)',
+    HIGH: '![Risk: High](https://img.shields.io/badge/Risk-High-orange)',
+    CRITICAL: '![Risk: Critical](https://img.shields.io/badge/Risk-Critical-red)',
+  };
+  return badges[riskLevel] ?? badges.LOW;
+}
+
+/**
+ * Formats risk level with emoji
+ */
+function formatRiskLevel(riskLevel: string): string {
+  const formats: Record<string, string> = {
+    LOW: '🟢 LOW',
+    MEDIUM: '🟡 MEDIUM',
+    HIGH: '🟠 HIGH',
+    CRITICAL: '🔴 CRITICAL',
+  };
+  return formats[riskLevel] ?? riskLevel;
+}
+
+/**
+ * Escapes HTML special characters
+ */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
