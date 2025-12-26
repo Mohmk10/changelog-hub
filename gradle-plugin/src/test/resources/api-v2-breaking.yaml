@@ -1,0 +1,278 @@
+openapi: "3.0.0"
+info:
+  title: "Petstore API"
+  version: "2.0.0"
+  description: "A sample API for managing pets - Version 2 with breaking changes"
+  contact:
+    name: API Support
+    email: support@petstore.example.com
+
+servers:
+  - url: https://api.petstore.example.com/v2
+
+paths:
+  # BREAKING: Path changed from /pets to /animals
+  /animals:
+    get:
+      operationId: listAnimals
+      summary: List all animals
+      description: Returns a list of all animals in the store
+      tags:
+        - animals
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of animals to return
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        # BREAKING: New required parameter added
+        - name: species
+          in: query
+          description: Filter by species
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of animals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Animal"
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
+    post:
+      operationId: createAnimal
+      summary: Create a new animal
+      description: Creates a new animal in the store
+      tags:
+        - animals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnimalRequest"
+      responses:
+        "201":
+          description: Animal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Animal"
+        "400":
+          description: Invalid input
+        "500":
+          description: Internal server error
+
+  /animals/{animalId}:
+    get:
+      operationId: getAnimalById
+      summary: Get an animal by ID
+      description: Returns a single animal by its ID
+      tags:
+        - animals
+      parameters:
+        # BREAKING: Parameter type changed from integer to string (UUID)
+        - name: animalId
+          in: path
+          description: The ID of the animal to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: An animal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Animal"
+        "404":
+          description: Animal not found
+        "500":
+          description: Internal server error
+
+    # BREAKING: PUT method removed, replaced with PATCH
+    patch:
+      operationId: patchAnimal
+      summary: Partially update an animal
+      description: Partially updates an existing animal
+      tags:
+        - animals
+      parameters:
+        - name: animalId
+          in: path
+          description: The ID of the animal to update
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchAnimalRequest"
+      responses:
+        "200":
+          description: Animal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Animal"
+        "400":
+          description: Invalid input
+        "404":
+          description: Animal not found
+        "500":
+          description: Internal server error
+
+    delete:
+      operationId: deleteAnimal
+      summary: Delete an animal
+      description: Deletes an animal from the store
+      tags:
+        - animals
+      parameters:
+        - name: animalId
+          in: path
+          description: The ID of the animal to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Animal deleted successfully
+        "404":
+          description: Animal not found
+        "500":
+          description: Internal server error
+
+  # BREAKING: /stores endpoint removed
+
+  # New endpoint added
+  /categories:
+    get:
+      operationId: listCategories
+      summary: List all categories
+      description: Returns a list of all animal categories
+      tags:
+        - categories
+      responses:
+        "200":
+          description: A list of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+components:
+  schemas:
+    # BREAKING: Schema renamed from Pet to Animal with property changes
+    Animal:
+      type: object
+      required:
+        - id
+        - name
+        - species
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the animal
+        name:
+          type: string
+          description: Name of the animal
+        species:
+          type: string
+          description: Species of the animal
+        status:
+          type: string
+          enum:
+            - available
+            - reserved
+            - adopted
+          description: Status of the animal in the store
+        categoryId:
+          type: string
+          format: uuid
+          description: Reference to category
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for the animal
+
+    CreateAnimalRequest:
+      type: object
+      required:
+        - name
+        - species
+      properties:
+        name:
+          type: string
+          description: Name of the animal
+        species:
+          type: string
+          description: Species of the animal
+        status:
+          type: string
+          enum:
+            - available
+            - reserved
+            - adopted
+          description: Initial status of the animal
+        categoryId:
+          type: string
+          format: uuid
+          description: Reference to category
+
+    PatchAnimalRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: New name for the animal
+        status:
+          type: string
+          enum:
+            - available
+            - reserved
+            - adopted
+          description: New status for the animal
+
+    Category:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
