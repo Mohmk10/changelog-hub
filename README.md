@@ -20,14 +20,14 @@ API Breaking Change Detector - Automatically detects breaking changes in your AP
 <dependency>
     <groupId>io.github.mohmk10</groupId>
     <artifactId>core</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```kotlin
-implementation("io.github.mohmk10:core:1.0.0-SNAPSHOT")
+implementation("io.github.mohmk10:core:1.0.0")
 ```
 
 ### CLI (npm)

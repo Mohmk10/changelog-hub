@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.github.mohmk10"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenLocal()
@@ -37,6 +37,9 @@ intellijPlatform {
             sinceBuild = "233"
             untilBuild = "243.*"
         }
+    }
+    publishing {
+        token.set("perm-TW9obWs=.OTItMTQ0NzU=.GlqU3pgmnaTEnRejIUcRcEeOdFnUQS")
     }
 }
 

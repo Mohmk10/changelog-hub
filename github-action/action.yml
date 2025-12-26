@@ -1,6 +1,6 @@
 name: 'Changelog Hub'
-description: 'Detect API breaking changes and generate changelogs'
-author: 'Mohmk10'
+description: 'API Breaking Change Detector - Detects breaking changes in REST, GraphQL, gRPC, AsyncAPI and Spring Boot APIs'
+author: 'Mohamed Makan'
 branding:
   icon: 'git-compare'
   color: 'blue'

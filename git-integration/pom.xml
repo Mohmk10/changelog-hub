@@ -7,87 +7,115 @@
     <parent>
         <groupId>io.github.mohmk10</groupId>
         <artifactId>changelog-hub</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>git-integration</artifactId>
+    <groupId>io.github.mohmk10</groupId>
+    <artifactId>changelog-hub-git-integration</artifactId>
+    <version>1.0.0</version>
     <name>Changelog Hub - Git Integration</name>
-    <description>Git repository integration for comparing API specs between branches, tags and commits</description>
+    <description>Changelog Hub Git Integration - Git repository integration with JGit for comparing API specs between branches, tags and commits</description>
+    <url>https://github.com/Mohmk10/changelog-hub</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>mohmk10</id>
+            <name>Mohamed Makan</name>
+            <email>kouyatemakan100@gmail.com</email>
+            <url>https://github.com/Mohmk10</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Mohmk10/changelog-hub.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Mohmk10/changelog-hub.git</developerConnection>
+        <url>https://github.com/Mohmk10/changelog-hub</url>
+    </scm>
 
     <properties>
         <jgit.version>6.8.0.202311291450-r</jgit.version>
     </properties>
 
     <dependencies>
-        
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>changelog-hub-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>openapi-parser</artifactId>
+            <artifactId>changelog-hub-openapi-parser</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>graphql-parser</artifactId>
+            <artifactId>changelog-hub-graphql-parser</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>grpc-parser</artifactId>
+            <artifactId>changelog-hub-grpc-parser</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>asyncapi-parser</artifactId>
+            <artifactId>changelog-hub-asyncapi-parser</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.mohmk10</groupId>
-            <artifactId>spring-parser</artifactId>
+            <artifactId>changelog-hub-spring-parser</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>${jgit.version}</version>
         </dependency>
 
-        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
         </dependency>
 
-        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

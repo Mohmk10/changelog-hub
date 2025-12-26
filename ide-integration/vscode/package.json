@@ -4,7 +4,8 @@
   "description": "API breaking change detector with automatic changelog generation",
   "version": "1.0.0",
   "publisher": "mohmk10",
-  "icon": "resources/icons/changelog-hub.png",
+  "license": "Apache-2.0",
+  "icon": "images/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/Mohmk10/changelog-hub"

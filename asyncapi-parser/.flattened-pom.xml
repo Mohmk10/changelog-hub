@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.github.mohmk10</groupId>
+  <artifactId>changelog-hub-asyncapi-parser</artifactId>
+  <version>1.0.0</version>
+  <name>Changelog Hub - AsyncAPI Parser</name>
+  <description>Changelog Hub AsyncAPI Parser - Parser for AsyncAPI 2.x specifications for event-driven APIs</description>
+  <url>https://github.com/Mohmk10/changelog-hub</url>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>mohmk10</id>
+      <name>Mohamed Makan</name>
+      <email>kouyatemakan100@gmail.com</email>
+      <url>https://github.com/Mohmk10</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/Mohmk10/changelog-hub.git</connection>
+    <developerConnection>scm:git:ssh://github.com:Mohmk10/changelog-hub.git</developerConnection>
+    <url>https://github.com/Mohmk10/changelog-hub</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>io.github.mohmk10</groupId>
+      <artifactId>changelog-hub-core</artifactId>
+      <version>1.0.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.16.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.16.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>2.0.9</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

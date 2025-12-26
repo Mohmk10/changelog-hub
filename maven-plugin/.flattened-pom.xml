@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.github.mohmk10</groupId>
+  <artifactId>changelog-hub-maven-plugin</artifactId>
+  <version>1.0.0</version>
+  <packaging>maven-plugin</packaging>
+  <name>Changelog Hub - Maven Plugin</name>
+  <description>Changelog Hub Maven Plugin - Maven plugin for API breaking change detection in CI/CD builds</description>
+  <url>https://github.com/Mohmk10/changelog-hub</url>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>mohmk10</id>
+      <name>Mohamed Makan</name>
+      <email>kouyatemakan100@gmail.com</email>
+      <url>https://github.com/Mohmk10</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/Mohmk10/changelog-hub.git</connection>
+    <developerConnection>scm:git:ssh://github.com:Mohmk10/changelog-hub.git</developerConnection>
+    <url>https://github.com/Mohmk10/changelog-hub</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>io.github.mohmk10</groupId>
+      <artifactId>changelog-hub-core</artifactId>
+      <version>1.0.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.mohmk10</groupId>
+      <artifactId>changelog-hub-openapi-parser</artifactId>
+      <version>1.0.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>3.9.6</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>3.11.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>3.9.6</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
