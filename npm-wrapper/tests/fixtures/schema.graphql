@@ -1,0 +1,53 @@
+type Query {
+  pets: [Pet!]!
+  pet(id: ID!): Pet
+  petsBySpecies(species: String!): [Pet!]!
+}
+
+type Mutation {
+  createPet(input: CreatePetInput!): Pet!
+  updatePet(id: ID!, input: UpdatePetInput!): Pet
+  deletePet(id: ID!): Boolean!
+}
+
+type Subscription {
+  petCreated: Pet!
+  petUpdated: Pet!
+  petDeleted: ID!
+}
+
+type Pet {
+  id: ID!
+  name: String!
+  species: String
+  age: Int
+  owner: Owner
+  tags: [String!]
+  createdAt: DateTime!
+  updatedAt: DateTime
+}
+
+type Owner {
+  id: ID!
+  name: String!
+  email: String!
+  pets: [Pet!]!
+}
+
+input CreatePetInput {
+  name: String!
+  species: String
+  age: Int
+  ownerId: ID
+  tags: [String!]
+}
+
+input UpdatePetInput {
+  name: String
+  species: String
+  age: Int
+  ownerId: ID
+  tags: [String!]
+}
+
+scalar DateTime

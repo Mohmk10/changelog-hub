@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package petstore;
+
+option java_package = "com.example.petstore";
+option go_package = "github.com/example/petstore";
+
+service PetService {
+  rpc CreatePet(CreatePetRequest) returns (Pet);
+  rpc GetPet(GetPetRequest) returns (Pet);
+  rpc UpdatePet(UpdatePetRequest) returns (Pet);
+  rpc DeletePet(DeletePetRequest) returns (DeletePetResponse);
+  rpc ListPets(ListPetsRequest) returns (ListPetsResponse);
+}
+
+message Pet {
+  string id = 1;
+  string name = 2;
+  string species = 3;
+  int32 age = 4;
+  repeated string tags = 5;
+  int64 created_at = 6;
+}
+
+message CreatePetRequest {
+  string name = 1;
+  string species = 2;
+  int32 age = 3;
+  repeated string tags = 4;
+}
+
+message GetPetRequest {
+  string id = 1;
+}
+
+message UpdatePetRequest {
+  string id = 1;
+  optional string name = 2;
+  optional string species = 3;
+  optional int32 age = 4;
+  repeated string tags = 5;
+}
+
+message DeletePetRequest {
+  string id = 1;
+}
+
+message DeletePetResponse {
+  bool success = 1;
+}
+
+message ListPetsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+  optional string species = 3;
+}
+
+message ListPetsResponse {
+  repeated Pet pets = 1;
+  int32 total = 2;
+}
