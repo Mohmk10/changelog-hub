@@ -1,0 +1,438 @@
+openapi: "3.0.0"
+info:
+  title: "Petstore API"
+  version: "1.1.0"
+  description: "A sample API for managing pets - Version 1.1 with minor/non-breaking changes"
+  contact:
+    name: API Support
+    email: support@petstore.example.com
+
+servers:
+  - url: https://api.petstore.example.com/v1
+
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      summary: List all pets
+      description: Returns a list of all pets in the store with enhanced filtering
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of pets to return
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        # NEW: Optional filter parameter added (non-breaking)
+        - name: status
+          in: query
+          description: Filter by pet status
+          required: false
+          schema:
+            type: string
+            enum:
+              - available
+              - pending
+              - sold
+        # NEW: Optional sort parameter added (non-breaking)
+        - name: sort
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum:
+              - name
+              - created
+              - updated
+      responses:
+        "200":
+          description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
+    post:
+      operationId: createPet
+      summary: Create a new pet
+      description: Creates a new pet in the store
+      tags:
+        - pets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePetRequest"
+      responses:
+        "201":
+          description: Pet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "400":
+          description: Invalid input
+        "500":
+          description: Internal server error
+
+  /pets/{petId}:
+    get:
+      operationId: getPetById
+      summary: Get a pet by ID
+      description: Returns a single pet by its ID
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: The ID of the pet to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "404":
+          description: Pet not found
+        "500":
+          description: Internal server error
+
+    put:
+      operationId: updatePet
+      summary: Update a pet
+      description: Updates an existing pet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: The ID of the pet to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePetRequest"
+      responses:
+        "200":
+          description: Pet updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "400":
+          description: Invalid input
+        "404":
+          description: Pet not found
+        "500":
+          description: Internal server error
+
+    delete:
+      operationId: deletePet
+      summary: Delete a pet
+      # DEPRECATED: Mark as deprecated (non-breaking, warning only)
+      deprecated: true
+      description: |
+        Deletes a pet from the store.
+        **Deprecated**: Use soft-delete via PUT /pets/{petId} with status='archived' instead.
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: The ID of the pet to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Pet deleted successfully
+        "404":
+          description: Pet not found
+        "500":
+          description: Internal server error
+
+  /stores:
+    get:
+      operationId: listStores
+      summary: List all stores
+      description: Returns a list of all stores
+      tags:
+        - stores
+      responses:
+        "200":
+          description: A list of stores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Store"
+
+  # NEW: Additional endpoint added (non-breaking)
+  /pets/{petId}/photos:
+    get:
+      operationId: listPetPhotos
+      summary: List photos for a pet
+      description: Returns all photos for a specific pet
+      tags:
+        - pets
+        - photos
+      parameters:
+        - name: petId
+          in: path
+          description: The ID of the pet
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: A list of photos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Photo"
+        "404":
+          description: Pet not found
+
+    post:
+      operationId: uploadPetPhoto
+      summary: Upload a photo for a pet
+      description: Uploads a new photo for a specific pet
+      tags:
+        - pets
+        - photos
+      parameters:
+        - name: petId
+          in: path
+          description: The ID of the pet
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                caption:
+                  type: string
+      responses:
+        "201":
+          description: Photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Photo"
+        "400":
+          description: Invalid file
+        "404":
+          description: Pet not found
+
+  # NEW: Health check endpoint added (non-breaking)
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check
+      description: Returns the health status of the API
+      tags:
+        - system
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+        - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the pet
+        name:
+          type: string
+          description: Name of the pet
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+            # NEW: Added 'archived' status (non-breaking)
+            - archived
+          description: Status of the pet in the store
+        category:
+          type: string
+          description: Category of the pet
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for the pet
+        # NEW: Optional field added (non-breaking)
+        createdAt:
+          type: string
+          format: date-time
+          description: When the pet was added to the store
+        # NEW: Optional field added (non-breaking)
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the pet was last updated
+
+    CreatePetRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the pet
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+          description: Initial status of the pet
+        category:
+          type: string
+          description: Category of the pet
+        # NEW: Optional field added (non-breaking)
+        tags:
+          type: array
+          items:
+            type: string
+          description: Initial tags for the pet
+
+    UpdatePetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: New name for the pet
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+            - archived
+          description: New status for the pet
+        # NEW: Optional field added (non-breaking)
+        tags:
+          type: array
+          items:
+            type: string
+          description: New tags for the pet
+
+    Store:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        location:
+          type: string
+        # NEW: Optional field added (non-breaking)
+        phone:
+          type: string
+        # NEW: Optional field added (non-breaking)
+        email:
+          type: string
+          format: email
+
+    # NEW: Schema added (non-breaking)
+    Photo:
+      type: object
+      required:
+        - id
+        - url
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+          format: uri
+        caption:
+          type: string
+        uploadedAt:
+          type: string
+          format: date-time
+
+    # NEW: Schema added (non-breaking)
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - degraded
+            - unhealthy
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        uptime:
+          type: integer
+          format: int64
+          description: Uptime in seconds
