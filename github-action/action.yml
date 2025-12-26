@@ -1,0 +1,80 @@
+name: 'Changelog Hub'
+description: 'Detect API breaking changes and generate changelogs'
+author: 'Mohmk10'
+branding:
+  icon: 'git-compare'
+  color: 'blue'
+
+inputs:
+  old-spec:
+    description: 'Path to the old API spec file or Git ref'
+    required: false
+  new-spec:
+    description: 'Path to the new API spec file (defaults to current)'
+    required: false
+  spec-path:
+    description: 'Path to the API spec file in the repository'
+    required: false
+    default: 'api/openapi.yaml'
+  base-ref:
+    description: 'Base Git ref for comparison (branch, tag, or commit)'
+    required: false
+    default: '${{ github.base_ref }}'
+  head-ref:
+    description: 'Head Git ref for comparison'
+    required: false
+    default: '${{ github.head_ref }}'
+  format:
+    description: 'Output format: console, markdown, json'
+    required: false
+    default: 'markdown'
+  fail-on-breaking:
+    description: 'Fail the action if breaking changes are detected'
+    required: false
+    default: 'true'
+  comment-on-pr:
+    description: 'Post a comment on the PR with the changelog'
+    required: false
+    default: 'true'
+  create-check:
+    description: 'Create a GitHub Check with the results'
+    required: false
+    default: 'true'
+  github-token:
+    description: 'GitHub token for API access'
+    required: false
+    default: '${{ github.token }}'
+  include-patterns:
+    description: 'Glob patterns for files to include in analysis'
+    required: false
+  exclude-patterns:
+    description: 'Glob patterns for files to exclude from analysis'
+    required: false
+  severity-threshold:
+    description: 'Minimum severity to report: INFO, WARNING, DANGEROUS, BREAKING'
+    required: false
+    default: 'INFO'
+
+outputs:
+  has-breaking-changes:
+    description: 'Whether breaking changes were detected'
+  breaking-changes-count:
+    description: 'Number of breaking changes'
+  total-changes-count:
+    description: 'Total number of changes'
+  risk-level:
+    description: 'Risk level: LOW, MEDIUM, HIGH, CRITICAL'
+  risk-score:
+    description: 'Risk score (0-100)'
+  semver-recommendation:
+    description: 'Recommended version bump: MAJOR, MINOR, PATCH'
+  changelog:
+    description: 'Generated changelog content'
+  changelog-file:
+    description: 'Path to the generated changelog file'
+  summary:
+    description: 'Brief summary of changes'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
