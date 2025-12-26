@@ -1,0 +1,6 @@
+<idea-plugin>
+    <!-- Git-specific extensions loaded when Git4Idea plugin is available -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Additional Git-related extensions can be added here -->
+    </extensions>
+</idea-plugin>
