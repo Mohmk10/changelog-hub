@@ -1,0 +1,119 @@
+<idea-plugin>
+    <id>io.github.mohmk10.changelog-hub</id>
+    <name>Changelog Hub</name>
+    <vendor email="kouyatemakan100@gmail.com" url="https://github.com/Mohmk10/changelog-hub">
+        Mohmk10
+    </vendor>
+
+    <description><![CDATA[
+        API Breaking Change Detector with automatic changelog generation.
+        <br><br>
+        <b>Features:</b>
+        <ul>
+            <li>Detect breaking changes between API versions</li>
+            <li>Compare with Git branches, tags, or commits</li>
+            <li>Support for OpenAPI, GraphQL, gRPC, and AsyncAPI</li>
+            <li>Generate changelogs in multiple formats</li>
+            <li>Inline warnings for deprecated endpoints</li>
+            <li>Risk assessment and version recommendations</li>
+        </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
+    <depends optional="true" config-file="git-integration.xml">Git4Idea</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Tool Window -->
+        <toolWindow id="Changelog Hub"
+                    secondary="true"
+                    icon="/icons/changelog-hub.svg"
+                    anchor="right"
+                    factoryClass="io.github.mohmk10.changeloghub.intellij.toolwindow.ChangelogToolWindowFactory"/>
+
+        <!-- Services -->
+        <projectService serviceImplementation="io.github.mohmk10.changeloghub.intellij.services.ChangelogService"/>
+        <projectService serviceImplementation="io.github.mohmk10.changeloghub.intellij.services.ParserService"/>
+        <projectService serviceImplementation="io.github.mohmk10.changeloghub.intellij.services.ComparisonService"/>
+        <projectService serviceImplementation="io.github.mohmk10.changeloghub.intellij.services.NotificationService"/>
+
+        <!-- Settings -->
+        <projectConfigurable parentId="tools"
+                            instance="io.github.mohmk10.changeloghub.intellij.settings.ChangelogHubConfigurable"
+                            id="io.github.mohmk10.changeloghub.intellij.settings"
+                            displayName="Changelog Hub"/>
+        <projectService serviceImplementation="io.github.mohmk10.changeloghub.intellij.settings.ChangelogHubSettings"/>
+
+        <!-- Inspections -->
+        <localInspection language="yaml"
+                        groupName="Changelog Hub"
+                        displayName="Deprecated endpoint"
+                        enabledByDefault="true"
+                        level="WARNING"
+                        implementationClass="io.github.mohmk10.changeloghub.intellij.inspection.DeprecatedEndpointInspection"/>
+
+        <localInspection language="yaml"
+                        groupName="Changelog Hub"
+                        displayName="Missing description"
+                        enabledByDefault="true"
+                        level="WEAK WARNING"
+                        implementationClass="io.github.mohmk10.changeloghub.intellij.inspection.MissingDescriptionInspection"/>
+
+        <!-- Annotator -->
+        <annotator language="yaml"
+                   implementationClass="io.github.mohmk10.changeloghub.intellij.annotator.ApiSpecAnnotator"/>
+
+        <!-- Notifications -->
+        <notificationGroup id="Changelog Hub"
+                          displayType="BALLOON"
+                          toolWindowId="Changelog Hub"/>
+    </extensions>
+
+    <actions>
+        <group id="ChangelogHub.Menu" text="Changelog Hub" popup="true" icon="/icons/changelog-hub.svg">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+
+            <action id="ChangelogHub.Compare"
+                    class="io.github.mohmk10.changeloghub.intellij.actions.CompareAction"
+                    text="Compare API Specs"
+                    description="Compare two API specifications"
+                    icon="AllIcons.Actions.Diff"/>
+
+            <action id="ChangelogHub.CompareWithGit"
+                    class="io.github.mohmk10.changeloghub.intellij.actions.CompareWithGitAction"
+                    text="Compare with Git Ref"
+                    description="Compare current spec with a Git ref"
+                    icon="AllIcons.Vcs.Branch"/>
+
+            <action id="ChangelogHub.Analyze"
+                    class="io.github.mohmk10.changeloghub.intellij.actions.AnalyzeAction"
+                    text="Analyze API Spec"
+                    description="Analyze the current API specification"
+                    icon="AllIcons.Actions.Find"/>
+
+            <action id="ChangelogHub.Validate"
+                    class="io.github.mohmk10.changeloghub.intellij.actions.ValidateAction"
+                    text="Validate API Spec"
+                    description="Validate the current API specification"
+                    icon="AllIcons.Actions.Checked"/>
+
+            <action id="ChangelogHub.GenerateChangelog"
+                    class="io.github.mohmk10.changeloghub.intellij.actions.GenerateChangelogAction"
+                    text="Generate Changelog"
+                    description="Generate a changelog from comparison"
+                    icon="AllIcons.Actions.ListFiles"/>
+        </group>
+
+        <!-- Editor popup menu -->
+        <group id="ChangelogHub.EditorPopup">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <reference ref="ChangelogHub.Menu"/>
+        </group>
+
+        <!-- Project view popup -->
+        <group id="ChangelogHub.ProjectPopup">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <reference ref="ChangelogHub.Menu"/>
+        </group>
+    </actions>
+</idea-plugin>
