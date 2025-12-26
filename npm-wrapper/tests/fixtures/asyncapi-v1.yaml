@@ -1,0 +1,134 @@
+asyncapi: 2.6.0
+info:
+  title: Pet Events API
+  version: 1.0.0
+  description: Async API for pet-related events
+
+channels:
+  pets/created:
+    subscribe:
+      operationId: onPetCreated
+      summary: Receive pet creation events
+      message:
+        $ref: '#/components/messages/PetCreated'
+
+  pets/updated:
+    subscribe:
+      operationId: onPetUpdated
+      summary: Receive pet update events
+      message:
+        $ref: '#/components/messages/PetUpdated'
+
+  pets/deleted:
+    subscribe:
+      operationId: onPetDeleted
+      summary: Receive pet deletion events
+      message:
+        $ref: '#/components/messages/PetDeleted'
+
+  commands/pet:
+    publish:
+      operationId: sendPetCommand
+      summary: Send pet commands
+      message:
+        oneOf:
+          - $ref: '#/components/messages/CreatePetCommand'
+          - $ref: '#/components/messages/UpdatePetCommand'
+
+components:
+  messages:
+    PetCreated:
+      payload:
+        $ref: '#/components/schemas/PetEvent'
+
+    PetUpdated:
+      payload:
+        $ref: '#/components/schemas/PetEvent'
+
+    PetDeleted:
+      payload:
+        $ref: '#/components/schemas/PetDeletedEvent'
+
+    CreatePetCommand:
+      payload:
+        $ref: '#/components/schemas/CreatePetPayload'
+
+    UpdatePetCommand:
+      payload:
+        $ref: '#/components/schemas/UpdatePetPayload'
+
+  schemas:
+    PetEvent:
+      type: object
+      required:
+        - eventId
+        - petId
+        - timestamp
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        petId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        pet:
+          $ref: '#/components/schemas/Pet'
+
+    PetDeletedEvent:
+      type: object
+      required:
+        - eventId
+        - petId
+        - timestamp
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        petId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        species:
+          type: string
+        age:
+          type: integer
+
+    CreatePetPayload:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        species:
+          type: string
+        age:
+          type: integer
+
+    UpdatePetPayload:
+      type: object
+      required:
+        - petId
+      properties:
+        petId:
+          type: string
+        name:
+          type: string
+        species:
+          type: string
+        age:
+          type: integer

@@ -1,0 +1,190 @@
+openapi: 3.0.3
+info:
+  title: Pet Store API
+  version: 2.0.0
+  description: A sample Pet Store API for testing - with breaking changes
+
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      summary: List all pets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          required: true  # BREAKING: Changed from optional to required
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+    post:
+      operationId: createPet
+      summary: Create a pet
+      tags:
+        - pets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetInput'
+      responses:
+        '201':
+          description: Pet created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+
+  /pets/{petId}:
+    get:
+      operationId: getPet
+      summary: Get a pet by ID
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer  # BREAKING: Changed from string to integer
+      responses:
+        '200':
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '404':
+          description: Pet not found
+    patch:  # Changed from PUT to PATCH
+      operationId: updatePet
+      summary: Update a pet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetUpdate'
+      responses:
+        '200':
+          description: Pet updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+    # DELETE endpoint removed - BREAKING
+
+  /animals:  # New endpoint
+    get:
+      operationId: listAnimals
+      summary: List all animals
+      tags:
+        - animals
+      responses:
+        '200':
+          description: A list of animals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+        - species  # BREAKING: Added new required field
+      properties:
+        id:
+          type: integer  # BREAKING: Changed from string to integer
+          description: Unique identifier
+        name:
+          type: string
+          description: Pet name
+        species:
+          type: string
+          description: Pet species
+        ageInMonths:  # BREAKING: Renamed from 'age' and changed unit
+          type: integer
+          description: Pet age in months
+        labels:  # BREAKING: Renamed from 'tags'
+          type: array
+          items:
+            type: string
+        createdAt:  # New field
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    PetInput:
+      type: object
+      required:
+        - name
+        - species  # BREAKING: Added new required field
+      properties:
+        name:
+          type: string
+          description: Pet name
+        species:
+          type: string
+          description: Pet species
+        ageInMonths:
+          type: integer
+          description: Pet age in months
+        labels:
+          type: array
+          items:
+            type: string
+
+    PetUpdate:  # New schema
+      type: object
+      properties:
+        name:
+          type: string
+          description: Pet name
+        species:
+          type: string
+          description: Pet species
+        ageInMonths:
+          type: integer
+          description: Pet age in months
+        labels:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:  # BREAKING: Changed from apiKey to bearerAuth
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
