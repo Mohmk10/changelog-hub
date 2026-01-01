@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: changelog-hub-api
+    env: docker
+    dockerfilePath: ./Dockerfile.api
+    dockerContext: .
+    region: oregon
+    plan: free
+    healthCheckPath: /api/analytics/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://ep-soft-fire-ahx5z9qg-pooler.us-east-1.aws.neon.tech/changeloghub_db?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        value: changeloghub_owner
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID
+        value: Ov23linzV2PRCCYi57fi
+      - key: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET
+        sync: false
+      - key: APP_JWT_SECRET
+        generateValue: true
+      - key: APP_FRONTEND_URL
+        value: https://changelog-hub-ui.vercel.app

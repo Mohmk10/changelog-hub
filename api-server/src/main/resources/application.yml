@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: changelog-hub-api
+
+  datasource:
+    url: jdbc:postgresql://ep-soft-fire-ahx5z9qg-pooler.us-east-1.aws.neon.tech/changeloghub_db?sslmode=require
+    username: changeloghub_owner
+    password: "El_Mohmk@10"
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23linzV2PRCCYi57fi
+            client-secret: fd8b0e296bc9bde9b87315588a3ad3599b2be47d
+            scope:
+              - user:email
+              - read:user
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+
+app:
+  jwt:
+    secret: changelog-hub-jwt-secret-key-2025-very-long-and-secure-key-for-production
+    expiration: 86400000
+  cors:
+    allowed-origins: https://changelog-hub-ui.vercel.app,http://localhost:4200
+  frontend-url: https://changelog-hub-ui.vercel.app
