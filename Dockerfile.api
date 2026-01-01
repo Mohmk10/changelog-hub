@@ -1,21 +1,32 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 
+# Copier le POM parent
 COPY pom.xml ./
+
+# Copier TOUS les modules (requis par le parent pom.xml)
 COPY core ./core
 COPY openapi-parser ./openapi-parser
 COPY graphql-parser ./graphql-parser
 COPY grpc-parser ./grpc-parser
 COPY asyncapi-parser ./asyncapi-parser
 COPY spring-parser ./spring-parser
+COPY git-integration ./git-integration
+COPY cli ./cli
+COPY maven-plugin ./maven-plugin
+COPY gradle-plugin ./gradle-plugin
+COPY notification-service ./notification-service
 COPY analytics-engine ./analytics-engine
 COPY api-server ./api-server
 
+# Installer Maven et construire
 RUN apk add --no-cache maven
 RUN mvn clean package -DskipTests -pl api-server -am
 
+# Image finale légère
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
 COPY --from=build /app/api-server/target/changelog-hub-api-server-1.0.0.jar app.jar
 
 EXPOSE 8080
