@@ -11,7 +11,7 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://ep-soft-fire-ahx5z9qg-pooler.us-east-1.aws.neon.tech/changeloghub_db?sslmode=require
+        value: jdbc:postgresql://ep-soft-fire-ahx5z9qg-pooler.c-3.us-east-1.aws.neon.tech/changeloghub_db?sslmode=require
       - key: SPRING_DATASOURCE_USERNAME
         value: changeloghub_owner
       - key: SPRING_DATASOURCE_PASSWORD
