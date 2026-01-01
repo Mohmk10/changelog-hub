@@ -80,6 +80,7 @@
         <module>gradle-plugin</module>
         <module>notification-service</module>
         <module>analytics-engine</module>
+        <module>api-server</module>
     </modules>
 
     <dependencyManagement>

@@ -1,0 +1,25 @@
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /app
+
+COPY pom.xml ./
+COPY core ./core
+COPY openapi-parser ./openapi-parser
+COPY graphql-parser ./graphql-parser
+COPY grpc-parser ./grpc-parser
+COPY asyncapi-parser ./asyncapi-parser
+COPY spring-parser ./spring-parser
+COPY analytics-engine ./analytics-engine
+COPY api-server ./api-server
+
+RUN apk add --no-cache maven
+RUN mvn clean package -DskipTests -pl api-server -am
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/api-server/target/changelog-hub-api-server-1.0.0.jar app.jar
+
+EXPOSE 8080
+
+ENV JAVA_OPTS="-Xmx256m -Xms128m"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
