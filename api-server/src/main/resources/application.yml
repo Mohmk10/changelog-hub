@@ -6,7 +6,7 @@ spring:
     name: changelog-hub-api
 
   datasource:
-    url: jdbc:postgresql://ep-soft-fire-ahx5z9qg-pooler.us-east-1.aws.neon.tech/changeloghub_db?sslmode=require
+    url: jdbc:postgresql://ep-soft-fire-ahx5z9qg-pooler.c-3.us-east-1.aws.neon.tech/changeloghub_db?sslmode=require
     username: changeloghub_owner
     password: "El_Mohmk@10"
     driver-class-name: org.postgresql.Driver
