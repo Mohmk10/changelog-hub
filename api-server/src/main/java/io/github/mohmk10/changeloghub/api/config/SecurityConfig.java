@@ -39,7 +39,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/api/health", "/api/public/**", "/oauth2/**", "/login/**").permitAll()
+                .requestMatchers("/", "/api/health", "/api/analytics/health", "/api/public/**", "/oauth2/**", "/login/**").permitAll()
                 .requestMatchers("/api/comparisons/anonymous").permitAll()
                 .anyRequest().authenticated()
             )
